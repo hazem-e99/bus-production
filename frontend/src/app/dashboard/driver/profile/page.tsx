@@ -268,7 +268,7 @@ export default function DriverProfile() {
       );
     }
     return (
-      <Image src="/logo2.png" alt="Profile" fill unoptimized className="object-cover rounded-full" />
+      <img src="/logo2.png" alt="Profile" className="w-full h-full object-cover rounded-full" />
     );
   };
 

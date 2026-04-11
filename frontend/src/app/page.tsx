@@ -247,13 +247,10 @@ export default function WelcomePage() {
         transition={{ duration: 8, ease: 'linear', repeat: 0 }}
         onAnimationComplete={() => router.push('/auth/login')}
       >
-        <Image
+        <img
           src="/cityus-rafiki.png"
           alt="El Renad Bus"
-          width={420}
-          height={200}
-          className="object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
-          priority
+          className="w-[420px] h-[200px] object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
         />
       </motion.div>
 
@@ -278,12 +275,10 @@ export default function WelcomePage() {
           }}
         >
           <div className="relative w-40 h-40 md:w-48 md:h-48">
-            <Image
+            <img
               src="/logo.jpg"
               alt="الريناد Logo"
-              fill
-              className="object-contain drop-shadow-2xl"
-              priority
+              className="w-full h-full object-contain drop-shadow-2xl"
             />
             {/* 3D Glow effect */}
             <motion.div 

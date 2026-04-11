@@ -86,12 +86,11 @@ export default function LoginPage() {
         <div className="hidden lg:flex items-center justify-center p-12 bg-gradient-to-br from-primary/10 to-white">
           <div className="max-w-lg w-full space-y-10">
             <div className="relative">
-              <Image
+              <img
                 src="/schoobus-amico.png"
                 alt={t('pages.auth.login.illustrationAlt', 'School bus illustration')}
                 width={800}
                 height={600}
-                priority
                 className="w-full h-auto animate-bounce"
                 style={{
                   animation: 'moveBus 6.5s linear infinite'
