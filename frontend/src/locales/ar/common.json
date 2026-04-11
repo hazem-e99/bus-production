@@ -1,0 +1,1679 @@
+{
+  "brand": {
+    "name": "نظام الحافلات"
+  },
+  "common": {
+    "all": "الكل",
+    "close": "إغلاق",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+  "back": "رجوع",
+  "na": "غير متاح",
+  "loading": "جاري التحميل...",
+  "saving": "جارٍ الحفظ...",
+  "saveChanges": "حفظ التغييرات",
+  "tryAgain": "حاول مرة أخرى",
+  "online": "متصل",
+  "logout": "تسجيل الخروج",
+  "soon": "قريبًا",
+  "pro": "احترافي",
+  "status": {
+  "active": "نشط",
+  "inactive": "غير نشط",
+  "scheduled": "مجدولة",
+  "inProgress": "قيد التنفيذ",
+  "completed": "مكتملة",
+  "cancelled": "ملغاة",
+  "delayed": "متأخرة"
+  }
+  },
+  "roles": {
+  "student": "طالب",
+  "driver": "سائق",
+  "supervisor": "مشرف",
+  "movementManager": "مسؤول الحركة"
+  },
+  "topbar": {
+    "subtitle": "نظام إدارة النقل",
+    "notifications": "الإشعارات",
+    "newMessages": "رسالة جديدة",
+    "unread": "غير مقروء",
+    "notification": "إشعار",
+    "from": "من",
+    "noNotifications": "لا توجد إشعارات لعرضها",
+    "allCaughtUp": "أنت على اطلاع بكل شيء!",
+    "markAllRead": "تحديد الكل كمقروء",
+    "clearAll": "مسح الكل",
+    "viewAll": "عرض الكل"
+  },
+  "sidebar": {
+  "dashboardFor": "لوحة تحكم {{role}}",
+  "activeSession": "جلسة نشطة"
+  },
+  "nav": {
+    "users": "المستخدمون",
+    "buses": "الباصات",
+    "trips": "الرحلات",
+    "plans": "الباقات",
+    "student_subscriptions": "اشتراكات الطلاب",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "book_trip": "حجز رحلة",
+    "subscription": "الاشتراك",
+    "my_trips": "رحلاتي",
+    "trips_management": "إدارة الرحلات",
+    "routes": "الطرق",
+    "payments": "المدفوعات",
+    "settings": "الإعدادات",
+    "analytics": "التحليلات",
+    "voting": "التصويت",
+    "badges": {
+      "manage": "إدارة",
+      "fleet": "الأسطول",
+      "schedule": "الجدول",
+      "pricing": "الأسعار",
+      "subs": "الاشتراكات",
+      "account": "الحساب",
+      "active": "نشط",
+      "new": "جديد",
+      "plan": "باقة",
+      "surveys": "استبيانات",
+      "forms": "نماذج"
+    }
+  },
+  "pages": {
+    "auth": {
+      "login": {
+        "title": "مرحبًا بعودتك 👋",
+        "subtitle": "سجّل الدخول لحجز الحافلة",
+        "fields": {
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور"
+        },
+        "placeholders": {
+          "email": "أدخل بريدك الإلكتروني",
+          "password": "أدخل كلمة المرور"
+        },
+        "aria": {
+          "showPassword": "إظهار كلمة المرور",
+          "hidePassword": "إخفاء كلمة المرور"
+        },
+        "rememberMe": "تذكرني",
+        "cta": {
+          "signIn": "تسجيل الدخول",
+          "signingIn": "جارٍ تسجيل الدخول..."
+        },
+        "forgotPassword": "هل نسيت كلمة المرور؟",
+        "terms": "بمتابعتك، فإنك توافق على الشروط وسياسة الخصوصية.",
+        "signupPrompt": "ليس لديك حساب؟",
+        "signup": "إنشاء حساب",
+        "illustrationAlt": "رسم توضيحي لحافلة مدرسية",
+        "developedBy": "تم التطوير بواسطة:",
+        "about": {
+          "title": "نبذة عن النظام",
+          "description": "احجز رحلات الحافلات الجامعية، وأدر اشتراكاتك وتتبع المسارات بسهولة وسرعة."
+        },
+        "errors": {
+          "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+          "generic": "حدث خطأ. يرجى المحاولة مرة أخرى."
+        },
+        "validation": {
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailMin": "يجب أن يكون البريد الإلكتروني 5 أحرف على الأقل",
+          "emailMax": "يجب ألا يزيد البريد الإلكتروني عن 100 حرف",
+          "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+          "passwordRequired": "كلمة المرور مطلوبة",
+          "passwordMin": "يجب أن تتكون كلمة المرور من حرف واحد على الأقل"
+        }
+      },
+      "forgotPassword": {
+        "title": "نسيت كلمة المرور؟",
+        "description": "أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.",
+        "fields": {
+          "email": "البريد الإلكتروني"
+        },
+        "placeholders": {
+          "email": "أدخل بريدك الإلكتروني"
+        },
+        "cta": {
+          "sending": "جارٍ الإرسال...",
+          "send": "إرسال رابط إعادة التعيين"
+        },
+        "backToLogin": "العودة إلى تسجيل الدخول",
+        "toasts": {
+          "successTitle": "تم الإرسال",
+          "successMessage": "إذا كان هناك حساب بهذا البريد، فقد تم إرسال رابط إعادة التعيين.",
+          "errorTitle": "خطأ",
+          "errorMessage": "فشل إرسال رابط إعادة التعيين. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "resetPasswordVerification": {
+        "title": "أدخل رمز التحقق",
+        "description": "لقد أرسلنا رمز تحقق إلى:",
+        "fields": {
+          "verificationCode": "رمز التحقق"
+        },
+        "placeholders": {
+          "verificationCode": "أدخل رمز التحقق"
+        },
+        "cta": {
+          "verifying": "جارٍ التحقق...",
+          "verify": "تحقق من الرمز",
+          "resend": "إعادة إرسال الرمز",
+          "backToLogin": "العودة إلى تسجيل الدخول"
+        },
+        "loading": {
+          "successTitle": "تم التحقق بنجاح!",
+          "redirecting": "جارٍ التحويل إلى إعادة تعيين كلمة المرور..."
+        },
+        "errors": {
+          "failed": "فشل التحقق. يرجى المحاولة مرة أخرى."
+        },
+        "toasts": {
+          "successTitle": "تم التحقق بنجاح!",
+          "successMessage": "يرجى إدخال كلمة المرور الجديدة.",
+          "skippedTitle": "تم تخطي التحقق",
+          "skippedMessage": "جارٍ الانتقال إلى إعادة تعيين كلمة المرور...",
+          "errorTitle": "خطأ!",
+          "errorMessage": "فشل التحقق. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "register": {
+        "title": "تسجيل الطالب",
+        "subtitle": "انضم إلى نظام حافلات الجامعة",
+        "cardTitle": "إنشاء حساب طالب",
+        "cardSubtitle": "املأ بياناتك للبدء",
+        "sections": {
+          "personal": "المعلومات الشخصية",
+          "academic": "المعلومات الأكاديمية",
+          "security": "الأمان"
+        },
+        "fields": {
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "phoneNumber": "رقم الهاتف",
+          "nationalId": "الرقم القومي",
+          "email": "البريد الإلكتروني",
+          "studentAcademicNumber": "الرقم الأكاديمي للطالب",
+          "department": "القسم",
+          "yearOfStudy": "السنة الدراسية",
+          "password": "كلمة المرور",
+          "confirmPassword": "تأكيد كلمة المرور"
+        },
+        "placeholders": {
+          "firstName": "أدخل الاسم الأول",
+          "lastName": "أدخل اسم العائلة",
+          "phoneNumber": "أدخل رقم الهاتف",
+          "nationalId": "أدخل الرقم القومي",
+          "universityEmail": "أدخل البريد الجامعي",
+          "studentAcademicNumber": "أدخل الرقم الأكاديمي للطالب",
+          "selectDepartment": "اختر القسم",
+          "selectYearOfStudy": "اختر السنة الدراسية",
+          "password": "أدخل كلمة المرور",
+          "confirmPassword": "أدخل تأكيد كلمة المرور"
+        },
+        "hints": {
+          "nationalIdTitle": "يجب أن يكون الرقم القومي 14 رقمًا بالضبط",
+          "passwordMin": "الحد الأدنى 6 أحرف"
+        },
+        "cta": {
+          "creating": "جارٍ إنشاء الحساب...",
+          "create": "إنشاء حساب"
+        },
+        "alreadyHave": "لديك حساب بالفعل؟",
+        "signInHere": "سجّل الدخول من هنا",
+        "toasts": {
+          "validationTitle": "خطأ في التحقق",
+          "successTitle": "تم التسجيل بنجاح",
+          "successMessage": "تم إنشاء حسابك بنجاح. يرجى التحقق من بريدك للحصول على رمز التحقق.",
+          "errorTitle": "فشل التسجيل"
+        }
+      }
+    },
+    "notifications": {
+      "actions": {
+        "broadcast": "بث",
+        "markRead": "تحديد كمقروء",
+        "markUnread": "تحديد كغير مقروء",
+        "markAllPrefix": "تحديد الكل ك",
+        "clearing": "جارٍ المسح..."
+      },
+      "status": {
+        "read": "مقروء",
+        "unread": "غير مقروء"
+      },
+      "types": {
+        "system": "نظام",
+        "alert": "تنبيه",
+        "announcement": "إعلان",
+        "reminder": "تذكير",
+        "booking": "حجز"
+      },
+      "filters": {
+        "title": "التصفية والبحث",
+        "description": "اعثر سريعًا على الإشعارات التي تحتاجها",
+        "searchPlaceholder": "ابحث في العنوان أو الرسالة...",
+        "allTypes": "كل الأنواع",
+        "allStatus": "كل الحالات",
+        "allDates": "كل التواريخ",
+        "today": "اليوم",
+        "last7d": "آخر 7 أيام",
+        "last30d": "آخر 30 يومًا",
+        "specificDate": "تاريخ محدد",
+        "totalCount": "{{count}} إشعار",
+        "clear": "مسح المرشحات"
+      },
+      "stats": {
+        "total": "الإجمالي",
+        "alerts": "التنبيهات",
+        "byType": "الإشعارات حسب النوع"
+      },
+      "list": {
+        "title": "الإشعارات",
+        "results": "{{count}} نتيجة",
+        "loading": "جارٍ تحميل الإشعارات..."
+      },
+      "empty": {
+        "title": "لا توجد إشعارات",
+        "none": "لا توجد إشعارات في النظام.",
+        "noneDriver": "لا توجد لديك إشعارات بعد.",
+        "noneMM": "لا توجد لديك إشعارات بعد.",
+        "noMatch": "لا توجد إشعارات مطابقة لعوامل التصفية."
+      },
+      "broadcast": {
+        "title": "بث إشعار",
+        "subtitle": "أرسل إشعارات للمستخدمين",
+        "fields": {
+          "title": "العنوان",
+          "message": "الرسالة",
+          "type": "نوع الإشعار",
+          "target": "الجمهور المستهدف",
+          "role": "اختر الدور"
+        },
+        "placeholders": {
+          "title": "أدخل عنوان الإشعار",
+          "message": "أدخل رسالة الإشعار"
+        },
+        "characters": "حرف",
+        "target": {
+          "all": "جميع المستخدمين",
+          "role": "حسب الدور",
+          "specific": "مستخدمون محددون"
+        },
+        "roles": {
+          "students": "الطلاب",
+          "drivers": "السائقون",
+          "supervisors": "المشرفون",
+          "movementManagers": "مسؤولو الحركة",
+          "admins": "المدراء"
+        },
+        "roleNote": "سيتم الإرسال إلى جميع المستخدمين ذوي الدور المحدد",
+        "selectUsers": "اختر المستخدمين ({{count}} محدد)",
+        "loadingUsers": "جارٍ تحميل المستخدمين...",
+        "unknownUser": "مستخدم غير معروف",
+        "preview": "معاينة",
+        "previewTitle": "عنوان الإشعار",
+        "previewMessage": "ستظهر رسالة الإشعار هنا...",
+        "targetLabel": "المستهدف:",
+        "selectedUsers": "{{count}} مستخدمًا محددًا",
+        "sending": "جارٍ الإرسال...",
+        "send": "إرسال"
+      },
+      "toasts": {
+        "successTitle": "نجاح",
+        "errorTitle": "خطأ",
+        "deleted": "تم حذف الإشعار بنجاح",
+        "deleteFailed": "فشل حذف الإشعار",
+        "cleared": "تم مسح جميع الإشعارات",
+  "clearFailed": "فشل مسح جميع الإشعارات",
+  "broadcastSent": "تم إرسال إشعار البث",
+  "broadcastFailed": "فشل إرسال البث"
+      },
+      "confirms": {
+        "clearAll": "هل أنت متأكد أنك تريد مسح جميع الإشعارات؟ هذا الإجراء لا يمكن التراجع عنه."
+      },
+      "item": {
+        "notification": "إشعار",
+        "from": "من"
+      }
+    },
+    "admin": {
+      "profile": {
+        "notFound": {
+          "title": "الملف غير موجود",
+          "message": "تعذر تحميل معلومات الملف الشخصي.",
+          "tryAgain": "حاول مرة أخرى"
+        },
+        "header": {
+          "adminTitle": "مسؤول النظام",
+          "lastUpdated": "آخر تحديث",
+          "uploading": "جارٍ الرفع...",
+          "changePhoto": "تغيير الصورة",
+          "cancelEdit": "إلغاء التعديل",
+          "edit": "تعديل الملف الشخصي"
+        },
+        "overview": {
+          "title": "نظرة عامة على الملف",
+          "description": "ملخص ملفك الإداري",
+          "userId": "معرف المستخدم",
+          "roleLevel": "مستوى الدور",
+          "roleAdmin": "مسؤول",
+          "securityInfo": "معلومات الأمان",
+          "nationalId": "الرقم القومي"
+        },
+        "personal": {
+          "title": "المعلومات الشخصية",
+          "description": "قم بإدارة بياناتك الشخصية ومعلومات الاتصال",
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "email": "البريد الإلكتروني",
+          "phone": "رقم الهاتف",
+          "placeholders": {
+            "firstName": "أدخل الاسم الأول",
+            "lastName": "أدخل اسم العائلة",
+            "email": "أدخل بريدك الإلكتروني",
+            "phone": "أدخل رقم هاتفك"
+          }
+        },
+        "actions": {
+          "saving": "جارٍ الحفظ...",
+          "save": "حفظ التغييرات"
+        },
+        "footer": {
+          "title": "مسؤول النظام",
+          "message": "لديك صلاحيات إدارية كاملة على نظام إدارة الحافلات. تتم مزامنة معلومات ملفك عبر جميع مكوّنات النظام."
+        },
+        "alerts": {
+          "fillOne": "يرجى ملء حقل واحد على الأقل للتحديث.",
+          "firstNameLength": "يجب أن يكون الاسم الأول بين 2 و50 حرفًا.",
+          "lastNameLength": "يجب أن يكون اسم العائلة بين 2 و50 حرفًا.",
+          "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
+          "updated": "تم تحديث الملف الشخصي بنجاح!",
+          "updateFailed": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+          "selectImage": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+          "pictureUpdated": "تم تحديث صورة الملف الشخصي بنجاح!",
+          "pictureUpdateFailed": "فشل تحديث صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "buses": {
+        "loading": "جاري تحميل الحافلات...",
+        "title": "إدارة الحافلات",
+        "subtitle": "إدارة أسطول الحافلات وتعييناتها",
+        "add": "إضافة حافلة جديدة",
+        "addShort": "إضافة حافلة",
+        "edit": "تعديل الحافلة",
+        "update": "تحديث الحافلة",
+        "details": "تفاصيل الحافلة",
+        "total": "إجمالي الحافلات",
+        "active": "نشطة",
+        "maintenance": "الصيانة",
+        "outOfService": "خارج الخدمة",
+        "totalCapacity": "إجمالي السعة",
+        "searchTitle": "البحث والتصفية",
+        "searchSubtitle": "ابحث عن حافلات محددة أو صفِّ حسب المعايير",
+        "searchPlaceholder": "ابحث عن الحافلات...",
+        "applyFilters": "تطبيق عوامل التصفية",
+        "fleet": "الأسطول",
+        "fleetSubtitle": "إدارة تعيينات الحافلات وحالاتها",
+        "totalShort": "إجمالي",
+        "filteredShort": "مفلترة",
+        "noBuses": "لا توجد حافلات",
+        "getStarted": "ابدأ بإضافة أول حافلة إلى الأسطول.",
+        "addFirst": "إضافة أول حافلة",
+        "confirmDeletePrefix": "حذف الحافلة",
+        "confirmDeleteTitle": "حذف الحافلة؟",
+        "unknown": "غير معروف",
+        "overview": "نظرة سريعة على حالة المركبة والبيانات الحديثة.",
+        "lastUpdated": "آخر تحديث",
+        "location": "الموقع",
+        "filters": {
+          "allStatus": "كل الحالات",
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "underMaintenance": "قيد الصيانة",
+          "outOfService": "خارج الخدمة",
+          "allCapacities": "كل السعات",
+          "small": "صغيرة (≤30)",
+          "medium": "متوسطة (31-60)",
+          "large": "كبيرة (>60)"
+        },
+        "table": {
+          "bus": "حافلة",
+          "status": "الحالة",
+          "capacity": "السعة",
+          "speed": "السرعة",
+          "actions": "إجراءات",
+          "id": "المعرف",
+          "seatsLabel": "مقاعد",
+          "kmh": "كم/س"
+        },
+        "status": {
+          "Active": "نشطة",
+          "Inactive": "غير نشطة",
+          "UnderMaintenance": "قيد الصيانة",
+          "OutOfService": "خارج الخدمة"
+        },
+        "sections": {
+          "basicInfo": "المعلومات الأساسية",
+          "statusPerformance": "الحالة والأداء"
+        },
+        "form": {
+          "busNumber": "رقم الحافلة",
+          "busNumberPh": "أدخل رقم الحافلة",
+          "busNumberEg": "مثال: A-102 أو Campus_7",
+          "busNumberHint": "يجب أن يكون فريدًا. يُسمح بالأحرف والأرقام والمسافات والواصلات والشرطة السفلية فقط.",
+          "busNumberTitle": "يمكن أن يحتوي رقم الحافلة على أحرف وأرقام ومسافات وواصلات وشرطة سفلية. الحد الأقصى 20 حرفًا.",
+          "capacity": "السعة",
+          "capacityPh": "أدخل السعة",
+          "capacityEg": "مثال: 50",
+          "capacityHint": "عدد صحيح بين 10 و100 مقعد.",
+          "status": "الحالة",
+          "statusHint": "الحالة التشغيلية الحالية للحافلة.",
+          "speed": "السرعة (كم/س)",
+          "speedPh": "أدخل السرعة",
+          "speedEg": "مثال: 80",
+          "speedHint": "النطاق الموصى به 0–200 كم/س."
+        },
+        "toast": {
+          "loadFailedTitle": "فشل في تحميل الحافلات",
+          "loadFailedMsg": "يرجى التحقق من الاتصال والمحاولة مرة أخرى."
+        }
+      },
+      "studentSubscriptions": {
+        "loading": "جاري التحميل...",
+        "title": "إدارة اشتراكات الطلاب",
+        "subtitle": "إدارة مدفوعات اشتراكات الطلاب ومراجعة حالة الدفع",
+        "searchPlaceholder": "ابحث عن الطلاب أو الباقات...",
+        "stats": {
+          "totalStudents": "إجمالي الطلاب",
+          "activeSubscriptions": "الاشتراكات النشطة",
+          "pendingReviews": "المراجعات المعلقة",
+          "totalPayments": "إجمالي المدفوعات"
+        },
+        "filters": {
+          "title": "مرشحات متقدمة",
+          "clearAll": "مسح الكل",
+          "showFilters": "عرض المرشحات",
+          "hideFilters": "إخفاء المرشحات",
+          "status": "الحالة",
+          "allStatus": "كل الحالات",
+          "paymentMethod": "طريقة الدفع",
+          "allMethods": "كل الطرق",
+          "plan": "باقة الاشتراك",
+          "allPlans": "كل الباقات",
+          "dateRange": "نطاق التاريخ",
+          "allTime": "كل الوقت",
+          "today": "اليوم",
+          "thisWeek": "هذا الأسبوع",
+          "thisMonth": "هذا الشهر",
+          "customRange": "نطاق مخصص",
+          "fromDate": "من تاريخ",
+          "toDate": "إلى تاريخ",
+          "amountRange": "نطاق المبلغ",
+          "allAmounts": "كل المبالغ",
+          "low": "منخفض (0 - 100$)",
+          "medium": "متوسط (100$ - 500$)",
+          "high": "مرتفع (500$+)"
+        },
+        "status": {
+          "accepted": "مقبول",
+          "rejected": "مرفوض",
+          "pending": "قيد الانتظار",
+          "cancelled": "ملغي",
+          "expired": "منتهي الصلاحية"
+        },
+        "paymentMethod": {
+          "online": "إنستا باي",
+          "offline": "يدوي"
+        },
+        "table": {
+          "title": "مدفوعات الاشتراك",
+          "filtered": "مُفلترة",
+          "payments": "دفعة",
+          "fromApi": "من واجهة /api/Payment",
+          "student": "الطالب",
+          "plan": "الباقة",
+          "amount": "المبلغ",
+          "paymentMethod": "طريقة الدفع",
+          "status": "الحالة",
+          "date": "التاريخ",
+          "actions": "الإجراءات"
+        },
+        "empty": {
+          "noData": "لا توجد بيانات للمدفوعات",
+          "noDataAvailable": "لا توجد بيانات مدفوعات متاحة. يرجى التحقق من تسجيل الدخول كمسؤول.",
+          "noSubscriptionPayments": "لا توجد مدفوعات اشتراك في النظام.",
+          "refresh": "تحديث البيانات"
+        },
+        "labels": {
+          "days": "يوم",
+          "ref": "المرجع:",
+          "reviewed": "تمت المراجعة:",
+          "active": "نشط"
+        },
+        "actions": {
+          "accept": "قبول",
+          "reject": "رفض"
+        },
+        "reviewNotes": {
+          "accept": "تمت الموافقة على الدفع بواسطة المشرف",
+          "reject": "تم رفض الدفع بواسطة المشرف"
+        },
+        "toasts": {
+          "loadSuccess": "تم تحميل البيانات بنجاح",
+          "found": "تم العثور على",
+          "paymentRecords": "سجل مدفوعات",
+          "noPaymentData": "لا توجد بيانات مدفوعات",
+          "noPaymentRecords": "لا توجد سجلات مدفوعات في النظام"
+        },
+        "errors": {
+          "loadFailed": "فشل في تحميل البيانات",
+          "tryAgain": "يرجى المحاولة مرة أخرى"
+        }
+      },
+        "plans": {
+          "loading": "جاري تحميل الباقات...",
+          "title": "إدارة الباقات",
+          "subtitle": "إدارة الباقات المتاحة للاشتراك",
+          "addPlan": "إضافة باقة",
+          "listTitle": "الباقات",
+          "listCountLabel": "باقة",
+          "table": {
+            "id": "المعرف",
+            "name": "الاسم",
+            "description": "الوصف",
+            "price": "السعر",
+            "durationDays": "المدة (أيام)",
+            "status": "الحالة",
+            "actions": "الإجراءات"
+          },
+          "status": {
+            "active": "نشطة",
+            "inactive": "غير نشطة"
+          },
+          "actions": {
+            "editPlan": "تعديل الباقة",
+            "activatePlan": "تفعيل الباقة",
+            "deactivatePlan": "إلغاء تفعيل الباقة",
+            "deletePlan": "حذف الباقة"
+          },
+          "modal": {
+            "editTitle": "تعديل الباقة",
+            "addTitle": "إضافة باقة"
+          },
+          "sections": {
+            "basicDetails": "البيانات الأساسية",
+            "pricingDuration": "السعر والمدة"
+          },
+          "form": {
+            "name": "الاسم",
+            "nameHint": "3-100 حرفًا، اسم باقة فريد.",
+            "nameEg": "مثال: شهري قياسي",
+            "description": "الوصف",
+            "descriptionHint": "اختياري. حتى 500 حرف.",
+            "descriptionPh": "ملخص قصير عن الباقة",
+            "price": "السعر",
+            "priceHint": "الحد الأدنى 0.01. استخدم منزلتين عشريتين.",
+            "pricePh": "0.00",
+            "durationDays": "المدة (أيام)",
+            "durationHint": "1 - 365 يومًا.",
+            "durationPh": "30",
+            "saveChanges": "حفظ التغييرات",
+            "createPlan": "إنشاء باقة"
+          },
+          "errors": {
+            "loadFailedMsg": "فشل في تحميل الباقات",
+            "loadFailedTitle": "فشل التحميل",
+            "error": "خطأ",
+            "loadPlanDetails": "فشل في تحميل تفاصيل الباقة",
+            "updateFailed": "فشل التحديث",
+            "creationFailed": "فشل الإنشاء",
+            "saveFailedMsg": "فشل في حفظ الباقة",
+            "saveFailedTitle": "فشل الحفظ",
+            "actionFailed": "فشل الإجراء",
+            "actionFailedTitle": "فشل الإجراء"
+          },
+          "confirms": {
+            "deleteTitle": "حذف الباقة",
+            "deleteDesc": "هل أنت متأكد من حذف هذه الباقة؟ هذا الإجراء لا يمكن التراجع عنه.",
+            "activateTitle": "تفعيل الباقة",
+            "activateDesc": "هل أنت متأكد من تفعيل هذه الباقة؟",
+            "deactivateTitle": "إلغاء تفعيل الباقة",
+            "deactivateDesc": "هل أنت متأكد من إلغاء تفعيل هذه الباقة؟",
+            "confirmTitle": "تأكيد الإجراء",
+            "confirmDesc": "هل أنت متأكد؟"
+          },
+          "toasts": {
+            "planUpdated": "تم تحديث الباقة",
+            "updatedSuccessfully": "تم التحديث بنجاح",
+            "planCreated": "تم إنشاء الباقة",
+            "createdSuccessfully": "تم الإنشاء بنجاح",
+            "planDeleted": "تم حذف الباقة بنجاح",
+            "planActivated": "تم تفعيل الباقة بنجاح",
+            "planDeactivated": "تم إلغاء تفعيل الباقة بنجاح",
+            "successTitle": "نجاح"
+          }
+        },
+      "trips": {
+        "title": "الرحلات",
+        "newTrip": "رحلة جديدة",
+        "loading": "جاري تحميل الرحلات...",
+        "loadFailed": "فشل في تحميل الرحلات",
+        "confirmDeletePrefix": "حذف الرحلة",
+        "deleteFailed": "فشل الحذف",
+        "noTrips": "لا توجد رحلات",
+        "getStarted": "ابدأ بإنشاء رحلة جديدة.",
+        "createNotAvailable": "نموذج إنشاء الرحلات غير متاح حاليًا.",
+        "editNotAvailable": "نموذج تعديل الرحلات غير متاح حاليًا.",
+        "filters": {
+          "date": "التاريخ",
+          "driver": "السائق",
+          "bus": "الحافلة",
+          "allDrivers": "كل السائقين",
+          "allBuses": "كل الحافلات",
+          "apply": "تطبيق",
+          "reset": "إعادة تعيين"
+        },
+        "table": {
+          "id": "المعرف",
+          "dateTime": "التاريخ والوقت",
+          "route": "المسار",
+          "driver": "السائق",
+          "bus": "الحافلة",
+          "status": "الحالة",
+          "actions": "الإجراءات"
+        },
+        "status": {
+          "scheduled": "مجدولة",
+          "inProgress": "قيد التنفيذ",
+          "completed": "مكتملة",
+          "cancelled": "ملغاة",
+          "delayed": "متأخرة"
+        },
+        "details": {
+          "title": "تفاصيل الرحلة",
+          "trip": "رحلة",
+          "tripId": "معرف الرحلة",
+          "created": "تاريخ الإنشاء",
+          "lastUpdated": "آخر تحديث",
+          "departureTime": "وقت المغادرة",
+          "arrivalTime": "وقت الوصول",
+          "origin": "نقطة الانطلاق",
+          "destination": "الوجهة",
+          "resources": "الموارد",
+          "additional": "تفاصيل إضافية",
+          "notes": "ملاحظات",
+          "description": "الوصف"
+        },
+        "sections": {
+          "basicInfo": "المعلومات الأساسية",
+          "schedule": "الجدول"
+        },
+        "actions": {
+          "edit": "تعديل الرحلة",
+          "delete": "حذف"
+        },
+        "form": {
+          "titleCreate": "إنشاء رحلة",
+          "titleEdit": "تعديل رحلة",
+          "subtitle": "خطط المسار وعيّن الحافلة والطاقم واضبط الجدول",
+          "sections": {
+            "assignment": "التعيين",
+            "schedule": "الجدول",
+            "route": "المسار",
+            "stops": "نقاط التوقف"
+          },
+          "fields": {
+            "bus": "الحافلة",
+            "driver": "السائق",
+            "conductor": "مسؤول الرحلة",
+            "tripDate": "تاريخ الرحلة",
+            "departure": "الاقلاع",
+            "arrival": "الوصول",
+            "startLocation": "نقطة الانطلاق",
+            "endLocation": "الوجهة",
+            "stopAddress": "العنوان",
+            "stopArrival": "الوصول لنقطه الوقوف",
+            "stopDeparture": "الاقلاع من نقطة الوقوف"
+          },
+          "placeholders": {
+            "selectBus": "اختر حافلة",
+            "selectDriver": "اختر سائقًا",
+            "selectConductor": "اختر مسؤول الرحله"
+          },
+          "actions": {
+            "addStop": "إضافة توقف",
+            "remove": "إزالة",
+            "create": "إنشاء رحلة",
+            "save": "حفظ"
+          },
+          "empty": {
+            "noStops": "لم تتم إضافة أي نقاط توقف بعد."
+          },
+          "stats": {
+            "busesLoaded": "عدد الحافلات",
+            "drivers": "السائقون",
+            "conductors": "مسؤوليين الرحلات"
+          },
+          "errors": {
+            "requiredBus": "الحافلة مطلوبة",
+            "requiredDriver": "السائق مطلوب",
+            "requiredConductor": "المسؤول المطلوب",
+            "requiredStart": "نقطة الانطلاق مطلوبة",
+            "requiredEnd": "الوجهة مطلوبة",
+            "requiredDate": "تاريخ الرحلة مطلوب",
+            "requiredDeparture": "وقت المغادرة مطلوب",
+            "requiredArrival": "وقت الوصول مطلوب",
+            "max200": "يجب ألا يزيد عن 200 حرف",
+            "maxChars": "الحد الأقصى 300 حرف",
+            "requiredAddress": "العنوان مطلوب",
+            "invalidBus": "الحافلة المحددة غير صالحة",
+            "invalidDriver": "السائق المحدد غير صالح",
+            "invalidConductor": "المسؤول المحدد غير صالح",
+            "sameDriverConductor": "يجب أن يكون السائق المسؤول مستخدمين مختلفين"
+          }
+        },
+        "toasts": {
+          "createdTitle": "تم إنشاء الرحلة",
+          "createdMsg": "تم إنشاء الرحلة بنجاح",
+          "savedTitle": "تم حفظ الرحلة",
+          "savedMsg": "تم حفظ تفاصيل الرحلة بنجاح",
+          "errorTitle": "خطأ"
+        }
+      },
+      "users": {
+        "title": "إدارة المستخدمين",
+        "subtitle": "إدارة جميع مستخدمي النظام وصلاحياتهم",
+        "addUser": "إضافة مستخدم",
+        "totalUsers": "إجمالي المستخدمين",
+        "activeUsers": "المستخدمون النشطون",
+        "students": "الطلاب",
+        "drivers": "السائقون",
+        "conductors": "المسؤوليين",
+        "searchPlaceholder": "ابحث عن المستخدمين بالاسم أو البريد...",
+        "allRoles": "كل الأدوار",
+        "usersList": "قائمة المستخدمين",
+        "noUsers": "لا يوجد مستخدمون",
+        "tryAdjusting": "جرّب تعديل عوامل التصفية أو أضف مستخدمًا جديدًا.",
+        "user": "المستخدم",
+        "role": "الدور",
+        "status": "الحالة",
+        "contact": "التواصل",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات",
+        "addForm": {
+          "title": "إضافة مستخدم جديد",
+          "sections": {
+            "basicInfo": "المعلومات الأساسية",
+            "roleContact": "الدور ووسائل التواصل",
+            "accountStatus": "حالة الحساب",
+            "additional": "تفاصيل إضافية"
+          },
+          "fields": {
+            "firstName": "الاسم الأول",
+            "lastName": "اسم العائلة",
+            "email": "البريد الإلكتروني",
+            "nationalId": "الرقم القومي",
+            "role": "الدور",
+            "phoneNumber": "رقم الهاتف",
+            "status": "الحالة"
+          },
+          "placeholders": {
+            "firstName": "مثال: أحمد",
+            "lastName": "مثال: محمد",
+            "email": "مثال: ahmed@example.com",
+            "nationalId": "مثال: 12345678901234",
+            "phoneNumber": "مثال: 01234567890",
+            "selectGeneric": "اختر"
+          },
+          "hints": {
+            "nameLength": "2-20 حرفًا، أحرف فقط.",
+            "emailValid": "صيغة بريد إلكتروني صحيحة مطلوبة.",
+            "nationalId": "14 رقمًا بالضبط.",
+            "selectRole": "اختر دور المستخدم في النظام.",
+            "phoneEg": "تنسيق الهاتف المصري: 01XXXXXXXXX",
+            "currentState": "حالة الحساب الحالية.",
+            "selectOption": "اختر من الخيارات المتاحة.",
+            "enterValue": "أدخل"
+          },
+          "roles": {
+            "admin": "مسؤول"
+          },
+          "status": {
+            "suspended": "موقوف"
+          },
+          "cta": {
+            "adding": "جارٍ الإضافة...",
+            "add": "إضافة مستخدم"
+          }
+        }
+      },
+      "voting": {
+        "title": "التصويت والاستبيانات",
+        "subtitle": "إنشاء وإدارة الاستبيانات، عرض إجابات الطلاب والتحليلات",
+        "allSurveys": "جميع الاستبيانات",
+        "createSurvey": "إنشاء استبيان",
+        "editSurvey": "تعديل الاستبيان",
+        "surveyResults": "نتائج وتحليلات الاستبيان",
+        "noSurveys": "لا توجد استبيانات حتى الآن. أنشئ أول استبيان!",
+        "table": {
+          "title": "العنوان",
+          "questions": "الأسئلة",
+          "recurring": "التكرار",
+          "schedule": "الجدول",
+          "status": "الحالة",
+          "createdBy": "أنشأه",
+          "actions": "إجراءات"
+        },
+        "recurring": {
+          "daily": "يومي",
+          "once": "مرة واحدة"
+        },
+        "status": {
+          "active": "نشط",
+          "inactive": "غير نشط"
+        },
+        "form": {
+          "surveyDetails": "تفاصيل الاستبيان",
+          "titleLabel": "العنوان",
+          "titlePlaceholder": "عنوان الاستبيان",
+          "titleRequired": "العنوان مطلوب",
+          "description": "الوصف",
+          "descriptionPlaceholder": "وصف اختياري",
+          "schedule": "الجدول الزمني",
+          "repeatDaily": "تكرار يومي",
+          "openTime": "بداية فترة الإغلاق",
+          "closeTime": "نهاية فترة الإغلاق",
+          "startDate": "تاريخ البداية",
+          "endDate": "تاريخ النهاية",
+          "recurringNeedsTimes": "وقت الفتح والإغلاق مطلوبان للاستبيان اليومي",
+          "closeMustBeAfterOpen": "وقت الإغلاق يجب أن يكون بعد وقت الفتح في نفس اليوم",
+          "endDateMustBeAfterStart": "تاريخ النهاية يجب أن يكون بعد أو مساويًا لتاريخ البداية",
+          "questions": "الأسئلة",
+          "addQuestion": "إضافة سؤال",
+          "questionText": "نص السؤال",
+          "allQuestionsMustHaveText": "جميع الأسئلة يجب أن تحتوي على نص",
+          "atLeastOneQuestion": "أضف سؤالاً واحداً على الأقل",
+          "needsAtLeast2Options": "يحتاج على الأقل خيارين",
+          "required": "إجباري",
+          "options": "الخيارات",
+          "addOption": "+ إضافة خيار",
+          "freeTextAnswer": "إجابة نصية حرة",
+          "cancel": "إلغاء",
+          "saveChanges": "حفظ التغييرات"
+        },
+        "questionTypes": {
+          "multipleChoice": "اختيار من متعدد",
+          "yesNo": "نعم / لا",
+          "rating": "تقييم (1-5)",
+          "text": "إجابة نصية"
+        },
+        "results": {
+          "totalResponses": "إجمالي الإجابات",
+          "days": "الأيام",
+          "questions": "الأسئلة",
+          "answers": "إجابات",
+          "votes": "أصوات",
+          "average": "المتوسط",
+          "noResults": "لا توجد نتائج متاحة",
+          "loading": "جاري تحميل النتائج...",
+          "studentsWhoChose": "الطلاب الذين اختاروا هذا:",
+          "allVoters": "جميع المصوتين",
+          "student": "الطالب",
+          "email": "البريد الإلكتروني",
+          "date": "التاريخ",
+          "submitted": "تم التقديم"
+        },
+        "confirms": {
+          "deleteTitle": "حذف الاستبيان",
+          "deleteDesc": "حذف هذا الاستبيان وجميع إجاباته؟ لا يمكن التراجع عن هذا الإجراء.",
+          "activateTitle": "تفعيل الاستبيان",
+          "deactivateTitle": "إلغاء تفعيل الاستبيان"
+        },
+        "toasts": {
+          "created": "تم إنشاء الاستبيان بنجاح",
+          "updated": "تم تحديث الاستبيان بنجاح",
+          "deleted": "تم حذف الاستبيان",
+          "toggled": "تم تغيير حالة الاستبيان",
+          "error": "خطأ",
+          "saveFailed": "فشل في حفظ الاستبيان",
+          "loadFailed": "فشل في تحميل الاستبيانات"
+        },
+        "actions": {
+          "viewResults": "عرض النتائج",
+          "edit": "تعديل",
+          "activate": "تفعيل",
+          "deactivate": "إلغاء التفعيل",
+          "delete": "حذف"
+        }
+      }
+    },
+    "trips": {
+      "title": "الرحلات",
+      "newTrip": "رحلة جديدة",
+      "tabs": {
+        "all": "الكل",
+        "completed": "الرحلات المنتهية"
+      },
+      "autoRenew": "إعادة جدولة الرحلات المكتملة تلقائياً",
+      "filters": {
+        "allDates": "كل التواريخ",
+        "allBuses": "كل الحافلات",
+        "allDrivers": "كل السائقين",
+        "allSupervisors": "كل المشرفين"
+      },
+      "table": {
+        "id": "المعرف",
+        "bus": "الحافلة",
+        "driver": "السائق",
+        "conductor": "المشرف",
+        "date": "التاريخ",
+        "departure": "المغادرة",
+        "arrival": "الوصول",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "actions": {
+        "view": "عرض",
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "empty": {
+        "noTrips": "لا توجد رحلات. جرّب تعديل المرشحات أو أنشئ رحلة جديدة."
+      }
+    },
+    "student": {
+      "profile": {
+        "notFoundTitle": "الملف غير موجود",
+        "notFoundDesc": "تعذر تحميل معلومات الملف الشخصي.",
+        "subtitle": "الملف الشخصي للطالب",
+        "lastUpdated": "آخر تحديث",
+        "uploading": "جارٍ الرفع...",
+        "changePhoto": "تغيير الصورة",
+        "cancelEdit": "إلغاء التعديل",
+        "editProfile": "تعديل الملف الشخصي",
+        "overviewTitle": "نظرة عامة على الطالب",
+        "overviewDesc": "ملخص الملف الأكاديمي",
+        "studentId": "معرف الطالب",
+        "academicNumber": "الرقم الأكاديمي",
+        "department": "القسم",
+        "yearOfStudy": "السنة الدراسية",
+        "yearShort": "سنة",
+        "academicStatus": "الحالة الأكاديمية",
+        "securityInfo": "معلومات الأمان",
+        "nationalId": "الرقم القومي",
+        "emergencyInfo": "معلومات الطوارئ",
+        "emergencyContact": "جهة اتصال للطوارئ",
+        "emergencyPhone": "هاتف الطوارئ",
+        "personalInfo": "المعلومات الشخصية",
+        "personalInfoDesc": "أدر بياناتك الشخصية ومعلومات الاتصال",
+        "firstName": "الاسم الأول",
+        "firstNamePlaceholder": "أدخل اسمك الأول",
+        "lastName": "اسم العائلة",
+        "lastNamePlaceholder": "أدخل اسم العائلة",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "أدخل بريدك الإلكتروني",
+        "phone": "رقم الهاتف",
+        "phonePlaceholder": "أدخل رقم هاتفك",
+        "selectDepartment": "اختر القسم",
+        "yearPlaceholder": "أدخل السنة الدراسية (1-8)",
+        "footerTitle": "حساب الطالب",
+        "footerDesc": "يمكنك عرض وحجز رحلات الحافلات وإدارة ملفك الشخصي وتتبع سجل رحلاتك. حافظ على تحديث بياناتك لتحسين الخدمة.",
+        "alerts": {
+          "fillOne": "يرجى ملء حقل واحد على الأقل للتحديث.",
+          "firstNameLength": "يجب أن يكون الاسم الأول بين 2 و50 حرفًا.",
+          "lastNameLength": "يجب أن يكون اسم العائلة بين 2 و50 حرفًا.",
+          "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
+          "yearRange": "يجب أن تكون السنة الدراسية بين 1 و8.",
+          "invalidDepartment": "يرجى اختيار قسم صالح.",
+          "emergencyContactLength": "يجب ألا يتجاوز اسم جهة الاتصال للطوارئ 100 حرف.",
+          "emergencyPhoneLength": "يجب ألا يتجاوز رقم هاتف الطوارئ 20 حرفًا.",
+          "updateSuccess": "تم تحديث الملف الشخصي للطالب بنجاح!",
+          "invalidData": "بيانات غير صالحة. يرجى التحقق من الإدخال والمحاولة مرة أخرى.",
+          "unauthorized": "غير مصرح لك بتنفيذ هذا الإجراء.",
+          "forbidden": "تم رفض الوصول. ليس لديك إذن لتحديث هذا الملف.",
+          "updateFailed": "فشل تحديث الملف. يرجى المحاولة مرة أخرى.",
+          "selectImage": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+          "photoSuccess": "تم تحديث صورة الملف الشخصي بنجاح!",
+          "photoFailed": "فشل تحديث صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "subscription": {
+        "currentTitle": "الاشتراك الحالي",
+        "currentSubtitle": "حالة اشتراكك وتفاصيل الباقة",
+        "status": {
+          "active": "نشط",
+          "pending": "بانتظار الموافقة",
+          "noActive": "لا توجد باقة نشطة",
+          "inactive": "غير نشط"
+        },
+        "planDetails": "تفاصيل الباقة",
+        "currentPlan": "الباقة الحالية",
+        "planName": "اسم الباقة",
+        "price": "السعر",
+        "duration": "المدة",
+        "paymentInfo": "معلومات الدفع",
+        "paymentInfoDesc": "طريقة الدفع والمرجع",
+        "method": "الطريقة",
+        "referenceCode": "رمز المرجع",
+        "statusDates": "الحالة والتواريخ",
+        "timeline": "الجدول الزمني للاشتراك",
+        "statusLabel": "الحالة",
+        "startDate": "تاريخ البدء",
+        "endDate": "تاريخ الانتهاء",
+        "progress": "تقدم الاشتراك",
+        "startShort": "البداية",
+        "endShort": "النهاية",
+        "noActiveTitle": "لا يوجد اشتراك نشط",
+        "noActiveDesc": "لا تملك باقة اشتراك نشطة. اختر باقة أدناه للبدء في استخدام خدمة الحافلات.",
+        "lastPayment": "آخر دفعة",
+        "paymentMethod": "طريقة الدفع",
+        "cashWaitTitle": "انتظر التأكيد",
+        "cashWaitMsg": "دفعتك نقدية. يرجى انتظار تأكيد المشرف قبل استخدام ميزات الحافلات.",
+        "refresh": "تحديث",
+        "yourPlan": "باقة اشتراكك",
+        "upgradePlan": "ترقية الباقة",
+        "upgradeHint": "قم بترقية باقتك الحالية",
+        "selectPlanHint": "اختر باقة وتابع إلى الدفع",
+        "recommended": "موصى بها",
+        "oneTerm": "فصل واحد",
+        "feature": {
+          "routes": "الوصول إلى مسارات الحافلات",
+          "support": "دعم أولوية",
+          "manage": "إدارة الحجوزات"
+        },
+        "currentPlanBtn": "الباقة الحالية",
+        "upgradeTwoTerms": "ترقية إلى فصلين",
+        "upgrade": "ترقية",
+        "choosePlan": "اختر الباقة",
+        "paymentMethodTitle": "طريقة الدفع",
+        "methodOnlineName": "إنستا باي",
+        "methodOnline": "أونلاين",
+        "methodOffline": "يدوي",
+        "methodManual": "يدوي",
+        "bankInfo": "معلومات التحويل البنكي",
+        "accountNumber": "رقم الحساب",
+        "copy": "نسخ",
+        "accountName": "اسم الحساب",
+        "transfer": "⚠️ تحويل",
+        "paymentRefLabel": "رمز مرجع الدفع",
+        "paymentRefPlaceholder": "أدخل رمز مرجع إنستا باي",
+        "processing": "جارٍ المعالجة...",
+        "confirmPayment": "تأكيد الدفع",
+        "pendingTitle": "الدفع بانتظار الموافقة",
+        "pendingHeader": "تم إرسال الدفع بنجاح!",
+        "pendingDesc": "دفعتك اليدوية بانتظار موافقة المشرف. سيتم إشعارك عند التأكيد.",
+        "pendingPoint1": "سيتم مراجعة الدفع من قبل المشرف",
+        "pendingPoint2": "ستتلقى إشعارًا عند الموافقة",
+        "pendingPoint3": "تحقق من حالة الدفع في لوحة التحكم",
+        "refreshStatus": "تحديث الحالة",
+        "upgradeTitle": "قم بترقية باقتك",
+        "currentPlanTitle": "الباقة الحالية",
+        "activeSub": "اشتراكك النشط",
+        "availableUpgrades": "باقات ترقية متاحة",
+        "upgradeThisPlan": "الترقية إلى هذه الباقة",
+        "upgradeBenefits": "فوائد الترقية",
+        "upgradeHappens": "ماذا يحدث عند الترقية",
+        "benefit1": "سيتم تفعيل باقتك الجديدة فور تأكيد الدفع",
+        "benefit2": "ستحصل على جميع ميزات الباقة المُرقّاة",
+        "benefit3": "ستزيد الترقية مدة اشتراكك",
+        "benefit4": "يمكنك الاستمرار في استخدام باقتك الحالية حتى تتم معالجة الترقية",
+        "validationError": "خطأ في التحقق",
+        "refRequired": "رمز المرجع مطلوب لعمليات إنستا باي",
+        "refMin": "يجب أن يتكون رمز المرجع من 3 أحرف على الأقل",
+        "successTitle": "نجاح!",
+        "paymentSubmitted": "تم إرسال الدفع بنجاح",
+        "paymentPending": "الدفع بانتظار موافقة المشرف",
+        "errors": {
+          "processFailed": "فشل في معالجة الدفع. يرجى المحاولة مرة أخرى.",
+          "authFailed": "فشلت المصادقة. يرجى تسجيل الدخول مرة أخرى.",
+          "invalidData": "بيانات دفع غير صالحة. يرجى التحقق من المعلومات.",
+          "serverError": "خطأ في الخادم. يرجى المحاولة لاحقًا.",
+          "network": "خطأ في الشبكة. يرجى التحقق من الاتصال."
+        },
+        "days": "يوم",
+        "used": "تم الاستخدام",
+        "noUpgradeTitle": "لا توجد خيارات ترقية متاحة",
+        "noUpgradeDesc": "أنت بالفعل على أعلى باقة متاحة، أو لا توجد خيارات ترقية حاليًا.",
+        "upgradeFrom": "ترقية من"
+      },
+      "bookTrip": {
+        "title": "احجز رحلتك",
+        "subtitle": "ابحث واحجز الرحلات المتاحة",
+        "search": "ابحث عن الرحلات...",
+        "availableTrips": "الرحلات المتاحة",
+        "myBookings": "حجوزاتي",
+        "totalSeats": "إجمالي المقاعد",
+        "advancedFilters": "مرشحات متقدمة",
+        "clearAll": "مسح الكل",
+        "showFilters": "عرض المرشحات",
+        "hideFilters": "إخفاء المرشحات",
+        "availableForBooking": "رحلة متاحة للحجز",
+        "noTrips": "لا توجد رحلات",
+        "noTripsMsg": "لا توجد رحلات مطابقة لعوامل التصفية الحالية",
+        "view": "عرض",
+        "alreadyBooked": "تم الحجز مسبقًا",
+        "checking": "جارٍ التحقق...",
+        "bookNow": "احجز الآن",
+        "confirmBooking": "تأكيد الحجز",
+        "cancel": "إلغاء",
+        "tripInfo": "معلومات الرحلة",
+        "routeAndTiming": "المسار والوقت",
+        "seatAvailability": "توفر المقاعد",
+        "available": "متاح",
+        "booked": "محجوز",
+        "total": "الإجمالي",
+        "availableSeats": "المقاعد المتاحة",
+        "bookedSeats": "المقاعد المحجوزة",
+        "selectPickup": "اختر موقع الالتقاط",
+        "noStops": "لا توجد نقاط توقف لهذه الرحلة",
+        "bookTrip": "حجز الرحلة",
+        "filtered": "مُصفّى",
+        "table": {
+          "busRoute": "الحافلة و المسار",
+          "seats": "المقاعد"
+        },
+        "filters": {
+          "allStatus": "كل الحالات",
+          "dateRange": "نطاق التاريخ",
+          "allDates": "كل التواريخ",
+          "today": "اليوم",
+          "tomorrow": "غداً",
+          "thisWeek": "هذا الأسبوع",
+          "customDate": "تاريخ مخصص",
+          "selectDate": "اختر التاريخ",
+          "chooseDate": "اختر تاريخاً"
+        },
+          "fields": {
+            "bus": "الحافلة",
+            "driver": "السائق",
+            "conductor": "المسؤول",
+            "origin": "نقطة الانطلاق",
+            "destination": "الوجهة",
+            "date": "التاريخ",
+            "timeRangeLabel": "الوقت (المغادرة / الوصول)",
+            "timeRangeLabelRtl": "الوقت (الوصول / المغادرة)"
+          },
+          "stopsTitle": "نقاط التوقف",
+          "stopArrival": "الوصول",
+          "stopDeparture": "المغادرة",
+          "tripDetailsTitle": "تفاصيل الرحلة",
+        "toast": {
+          "loadedTitle": "تم تحميل الرحلات بنجاح",
+          "loadedMsg": "تم العثور على {{count}} رحلة متاحة",
+          "loadFailedTitle": "فشل تحميل الرحلات",
+          "tryAgain": "يرجى المحاولة مرة أخرى",
+          "tripDetailsFailedTitle": "فشل تحميل تفاصيل الرحلة",
+          "pickupRequiredTitle": "يرجى اختيار موقع الالتقاط",
+          "pickupRequiredMsg": "يجب اختيار نقطة التوقف",
+          "authErrorTitle": "خطأ في المصادقة",
+          "authErrorMsg": "يرجى تسجيل الدخول مرة أخرى لحجز رحلة",
+          "noActiveSubTitle": "لا توجد اشتراك نشط",
+          "noActiveSubMsg": "تحتاج إلى اشتراك نشط لحجز رحلة",
+          "bookingConfirmedTitle": "تم تأكيد الحجز!",
+          "bookingConfirmedMsg": "تم حجز رحلتك بنجاح",
+          "bookingFailedTitle": "فشل الحجز"
+        }
+      },
+      "voting": {
+        "title": "التصويت والاستبيانات",
+        "subtitle": "شارك برأيك من خلال إكمال الاستبيانات أدناه",
+        "noSurveys": "لا توجد استبيانات متاحة",
+        "noSurveysDesc": "تحقق لاحقاً من الاستبيانات الجديدة",
+        "questions": "أسئلة",
+        "question": "سؤال",
+        "daily": "يومي",
+        "closesAt": "يغلق في",
+        "closedWindow": "مغلق من",
+        "startVoting": "ابدأ التصويت",
+        "alreadyVoted": "تم التصويت اليوم",
+        "voted": "تم التصويت",
+        "open": "مفتوح",
+        "submitVote": "تأكيد التصويت",
+        "submitting": "جاري الإرسال...",
+        "cancel": "إلغاء",
+        "pleaseAnswer": "الرجاء الإجابة على",
+        "required": "مطلوب",
+        "typeAnswer": "اكتب إجابتك...",
+        "toasts": {
+          "submitted": "تم تسجيل تصويتك",
+          "submittedTitle": "تم الإرسال!",
+          "error": "خطأ",
+          "submitFailed": "فشل في إرسال التصويت",
+          "loadFailed": "فشل في تحميل الاستبيانات"
+        }
+      }
+    },
+    "driver": {
+      "profile": {
+        "notFound": {
+          "title": "الملف غير موجود",
+          "message": "تعذر تحميل معلومات الملف الشخصي.",
+          "tryAgain": "حاول مرة أخرى"
+        },
+        "header": {
+          "driverTitle": "سائق محترف",
+          "lastUpdated": "آخر تحديث",
+          "uploading": "جارٍ الرفع...",
+          "changePhoto": "تغيير الصورة",
+          "cancelEdit": "إلغاء التعديل",
+          "editProfile": "تعديل الملف الشخصي",
+          "alt": "الملف الشخصي"
+        },
+        "overview": {
+          "title": "نظرة عامة على السائق",
+          "description": "ملخص ملفك كسائق محترف",
+          "userId": "معرف السائق",
+          "licenseNumber": "رقم الرخصة",
+          "roleLevel": "مستوى الدور",
+          "roleDriver": "سائق",
+          "securityInfo": "معلومات الأمان",
+          "nationalId": "الرقم القومي"
+        },
+        "personal": {
+          "title": "المعلومات الشخصية",
+          "description": "أدر بياناتك الشخصية ومعلوماتك المهنية",
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "email": "البريد الإلكتروني",
+          "phone": "رقم الهاتف",
+          "licenseNumber": "رقم الرخصة",
+          "placeholders": {
+            "firstName": "أدخل اسمك الأول",
+            "lastName": "أدخل اسم العائلة",
+            "email": "أدخل بريدك الإلكتروني",
+            "phone": "أدخل رقم هاتفك",
+            "licenseNumber": "أدخل رقم الرخصة (8-10 أرقام)"
+          }
+        },
+        "footer": {
+          "title": "سائق محترف",
+          "message": "يمكنك عرض الرحلات المعيّنة لك وإدارة جدولك وتحديث معلوماتك المهنية. حافظ على تحديث بيانات الرخصة للالتزام."
+        },
+        "alerts": {
+          "fillOne": "يرجى ملء حقل واحد على الأقل للتحديث.",
+          "firstNameLength": "يجب أن يكون الاسم الأول بين 2 و50 حرفًا.",
+          "lastNameLength": "يجب أن يكون اسم العائلة بين 2 و50 حرفًا.",
+          "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
+          "licenseNumberFormat": "يجب أن يكون رقم الرخصة من 8 إلى 10 أرقام.",
+          "updated": "تم تحديث الملف الشخصي بنجاح!",
+          "updateFailed": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+          "selectImage": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+          "pictureUpdated": "تم تحديث صورة الملف الشخصي بنجاح!",
+          "pictureUpdateFailed": "فشل تحديث صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "myTrips": {
+        "title": "رحلاتي",
+        "subtitle": "تتبع وأدر رحلاتك المخصصة",
+        "refresh": "تحديث",
+        "filters": "التصفية والبحث",
+        "filtersDesc": "اعثر على الرحلات التي تحتاجها بسرعة",
+        "searchPlaceholder": "ابحث في الموقع، رقم الحافلة...",
+        "statusAll": "كل الحالات",
+        "tripsShort": "رحلة",
+        "clearFilters": "مسح المرشحات",
+        "listTitle": "كل الرحلات",
+        "results": "نتيجة",
+        "total": "إجمالي الرحلات",
+        "counts": {
+          "total": "الإجمالي"
+        },
+        "loadingYourTrips": "جارٍ تحميل رحلاتك...",
+        "toasts": {
+          "loadErrorTitle": "فشل في تحميل الرحلات",
+          "loadErrorMessage": "حدث خطأ أثناء تحميل رحلاتك. يرجى المحاولة مرة أخرى."
+        },
+        "empty": {
+          "title": "لا توجد رحلات",
+          "noAssigned": "ليس لديك أي رحلات مُعيّنة بعد.",
+          "noMatch": "لا توجد رحلات مطابقة لعوامل التصفية الحالية."
+        },
+        "labels": {
+          "date": "التاريخ",
+          "departure": "المغادرة",
+          "arrival": "الوصول",
+          "occupancy": "الإشغال",
+          "seatOccupancy": "إشغال المقاعد",
+          "booked": "محجوز",
+          "available": "متاح",
+          "conductor": "المسؤول",
+          "driver": "السائق",
+          "unassigned": "غير مُعيّن",
+          "trip": "رحلة",
+          "details": "تفاصيل",
+          "bus": "الحافلة",
+          "tripStatus": "حالة الرحلة",
+          "route": "المسار",
+          "scheduleTiming": "الجدول والوقت",
+          "tripDate": "تاريخ الرحلة",
+          "departureTime": "وقت المغادرة",
+          "arrivalTime": "وقت الوصول",
+          "occupancyRate": "نسبة الإشغال",
+          "totalSeats": "إجمالي المقاعد",
+          "staffInfo": "معلومات الطاقم",
+          "tripDetails": "تفاصيل الرحلة",
+          "tripId": "معرف الرحلة",
+          "busId": "معرف الحافلة",
+          "driverId": "معرف السائق",
+          "conductorId": "معرف المسؤول",
+          "stopLocations": "نقاط التوقف",
+          "stops": "توقف",
+          "noStops": "لا توجد نقاط توقف لهذه الرحلة."
+        },
+        "modal": {
+          "loading": "جارٍ تحميل تفاصيل الرحلة..."
+        }
+      },
+      "notifications": {
+        "title": "إشعارات السائق",
+        "subtitle": "ابق على اطلاع بتعيينات رحلاتك وتحديثات النظام"
+      }
+    },
+    "supervisor": {
+      "profile": {
+        "notFound": {
+          "title": "الملف غير موجود",
+          "message": "تعذر تحميل معلومات الملف الشخصي.",
+          "tryAgain": "حاول مرة أخرى"
+        },
+        "header": {
+          "supervisorTitle": "مشرف الرحلات",
+          "lastUpdated": "آخر تحديث",
+          "uploading": "جارٍ الرفع...",
+          "changePhoto": "تغيير الصورة",
+          "cancelEdit": "إلغاء التعديل",
+          "editProfile": "تعديل الملف الشخصي",
+          "alt": "الملف الشخصي"
+        },
+        "overview": {
+          "title": "نظرة عامة على المشرف",
+          "description": "ملخص ملفك كمشرف",
+          "userId": "معرف المشرف",
+          "roleLevel": "مستوى الدور",
+          "roleSupervisor": "مشرف",
+          "securityInfo": "معلومات الأمان",
+          "nationalId": "الرقم القومي"
+        },
+        "personal": {
+          "title": "المعلومات الشخصية",
+          "description": "أدر بياناتك الشخصية ومعلومات الاتصال",
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "email": "البريد الإلكتروني",
+          "phone": "رقم الهاتف",
+          "placeholders": {
+            "firstName": "أدخل اسمك الأول",
+            "lastName": "أدخل اسم العائلة",
+            "email": "أدخل بريدك الإلكتروني",
+            "phone": "أدخل رقم هاتفك"
+          }
+        },
+        "footer": {
+          "title": "مشرف الرحلات",
+          "message": "لديك صلاحيات إشرافية لمراقبة الرحلات وإدارة صعود الطلاب وضمان إجراءات السلامة. تتم مزامنة ملفك عبر جميع أنظمة إدارة الرحلات."
+        },
+        "alerts": {
+          "fillOne": "يرجى ملء حقل واحد على الأقل للتحديث.",
+          "firstNameLength": "يجب أن يكون الاسم الأول بين 2 و50 حرفًا.",
+          "lastNameLength": "يجب أن يكون اسم العائلة بين 2 و50 حرفًا.",
+          "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
+          "updated": "تم تحديث الملف الشخصي بنجاح!",
+          "updateFailed": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+          "selectImage": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+          "pictureUpdated": "تم تحديث صورة الملف الشخصي بنجاح!",
+          "pictureUpdateFailed": "فشل تحديث صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "myTrips": {
+        "title": "رحلاتي",
+        "subtitle": "تتبع وأدر رحلاتك كمشرف",
+        "refresh": "تحديث",
+        "filters": "التصفية والبحث",
+        "filtersDesc": "اعثر على الرحلات التي تحتاجها بسرعة",
+        "searchPlaceholder": "ابحث في الموقع، رقم الحافلة...",
+        "statusAll": "كل الحالات",
+        "tripsShort": "رحلة",
+        "clearFilters": "مسح المرشحات",
+        "listTitle": "كل الرحلات",
+        "results": "نتيجة",
+        "total": "إجمالي الرحلات",
+        "counts": {
+          "total": "الإجمالي"
+        },
+        "loadingYourTrips": "جارٍ تحميل رحلاتك...",
+        "toasts": {
+          "loadErrorTitle": "فشل في تحميل الرحلات",
+          "loadErrorMessage": "حدث خطأ أثناء تحميل رحلاتك. يرجى المحاولة مرة أخرى."
+        },
+        "empty": {
+          "title": "لا توجد رحلات",
+          "noAssigned": "ليس لديك أي رحلات مُعيّنة بعد.",
+          "noMatch": "لا توجد رحلات مطابقة لعوامل التصفية الحالية."
+        },
+        "labels": {
+          "date": "التاريخ",
+          "departure": "المغادرة",
+          "arrival": "الوصول",
+          "occupancy": "الإشغال",
+          "seatOccupancy": "إشغال المقاعد",
+          "booked": "محجوز",
+          "available": "متاح",
+          "conductor": "المسؤول",
+          "driver": "السائق",
+          "unassigned": "غير مُعيّن",
+          "trip": "رحلة",
+          "details": "تفاصيل",
+          "bus": "حافلة",
+          "tripStatus": "حالة الرحلة",
+          "route": "المسار",
+          "scheduleTiming": "الجدول والوقت",
+          "tripDate": "تاريخ الرحلة",
+          "departureTime": "وقت المغادرة",
+          "arrivalTime": "وقت الوصول",
+          "occupancyRate": "نسبة الإشغال",
+          "totalSeats": "إجمالي المقاعد",
+          "staffInfo": "معلومات الطاقم",
+          "tripDetails": "تفاصيل الرحلة",
+          "tripId": "معرف الرحلة",
+          "busId": "معرف الحافلة",
+          "driverId": "معرف السائق",
+          "conductorId": "معرف المسؤول",
+          "stopLocations": "نقاط التوقف",
+          "stops": "توقف",
+          "stopArrival": "الوصول",
+          "stopDeparture": "المغادرة",
+          "noStops": "لا توجد نقاط توقف لهذه الرحلة."
+        },
+        "modal": {
+          "loading": "جارٍ تحميل تفاصيل الرحلة..."
+        }
+      },
+      "notifications": {
+        "title": "إشعارات المشرف",
+        "subtitle": "راجع وأدر الإشعارات وأرسل الإعلانات للطلاب"
+      }
+    },
+    "movementManager": {
+      "profile": {
+        "notFound": {
+          "title": "الملف غير موجود",
+          "message": "تعذر تحميل معلومات الملف الشخصي.",
+          "tryAgain": "حاول مرة أخرى"
+        },
+        "header": {
+          "lastUpdated": "آخر تحديث",
+          "uploading": "جارٍ الرفع...",
+          "changePhoto": "تغيير الصورة",
+          "cancelEdit": "إلغاء التعديل",
+          "editProfile": "تعديل الملف الشخصي"
+        },
+        "overview": {
+          "title": "نظرة عامة على المدير",
+          "description": "ملخص ملفك لإدارة الحركة",
+          "managerId": "معرف المدير",
+          "roleLevel": "مستوى الدور",
+          "roleManager": "مدير",
+          "securityInfo": "معلومات الأمان",
+          "nationalId": "الرقم القومي"
+        },
+        "personal": {
+          "title": "المعلومات الشخصية",
+          "description": "أدر بياناتك الشخصية ومعلومات الاتصال",
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "email": "البريد الإلكتروني",
+          "phone": "رقم الهاتف",
+          "placeholders": {
+            "firstName": "أدخل الاسم الأول",
+            "lastName": "أدخل اسم العائلة",
+            "email": "أدخل بريدك الإلكتروني",
+            "phone": "أدخل رقم هاتفك"
+          }
+        },
+        "footer": {
+          "message": "لديك صلاحيات لإدارة مسارات الحافلات وتنسيق الجداول وإدارة العمليات. تتم مزامنة ملفك عبر جميع أنظمة الإدارة."
+        },
+        "alerts": {
+          "fillOne": "يرجى ملء حقل واحد على الأقل للتحديث.",
+          "firstNameLength": "يجب أن يكون الاسم الأول بين 2 و50 حرفًا.",
+          "lastNameLength": "يجب أن يكون اسم العائلة بين 2 و50 حرفًا.",
+          "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
+          "updated": "تم تحديث الملف الشخصي بنجاح!",
+          "updateFailed": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+          "selectImage": "يرجى اختيار ملف صورة.",
+          "imageTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+          "pictureUpdated": "تم تحديث صورة الملف الشخصي بنجاح!",
+          "pictureUpdateFailed": "فشل تحديث صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "trips": {
+        "title": "الرحلات",
+        "tabs": {
+          "all": "الكل",
+          "filters": "تصفية",
+          "completed": "الرحلات المنتهية"
+        },
+        "filters": {
+          "date": "التاريخ",
+          "driver": "السائق",
+          "bus": "الحافلة",
+          "allDrivers": "كل السائقين",
+          "allBuses": "كل الحافلات",
+          "apply": "تطبيق",
+          "reset": "إعادة تعيين"
+        },
+        "summary": {
+          "duration": "المدة",
+          "availableSeats": "المقاعد المتاحة",
+          "busId": "معرف الحافلة"
+        },
+        "form": {
+          "fields": {
+            "startLocation": "نقطة الانطلاق",
+            "endLocation": "الوجهة"
+          }
+        },
+        "table": {
+          "status": "الحالة",
+          "route": "المسار",
+          "driver": "السائق",
+          "bus": "الحافلة"
+        },
+        "sections": {
+          "basicInfo": "المعلومات الأساسية",
+          "schedule": "الجدول"
+        },
+        "actions": {
+          "edit": "تعديل الرحلة",
+          "delete": "حذف"
+        },
+        "details": {
+          "title": "تفاصيل الرحلة",
+          "trip": "رحلة",
+          "tripId": "معرف الرحلة",
+          "created": "تاريخ الإنشاء",
+          "lastUpdated": "آخر تحديث",
+          "departureTime": "وقت المغادرة",
+          "arrivalTime": "وقت الوصول",
+          "origin": "نقطة الانطلاق",
+          "destination": "الوجهة",
+          "routeInformation": "معلومات المسار",
+          "resources": "الموارد",
+          "conductor": "المسؤول",
+          "additional": "تفاصيل إضافية",
+          "notes": "ملاحظات",
+          "description": "الوصف"
+        },
+        "errors": {
+          "loadFailed": "فشل تحميل الرحلات"
+        }
+      },
+      "redirectingTitle": "جارٍ التحويل إلى إدارة الحافلات...",
+      "redirectingMessage": "يرجى الانتظار أثناء الانتقال إلى صفحة الحافلات",
+      "buses": {
+        "title": "إدارة الحافلات",
+        "subtitle": "إدارة أسطول الحافلات وتعييناتها",
+        "add": "إضافة حافلة جديدة",
+        "edit": "تعديل الحافلة",
+        "update": "تحديث الحافلة",
+        "details": "تفاصيل الحافلة",
+        "total": "إجمالي الحافلات",
+        "active": "نشطة",
+        "inactive": "غير نشطة",
+        "totalCapacity": "إجمالي السعة",
+        "avgSpeed": "متوسط السرعة",
+        "searchTitle": "البحث والتصفية",
+        "searchSubtitle": "ابحث عن حافلات محددة أو صفِّ حسب المعايير",
+        "searchPlaceholder": "ابحث عن الحافلات...",
+        "applyFilters": "تطبيق عوامل التصفية",
+        "fleet": "الأسطول",
+        "fleetSubtitle": "إدارة تعيينات الحافلات وحالاتها",
+        "filters": {
+          "allStatus": "كل الحالات",
+          "active": "نشطة",
+          "inactive": "غير نشطة",
+          "underMaintenance": "قيد الصيانة",
+          "outOfService": "خارج الخدمة",
+          "allCapacities": "كل السعات",
+          "small": "صغيرة (≤30)",
+          "medium": "متوسطة (31-60)",
+          "large": "كبيرة (>60)"
+        },
+        "table": {
+          "bus": "حافلة",
+          "status": "الحالة",
+          "capacity": "السعة",
+          "speed": "السرعة",
+          "actions": "إجراءات",
+          "id": "المعرف",
+          "seatsLabel": "مقاعد",
+          "kmh": "كم/س"
+        },
+        "status": {
+          "Active": "نشطة",
+          "Inactive": "غير نشطة",
+          "UnderMaintenance": "قيد الصيانة",
+          "OutOfService": "خارج الخدمة"
+        },
+        "form": {
+          "busNumber": "رقم الحافلة",
+          "busNumberPh": "أدخل رقم الحافلة",
+          "capacity": "السعة",
+          "capacityPh": "أدخل السعة",
+          "status": "الحالة",
+          "speed": "السرعة (كم/س)",
+          "speedPh": "أدخل السرعة"
+        }
+      },
+      "notifications": {
+        "title": "إشعارات مسؤول الحركة",
+        "subtitle": "أدر إشعارات الرحلات والمسارات وتواصل مع السائقين والمشرفين"
+      }
+    }
+  }
+}

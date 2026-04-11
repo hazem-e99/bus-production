@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Typecheck and lint",
+			"type": "shell",
+			"command": "npm run lint",
+			"args": []
+		}
+	]
+}

@@ -1,0 +1,1670 @@
+{
+  "brand": {
+    "name": "Bus System"
+  },
+  "common": {
+    "all": "All",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+  "back": "Back",
+  "na": "N/A",
+  "loading": "Loading...",
+  "saving": "Saving...",
+  "saveChanges": "Save Changes",
+  "tryAgain": "Try Again",
+  "online": "Online",
+  "logout": "Logout",
+  "soon": "Soon",
+  "pro": "Pro",
+  "status": {
+    "active": "Active",
+  "inactive": "Inactive",
+  "scheduled": "Scheduled",
+  "inProgress": "In Progress",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+  "delayed": "Delayed"
+  }
+  },
+  "roles": {
+  "student": "Student",
+  "driver": "Driver",
+  "supervisor": "Supervisor",
+  "movementManager": "Movement Manager"
+  },
+  "topbar": {
+    "subtitle": "Transportation Management System",
+    "notifications": "Notifications",
+    "newMessages": "new messages",
+    "unread": "Unread",
+    "notification": "Notification",
+    "from": "From",
+    "noNotifications": "No notifications to show",
+    "allCaughtUp": "You're all caught up!",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
+    "viewAll": "View all"
+  },
+  "sidebar": {
+  "dashboardFor": "{{role}} Dashboard",
+  "activeSession": "Active Session"
+  },
+  "nav": {
+    "users": "Users",
+    "buses": "Buses",
+    "trips": "Trips",
+    "plans": "Plans",
+    "student_subscriptions": "Student Subscriptions",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "book_trip": "Book Trip",
+    "subscription": "Subscription",
+    "my_trips": "My Trips",
+    "trips_management": "Trips Management",
+    "routes": "Routes",
+    "payments": "Payments",
+    "settings": "Settings",
+    "analytics": "Analytics",
+    "voting": "Voting",
+    "badges": {
+      "manage": "Manage",
+      "fleet": "Fleet",
+      "schedule": "Schedule",
+      "pricing": "Pricing",
+      "subs": "Subs",
+      "account": "Account",
+      "active": "Active",
+      "new": "New",
+      "plan": "Plan",
+      "surveys": "Surveys",
+      "forms": "Forms"
+    }
+  },
+  "pages": {
+    "auth": {
+      "login": {
+        "title": "Welcome back 👋",
+        "subtitle": "Login to Book Your Bus",
+        "fields": {
+          "email": "Email",
+          "password": "Password"
+        },
+        "placeholders": {
+          "email": "Enter your email",
+          "password": "Enter your password"
+        },
+        "aria": {
+          "showPassword": "Show password",
+          "hidePassword": "Hide password"
+        },
+        "rememberMe": "Remember me",
+        "cta": {
+          "signIn": "Sign in",
+          "signingIn": "Signing in..."
+        },
+        "forgotPassword": "Forgot your password?",
+        "terms": "By continuing, you agree to our Terms and Privacy Policy.",
+        "signupPrompt": "Don't have an account?",
+        "signup": "Sign up",
+        "illustrationAlt": "School bus illustration",
+        "developedBy": "Developed by:",
+        "about": {
+          "title": "About the Bus System",
+          "description": "Book campus bus trips, manage subscriptions, and track routes — fast and easy."
+        },
+        "errors": {
+          "invalidCredentials": "Invalid email or password",
+          "generic": "An error occurred. Please try again."
+        },
+        "validation": {
+          "emailRequired": "Email is required",
+          "emailMin": "Email must be at least 5 characters long",
+          "emailMax": "Email must not exceed 100 characters",
+          "emailInvalid": "Please enter a valid email address",
+          "passwordRequired": "Password is required",
+          "passwordMin": "Password must be at least 1 character long"
+        }
+      },
+      "forgotPassword": {
+        "title": "Forgot Password?",
+        "description": "Enter your email address and we'll send you a link to reset your password.",
+        "fields": {
+          "email": "Email Address"
+        },
+        "placeholders": {
+          "email": "Enter your email"
+        },
+        "cta": {
+          "sending": "Sending...",
+          "send": "Send Reset Link"
+        },
+        "backToLogin": "Back to Login",
+        "toasts": {
+          "successTitle": "Email Sent",
+          "successMessage": "If an account exists with that email, a reset link has been sent.",
+          "errorTitle": "Error",
+          "errorMessage": "Failed to send reset link. Please try again."
+        }
+      },
+      "resetPasswordVerification": {
+        "title": "Enter Verification Code",
+        "description": "We've sent a verification code to:",
+        "fields": {
+          "verificationCode": "Verification Code"
+        },
+        "placeholders": {
+          "verificationCode": "Enter verification code"
+        },
+        "cta": {
+          "verifying": "Verifying...",
+          "verify": "Verify Code",
+          "resend": "Resend Code",
+          "backToLogin": "Back to Login"
+        },
+        "loading": {
+          "successTitle": "Verification Successful!",
+          "redirecting": "Redirecting to password reset..."
+        },
+        "errors": {
+          "failed": "Verification failed. Please try again."
+        },
+        "toasts": {
+          "successTitle": "Verification Successful!",
+          "successMessage": "Please enter your new password.",
+          "skippedTitle": "Verification Skipped",
+          "skippedMessage": "Proceeding to password reset...",
+          "errorTitle": "Error!",
+          "errorMessage": "Verification failed. Please try again."
+        }
+      },
+      "register": {
+        "title": "Student Registration",
+        "subtitle": "Join the University Bus System",
+        "cardTitle": "Create Student Account",
+        "cardSubtitle": "Fill in your details to get started",
+        "sections": {
+          "personal": "Personal Information",
+          "academic": "Academic Information",
+          "security": "Security"
+        },
+        "fields": {
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "phoneNumber": "Phone Number",
+          "nationalId": "National ID",
+          "email": "Email",
+          "studentAcademicNumber": "Student Academic Number",
+          "department": "Department",
+          "yearOfStudy": "Year of Study",
+          "password": "Password",
+          "confirmPassword": "Confirm Password"
+        },
+        "placeholders": {
+          "firstName": "Enter first name",
+          "lastName": "Enter last name",
+          "phoneNumber": "Enter phone number",
+          "nationalId": "Enter national ID",
+          "universityEmail": "Enter university email",
+          "studentAcademicNumber": "Enter student academic number",
+          "selectDepartment": "Select Department",
+          "selectYearOfStudy": "Select Year of Study",
+          "password": "Enter password",
+          "confirmPassword": "Confirm password"
+        },
+        "hints": {
+          "nationalIdTitle": "National ID must be exactly 14 digits",
+          "passwordMin": "Minimum 6 characters"
+        },
+        "cta": {
+          "creating": "Creating Account...",
+          "create": "Create Account"
+        },
+        "alreadyHave": "Already have an account?",
+        "signInHere": "Sign in here",
+        "toasts": {
+          "validationTitle": "Validation Error",
+          "successTitle": "Registration Successful",
+          "successMessage": "Your account has been created successfully. Please check your email for verification code.",
+          "errorTitle": "Registration Failed"
+        }
+      }
+    },
+    "notifications": {
+      "actions": {
+        "broadcast": "Broadcast",
+        "markRead": "Mark Read",
+        "markUnread": "Mark Unread",
+        "markAllPrefix": "Mark All as",
+        "clearing": "Clearing..."
+      },
+      "status": {
+        "read": "Read",
+        "unread": "Unread"
+      },
+      "types": {
+        "system": "System",
+        "alert": "Alert",
+        "announcement": "Announcement",
+        "reminder": "Reminder",
+        "booking": "Booking"
+      },
+      "filters": {
+        "title": "Filters & Search",
+        "description": "Find the notifications you need quickly",
+        "searchPlaceholder": "Search title, message...",
+        "allTypes": "All Types",
+        "allStatus": "All Status",
+        "allDates": "All Dates",
+        "today": "Today",
+        "last7d": "Last 7 Days",
+        "last30d": "Last 30 Days",
+        "specificDate": "Specific Date",
+        "totalCount": "{{count}} notification(s)",
+        "clear": "Clear Filters"
+      },
+      "stats": {
+        "total": "Total",
+        "alerts": "Alerts",
+        "byType": "Notifications by Type"
+      },
+      "list": {
+        "title": "Notifications",
+        "results": "{{count}} result(s)",
+        "loading": "Loading notifications..."
+      },
+      "empty": {
+        "title": "No notifications",
+        "none": "No notifications in the system.",
+        "noneDriver": "You don't have any notifications yet.",
+        "noneMM": "You don't have any notifications yet.",
+        "noMatch": "No notifications match your current filters."
+      },
+      "broadcast": {
+        "title": "Broadcast Notification",
+        "subtitle": "Send notifications to users",
+        "fields": {
+          "title": "Title",
+          "message": "Message",
+          "type": "Notification Type",
+          "target": "Target Audience",
+          "role": "Select Role"
+        },
+        "placeholders": {
+          "title": "Enter notification title",
+          "message": "Enter notification message"
+        },
+        "characters": "characters",
+        "target": {
+          "all": "All Users",
+          "role": "By Role",
+          "specific": "Specific Users"
+        },
+        "roles": {
+          "students": "Students",
+          "drivers": "Drivers",
+          "supervisors": "Supervisors",
+          "movementManagers": "Movement Managers",
+          "admins": "Admins"
+        },
+        "roleNote": "Will send to all users with the selected role",
+        "selectUsers": "Select Users ({{count}} selected)",
+        "loadingUsers": "Loading users...",
+        "unknownUser": "Unknown User",
+        "preview": "Preview",
+        "previewTitle": "Notification Title",
+        "previewMessage": "Notification message will appear here...",
+        "targetLabel": "Target:",
+        "selectedUsers": "{{count}} selected users",
+        "sending": "Sending...",
+        "send": "Send"
+      },
+      "toasts": {
+        "successTitle": "Success",
+        "errorTitle": "Error",
+        "deleted": "Notification deleted successfully",
+        "deleteFailed": "Failed to delete notification",
+        "cleared": "All notifications have been cleared",
+  "clearFailed": "Failed to clear all notifications",
+  "broadcastSent": "Notification broadcast sent",
+  "broadcastFailed": "Failed to send broadcast"
+      },
+      "confirms": {
+        "clearAll": "Are you sure you want to clear ALL notifications? This action cannot be undone."
+      },
+      "item": {
+        "notification": "Notification",
+        "from": "From"
+      }
+    },
+    "trips": {
+      "title": "Trips",
+      "newTrip": "New Trip",
+      "autoRenew": "Auto reschedule completed trips",
+      "filters": {
+        "allDates": "All Dates",
+        "allBuses": "All Buses",
+        "allDrivers": "All Drivers",
+        "allSupervisors": "All Supervisors"
+      },
+      "table": {
+        "id": "ID",
+        "bus": "Bus",
+        "driver": "Driver",
+        "conductor": "Conductor",
+        "date": "Date",
+        "departure": "Departure",
+        "arrival": "Arrival",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "empty": {
+        "noTrips": "No trips found. Try adjusting filters or create a new trip."
+      }
+    },
+    "admin": {
+      "profile": {
+        "notFound": {
+          "title": "Profile Not Found",
+          "message": "Unable to load profile information.",
+          "tryAgain": "Try Again"
+        },
+        "header": {
+          "adminTitle": "System Administrator",
+          "lastUpdated": "Last updated",
+          "uploading": "Uploading...",
+          "changePhoto": "Change Photo",
+          "cancelEdit": "Cancel Edit",
+          "edit": "Edit Profile"
+        },
+        "overview": {
+          "title": "Profile Overview",
+          "description": "Your administrative profile summary",
+          "userId": "User ID",
+          "roleLevel": "Role Level",
+          "roleAdmin": "Admin",
+          "securityInfo": "Security Information",
+          "nationalId": "National ID"
+        },
+        "personal": {
+          "title": "Personal Information",
+          "description": "Manage your personal details and contact information",
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "email": "Email Address",
+          "phone": "Phone Number",
+          "placeholders": {
+            "firstName": "Enter your first name",
+            "lastName": "Enter your last name",
+            "email": "Enter your email",
+            "phone": "Enter your phone number"
+          }
+        },
+        "actions": {
+          "saving": "Saving...",
+          "save": "Save Changes"
+        },
+        "footer": {
+          "title": "System Administrator",
+          "message": "You have full administrative access to the bus management system. Your profile information is synchronized across all system components."
+        },
+        "alerts": {
+          "fillOne": "Please fill in at least one field to update.",
+          "firstNameLength": "First name must be between 2 and 50 characters.",
+          "lastNameLength": "Last name must be between 2 and 50 characters.",
+          "invalidEmail": "Please enter a valid email address.",
+          "updated": "Profile updated successfully!",
+          "updateFailed": "Failed to update profile. Please try again.",
+          "selectImage": "Please select an image file.",
+          "imageTooLarge": "Image size should not exceed 5MB.",
+          "pictureUpdated": "Profile picture updated successfully!",
+          "pictureUpdateFailed": "Failed to update profile picture. Please try again."
+        }
+      },
+      "trips": {
+        "title": "Trips",
+        "newTrip": "New Trip",
+        "loading": "Loading trips...",
+        "loadFailed": "Failed to load trips",
+        "confirmDeletePrefix": "Delete trip",
+        "deleteFailed": "Delete failed",
+        "noTrips": "No trips found",
+        "getStarted": "Get started by creating a new trip.",
+        "createNotAvailable": "Trip creation form is not available yet.",
+        "editNotAvailable": "Trip editing form is not available yet.",
+        "filters": {
+          "date": "Date",
+          "driver": "Driver",
+          "bus": "Bus",
+          "allDrivers": "All drivers",
+          "allBuses": "All buses",
+          "apply": "Apply",
+          "reset": "Reset"
+        },
+        "table": {
+          "id": "ID",
+          "dateTime": "Date & Time",
+          "route": "Route",
+          "driver": "Driver",
+          "bus": "Bus",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "scheduled": "Scheduled",
+          "inProgress": "In Progress",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "delayed": "Delayed"
+        },
+        "details": {
+          "title": "Trip Details",
+          "trip": "Trip",
+          "tripId": "Trip ID",
+          "created": "Created",
+          "lastUpdated": "Last Updated",
+          "departureTime": "Departure Time",
+          "arrivalTime": "Arrival Time",
+          "origin": "Origin",
+          "destination": "Destination",
+          "resources": "Resources",
+          "additional": "Additional Details",
+          "notes": "Notes",
+          "description": "Description"
+        },
+        "sections": {
+          "basicInfo": "Basic Information",
+          "schedule": "Schedule"
+        },
+        "actions": {
+          "edit": "Edit Trip",
+          "delete": "Delete"
+        },
+        "form": {
+          "titleCreate": "Create Trip",
+          "titleEdit": "Edit Trip",
+          "subtitle": "Plan route, assign bus and staff, and set schedule",
+          "sections": {
+            "assignment": "Assignment",
+            "schedule": "Schedule",
+            "route": "Route",
+            "stops": "Stop Locations"
+          },
+          "fields": {
+            "bus": "Bus",
+            "driver": "Driver",
+            "conductor": "Conductor",
+            "tripDate": "Trip Date",
+            "departure": "Departure",
+            "arrival": "Arrival",
+            "startLocation": "Start Location",
+            "endLocation": "End Location",
+            "stopAddress": "Address",
+            "stopArrival": "Arrival",
+            "stopDeparture": "Departure"
+          },
+          "placeholders": {
+            "selectBus": "Select a bus",
+            "selectDriver": "Select a driver",
+            "selectConductor": "Select a conductor"
+          },
+          "actions": {
+            "addStop": "Add Stop",
+            "remove": "Remove",
+            "create": "Create Trip",
+            "save": "Save"
+          },
+          "empty": {
+            "noStops": "No stops added yet."
+          },
+          "stats": {
+            "busesLoaded": "Buses Loaded",
+            "drivers": "Drivers",
+            "conductors": "Conductors"
+          },
+          "errors": {
+            "requiredBus": "Bus is required",
+            "requiredDriver": "Driver is required",
+            "requiredConductor": "Conductor is required",
+            "requiredStart": "Start location is required",
+            "requiredEnd": "End location is required",
+            "requiredDate": "Trip date is required",
+            "requiredDeparture": "Departure time is required",
+            "requiredArrival": "Arrival time is required",
+            "max200": "Must be at most 200 characters",
+            "maxChars": "Max 300 characters",
+            "requiredAddress": "Address is required",
+            "invalidBus": "Selected bus is invalid",
+            "invalidDriver": "Selected driver is invalid",
+            "invalidConductor": "Selected conductor is invalid",
+            "sameDriverConductor": "Driver and Conductor must be different users"
+          }
+        },
+        "toasts": {
+          "createdTitle": "Trip Created",
+          "createdMsg": "Trip has been created successfully",
+          "savedTitle": "Trip Saved",
+          "savedMsg": "Trip details saved successfully",
+          "errorTitle": "Error"
+        }
+      },
+      "plans": {
+        "loading": "Loading plans...",
+        "title": "Subscription Plans",
+        "subtitle": "Manage available subscription plans",
+        "addPlan": "Add Plan",
+        "listTitle": "Plans",
+        "listCountLabel": "plan(s)",
+        "table": {
+          "id": "ID",
+          "name": "Name",
+          "description": "Description",
+          "price": "Price",
+          "durationDays": "Duration (days)",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "editPlan": "Edit Plan",
+          "activatePlan": "Activate Plan",
+          "deactivatePlan": "Deactivate Plan",
+          "deletePlan": "Delete Plan"
+        },
+        "modal": {
+          "editTitle": "Edit Plan",
+          "addTitle": "Add Plan"
+        },
+        "sections": {
+          "basicDetails": "Basic Details",
+          "pricingDuration": "Pricing & Duration"
+        },
+        "form": {
+          "name": "Name",
+          "nameHint": "3-100 characters, unique plan name.",
+          "nameEg": "e.g. Standard Monthly",
+          "description": "Description",
+          "descriptionHint": "Optional. Up to 500 characters.",
+          "descriptionPh": "Short summary of the plan",
+          "price": "Price",
+          "priceHint": "Minimum 0.01. Use two decimals.",
+          "pricePh": "0.00",
+          "durationDays": "Duration (days)",
+          "durationHint": "1 - 365 days.",
+          "durationPh": "30",
+          "saveChanges": "Save Changes",
+          "createPlan": "Create Plan"
+        },
+        "errors": {
+          "loadFailedMsg": "Failed to load plans",
+          "loadFailedTitle": "Load Failed",
+          "error": "Error",
+          "loadPlanDetails": "Failed to load plan details",
+          "updateFailed": "Update failed",
+          "creationFailed": "Creation failed",
+          "saveFailedMsg": "Failed to save plan",
+          "saveFailedTitle": "Save Failed",
+          "actionFailed": "Action failed",
+          "actionFailedTitle": "Action Failed"
+        },
+        "confirms": {
+          "deleteTitle": "Delete Plan",
+          "deleteDesc": "Are you sure you want to delete this plan? This action cannot be undone.",
+          "activateTitle": "Activate Plan",
+          "activateDesc": "Are you sure you want to activate this plan?",
+          "deactivateTitle": "Deactivate Plan",
+          "deactivateDesc": "Are you sure you want to deactivate this plan?",
+          "confirmTitle": "Confirm Action",
+          "confirmDesc": "Are you sure?"
+        },
+        "toasts": {
+          "planUpdated": "Plan Updated",
+          "updatedSuccessfully": "has been updated successfully",
+          "planCreated": "Plan Created",
+          "createdSuccessfully": "has been created successfully",
+          "planDeleted": "Plan deleted successfully",
+          "planActivated": "Plan activated successfully",
+          "planDeactivated": "Plan deactivated successfully",
+          "successTitle": "Success"
+        }
+      },
+      "studentSubscriptions": {
+        "loading": "Loading...",
+        "title": "Student Subscriptions Management",
+        "subtitle": "Manage student subscription payments and review payment status",
+        "searchPlaceholder": "Search students, plans...",
+        "stats": {
+          "totalStudents": "Total Students",
+          "activeSubscriptions": "Active Subscriptions",
+          "pendingReviews": "Pending Reviews",
+          "totalPayments": "Total Payments"
+        },
+        "filters": {
+          "title": "Advanced Filters",
+          "clearAll": "Clear All",
+          "showFilters": "Show Filters",
+          "hideFilters": "Hide Filters",
+          "status": "Status",
+          "allStatus": "All Status",
+          "paymentMethod": "Payment Method",
+          "allMethods": "All Methods",
+          "plan": "Subscription Plan",
+          "allPlans": "All Plans",
+          "dateRange": "Date Range",
+          "allTime": "All Time",
+          "today": "Today",
+          "thisWeek": "This Week",
+          "thisMonth": "This Month",
+          "customRange": "Custom Range",
+          "fromDate": "From Date",
+          "toDate": "To Date",
+          "amountRange": "Amount Range",
+          "allAmounts": "All Amounts",
+          "low": "Low ($0 - $100)",
+          "medium": "Medium ($100 - $500)",
+          "high": "High ($500+)"
+        },
+        "status": {
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "pending": "Pending",
+          "cancelled": "Cancelled",
+          "expired": "Expired"
+        },
+        "paymentMethod": {
+          "online": "InstaPay",
+          "offline": "Offline"
+        },
+        "table": {
+          "title": "Subscription Payments",
+          "filtered": "filtered",
+          "payments": "payment(s)",
+          "fromApi": "from /api/Payment endpoint",
+          "student": "Student",
+          "plan": "Plan",
+          "amount": "Amount",
+          "paymentMethod": "Payment Method",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "empty": {
+          "noData": "No Payment Data",
+          "noDataAvailable": "No payment data available. Please check if you are logged in as admin.",
+          "noSubscriptionPayments": "No subscription payments found in the system.",
+          "refresh": "Refresh Data"
+        },
+        "labels": {
+          "days": "days",
+          "ref": "Ref:",
+          "reviewed": "Reviewed:",
+          "active": "Active"
+        },
+        "actions": {
+          "accept": "Accept",
+          "reject": "Reject"
+        },
+        "reviewNotes": {
+          "accept": "Payment approved by admin",
+          "reject": "Payment rejected by admin"
+        },
+        "toasts": {
+          "loadSuccess": "Data Loaded Successfully",
+          "found": "Found",
+          "paymentRecords": "payment records",
+          "noPaymentData": "No payment data",
+          "noPaymentRecords": "No payment records found in the system"
+        },
+        "errors": {
+          "loadFailed": "Failed to load data",
+          "tryAgain": "Please try again"
+        }
+      },
+      "buses": {
+        "loading": "Loading buses...",
+        "title": "Bus Management",
+        "subtitle": "Manage fleet vehicles and their assignments",
+        "add": "Add New Bus",
+        "addShort": "Add Bus",
+        "edit": "Edit Bus",
+        "update": "Update Bus",
+        "details": "Bus Details",
+        "total": "Total Buses",
+        "active": "Active",
+        "maintenance": "Maintenance",
+        "outOfService": "Out of Service",
+        "totalCapacity": "Total Capacity",
+        "searchTitle": "Search & Filters",
+        "searchSubtitle": "Find specific buses or filter by criteria",
+        "searchPlaceholder": "Search buses...",
+        "applyFilters": "Apply Filters",
+        "fleet": "Fleet",
+        "fleetSubtitle": "Manage bus assignments and status",
+        "totalShort": "total",
+        "filteredShort": "filtered",
+        "noBuses": "No buses found",
+        "getStarted": "Get started by adding your first bus to the fleet.",
+        "addFirst": "Add First Bus",
+        "confirmDeletePrefix": "Delete bus",
+        "confirmDeleteTitle": "Delete bus?",
+        "unknown": "Unknown",
+        "overview": "A quick overview of the vehicle status and recent telemetry.",
+        "lastUpdated": "Last updated",
+        "location": "Location",
+        "filters": {
+          "allStatus": "All Status",
+          "active": "Active",
+          "inactive": "Inactive",
+          "underMaintenance": "Under Maintenance",
+          "outOfService": "Out of Service",
+          "allCapacities": "All Capacities",
+          "small": "Small (≤30)",
+          "medium": "Medium (31-60)",
+          "large": "Large (>60)"
+        },
+        "table": {
+          "bus": "Bus",
+          "status": "Status",
+          "capacity": "Capacity",
+          "speed": "Speed",
+          "actions": "Actions",
+          "id": "ID",
+          "seatsLabel": "seats",
+          "kmh": "km/h"
+        },
+        "status": {
+          "Active": "Active",
+          "Inactive": "Inactive",
+          "UnderMaintenance": "Under Maintenance",
+          "OutOfService": "Out of Service"
+        },
+        "sections": {
+          "basicInfo": "Basic Information",
+          "statusPerformance": "Status & Performance"
+        },
+        "form": {
+          "busNumber": "Bus Number",
+          "busNumberPh": "Enter bus number",
+          "busNumberEg": "e.g. A-102 or Campus_7",
+          "busNumberHint": "Must be unique. Only letters, numbers, spaces, hyphens, and underscores allowed.",
+          "busNumberTitle": "Bus number can contain letters, numbers, spaces, hyphens, and underscores. Maximum 20 characters.",
+          "capacity": "Capacity",
+          "capacityPh": "Enter capacity",
+          "capacityEg": "e.g. 50",
+          "capacityHint": "Integer between 10 and 100 seats.",
+          "status": "Status",
+          "statusHint": "Current operational state of the bus.",
+          "speed": "Speed (km/h)",
+          "speedPh": "Enter speed",
+          "speedEg": "e.g. 80",
+          "speedHint": "Recommended range 0–200 km/h."
+        },
+        "toast": {
+          "loadFailedTitle": "Failed to load buses",
+          "loadFailedMsg": "Please check your connection and try again."
+        }
+      },
+      "users": {
+        "title": "Users Management",
+        "subtitle": "Manage all system users and their permissions",
+        "addUser": "Add User",
+        "totalUsers": "Total Users",
+        "activeUsers": "Active Users",
+        "students": "Students",
+        "drivers": "Drivers",
+        "conductors": "Conductors",
+        "searchPlaceholder": "Search users by name or email...",
+        "allRoles": "All Roles",
+        "usersList": "Users List",
+        "noUsers": "No users found",
+        "tryAdjusting": "Try adjusting filters or add a new user.",
+        "user": "User",
+        "role": "Role",
+        "status": "Status",
+        "contact": "Contact",
+        "created": "Created",
+        "actions": "Actions",
+        "addForm": {
+          "title": "Add New User",
+          "sections": {
+            "basicInfo": "Basic Information",
+            "roleContact": "Role & Contact",
+            "accountStatus": "Account Status",
+            "additional": "Additional Details"
+          },
+          "fields": {
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "nationalId": "National ID",
+            "role": "Role",
+            "phoneNumber": "Phone Number",
+            "status": "Status"
+          },
+          "placeholders": {
+            "firstName": "e.g. Ahmed",
+            "lastName": "e.g. Mohamed",
+            "email": "e.g. ahmed@example.com",
+            "nationalId": "e.g. 12345678901234",
+            "phoneNumber": "e.g. 01234567890",
+            "selectGeneric": "Select"
+          },
+          "hints": {
+            "nameLength": "2-20 characters, letters only.",
+            "emailValid": "Valid email format required.",
+            "nationalId": "Exactly 14 digits.",
+            "selectRole": "Select user's system role.",
+            "phoneEg": "Egyptian mobile format: 01XXXXXXXXX",
+            "currentState": "Current account state.",
+            "selectOption": "Select from available options.",
+            "enterValue": "Enter"
+          },
+          "roles": {
+            "admin": "Admin"
+          },
+          "status": {
+            "suspended": "Suspended"
+          },
+          "cta": {
+            "adding": "Adding...",
+            "add": "Add User"
+          }
+        }
+      },
+      "voting": {
+        "title": "Voting & Surveys",
+        "subtitle": "Create and manage surveys, view student responses and analytics",
+        "allSurveys": "All Surveys",
+        "createSurvey": "Create Survey",
+        "editSurvey": "Edit Survey",
+        "surveyResults": "Survey Results & Analytics",
+        "noSurveys": "No surveys yet. Create your first survey!",
+        "table": {
+          "title": "Title",
+          "questions": "Questions",
+          "recurring": "Recurring",
+          "schedule": "Schedule",
+          "status": "Status",
+          "createdBy": "Created By",
+          "actions": "Actions"
+        },
+        "recurring": {
+          "daily": "Daily",
+          "once": "Once"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "form": {
+          "surveyDetails": "Survey Details",
+          "titleLabel": "Title",
+          "titlePlaceholder": "Survey title",
+          "titleRequired": "Title is required",
+          "description": "Description",
+          "descriptionPlaceholder": "Optional description",
+          "schedule": "Schedule",
+          "repeatDaily": "Repeat Daily",
+          "openTime": "Closed Window Start",
+          "closeTime": "Closed Window End",
+          "startDate": "Start Date",
+          "endDate": "End Date",
+          "recurringNeedsTimes": "Open and close time are required for daily recurring surveys",
+          "closeMustBeAfterOpen": "Close time must be after open time in the same day",
+          "endDateMustBeAfterStart": "End date must be on or after start date",
+          "questions": "Questions",
+          "addQuestion": "Add Question",
+          "questionText": "Question text",
+          "allQuestionsMustHaveText": "All questions must have text",
+          "atLeastOneQuestion": "Add at least one question",
+          "needsAtLeast2Options": "needs at least 2 options",
+          "required": "Required",
+          "options": "Options",
+          "addOption": "+ Add Option",
+          "freeTextAnswer": "Free text answer",
+          "cancel": "Cancel",
+          "saveChanges": "Save Changes"
+        },
+        "questionTypes": {
+          "multipleChoice": "Multiple Choice",
+          "yesNo": "Yes / No",
+          "rating": "Rating (1-5)",
+          "text": "Text Answer"
+        },
+        "results": {
+          "totalResponses": "Total Responses",
+          "days": "Days",
+          "questions": "Questions",
+          "answers": "answers",
+          "votes": "votes",
+          "average": "Average",
+          "noResults": "No results available",
+          "loading": "Loading results...",
+          "studentsWhoChose": "Students who chose this:",
+          "allVoters": "All Voters",
+          "student": "Student",
+          "email": "Email",
+          "date": "Date",
+          "submitted": "Submitted"
+        },
+        "confirms": {
+          "deleteTitle": "Delete Survey",
+          "deleteDesc": "Delete this survey and all its responses? This cannot be undone.",
+          "activateTitle": "Activate Survey",
+          "deactivateTitle": "Deactivate Survey"
+        },
+        "toasts": {
+          "created": "Survey created successfully",
+          "updated": "Survey updated successfully",
+          "deleted": "Survey deleted",
+          "toggled": "Survey status toggled",
+          "error": "Error",
+          "saveFailed": "Failed to save survey",
+          "loadFailed": "Failed to load surveys"
+        },
+        "actions": {
+          "viewResults": "View Results",
+          "edit": "Edit",
+          "activate": "Activate",
+          "deactivate": "Deactivate",
+          "delete": "Delete"
+        }
+      }
+    },
+    "student": {
+      "profile": {
+        "notFoundTitle": "Profile Not Found",
+        "notFoundDesc": "Unable to load profile information.",
+        "subtitle": "Student Profile",
+        "lastUpdated": "Last updated",
+        "uploading": "Uploading...",
+        "changePhoto": "Change Photo",
+        "cancelEdit": "Cancel Edit",
+        "editProfile": "Edit Profile",
+        "overviewTitle": "Student Overview",
+        "overviewDesc": "Your academic profile summary",
+        "studentId": "Student ID",
+        "academicNumber": "Academic Number",
+        "department": "Department",
+        "yearOfStudy": "Year of Study",
+        "yearShort": "Year",
+        "academicStatus": "Academic Status",
+        "securityInfo": "Security Information",
+        "nationalId": "National ID",
+        "emergencyInfo": "Emergency Information",
+        "emergencyContact": "Emergency Contact",
+        "emergencyPhone": "Emergency Phone",
+        "personalInfo": "Personal Information",
+        "personalInfoDesc": "Manage your personal details and contact information",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "Enter your first name",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Enter your last name",
+        "email": "Email Address",
+        "emailPlaceholder": "Enter your email",
+        "phone": "Phone Number",
+        "phonePlaceholder": "Enter your phone number",
+        "selectDepartment": "Select Department",
+        "yearPlaceholder": "Enter year of study (1-8)",
+        "footerTitle": "Student Account",
+        "footerDesc": "You have access to view and book bus trips, manage your profile, and track your travel history. Keep your information updated for better service.",
+        "alerts": {
+          "fillOne": "Please fill in at least one field to update.",
+          "firstNameLength": "First name must be between 2 and 50 characters.",
+          "lastNameLength": "Last name must be between 2 and 50 characters.",
+          "invalidEmail": "Please enter a valid email address.",
+          "yearRange": "Year of study must be between 1 and 8.",
+          "invalidDepartment": "Please select a valid department.",
+          "emergencyContactLength": "Emergency contact name must not exceed 100 characters.",
+          "emergencyPhoneLength": "Emergency phone number must not exceed 20 characters.",
+          "updateSuccess": "Student profile updated successfully!",
+          "invalidData": "Invalid data provided. Please check your input and try again.",
+          "unauthorized": "You are not authorized to perform this action.",
+          "forbidden": "Access denied. You do not have permission to update this profile.",
+          "updateFailed": "Failed to update profile. Please try again.",
+          "selectImage": "Please select an image file.",
+          "imageTooLarge": "Image size should not exceed 5MB.",
+          "photoSuccess": "Profile picture updated successfully!",
+          "photoFailed": "Failed to update profile picture. Please try again."
+        }
+      },
+      "subscription": {
+        "currentTitle": "Current Subscription",
+        "currentSubtitle": "Your subscription status and plan details",
+        "status": {
+          "active": "Active",
+          "pending": "Pending Approval",
+          "noActive": "No Active Plan",
+          "inactive": "Inactive"
+        },
+        "planDetails": "Plan Details",
+        "currentPlan": "Your current plan",
+        "planName": "Plan Name",
+        "price": "Price",
+        "duration": "Duration",
+        "paymentInfo": "Payment Info",
+        "paymentInfoDesc": "Payment method & reference",
+        "method": "Method",
+        "referenceCode": "Reference Code",
+        "statusDates": "Status & Dates",
+        "timeline": "Subscription timeline",
+        "statusLabel": "Status",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "progress": "Subscription Progress",
+        "startShort": "Start",
+        "endShort": "End",
+        "noActiveTitle": "No Active Subscription",
+        "noActiveDesc": "You don't have an active subscription plan. Choose a plan below to get started with our bus service.",
+        "lastPayment": "Last Payment",
+        "paymentMethod": "Payment Method",
+        "cashWaitTitle": "Wait for confirmation",
+        "cashWaitMsg": "Your payment is cash. Please wait for admin to confirm before accessing bus features.",
+        "refresh": "Refresh",
+        "yourPlan": "Your Plan",
+        "upgradePlan": "Upgrade Plan",
+        "upgradeHint": "Upgrade your current plan",
+        "selectPlanHint": "Select a plan and proceed to payment",
+        "recommended": "Recommended",
+        "oneTerm": "One term",
+        "feature": {
+          "routes": "Access to bus routes",
+          "support": "Priority support",
+          "manage": "Manage bookings"
+        },
+        "currentPlanBtn": "Current Plan",
+        "upgradeTwoTerms": "Upgrade to Two Terms",
+        "upgrade": "Upgrade",
+        "choosePlan": "Choose Plan",
+        "paymentMethodTitle": "Payment Method",
+        "methodOnlineName": "InstaPay",
+        "methodOnline": "Online",
+        "methodOffline": "Offline",
+        "methodManual": "Manual",
+        "bankInfo": "Bank Transfer Info",
+        "accountNumber": "Account Number",
+        "copy": "Copy",
+        "accountName": "Account Name",
+        "transfer": "⚠️ Transfer",
+        "paymentRefLabel": "Payment Reference Code",
+        "paymentRefPlaceholder": "Enter InstaPay reference code",
+        "processing": "Processing...",
+        "confirmPayment": "Confirm Payment",
+        "pendingTitle": "Payment Pending Approval",
+        "pendingHeader": "Payment Submitted Successfully!",
+        "pendingDesc": "Your offline payment is pending admin approval. You will be notified once it's confirmed.",
+        "pendingPoint1": "Your payment will be reviewed by an administrator",
+        "pendingPoint2": "You'll receive a notification when approved",
+        "pendingPoint3": "Check your payment status in the dashboard",
+        "refreshStatus": "Refresh Status",
+        "upgradeTitle": "Upgrade Your Plan",
+        "currentPlanTitle": "Current Plan",
+        "activeSub": "Your active subscription",
+        "availableUpgrades": "Available Upgrade Plans",
+        "upgradeThisPlan": "Upgrade to This Plan",
+        "upgradeBenefits": "Upgrade Benefits",
+        "upgradeHappens": "What happens when you upgrade",
+        "benefit1": "Your new plan will be activated immediately after payment confirmation",
+        "benefit2": "You'll get access to all features of the upgraded plan",
+        "benefit3": "The upgrade will extend your subscription duration",
+        "benefit4": "You can continue using your current plan until the upgrade is processed",
+        "validationError": "Validation Error",
+        "refRequired": "Payment reference code is required for InstaPay transactions",
+        "refMin": "Payment reference code must be at least 3 characters long",
+        "successTitle": "Success!",
+        "paymentSubmitted": "Payment submitted successfully",
+        "paymentPending": "Payment pending admin approval",
+        "errors": {
+          "processFailed": "Failed to process payment. Please try again.",
+          "authFailed": "Authentication failed. Please log in again.",
+          "invalidData": "Invalid payment data. Please check your information.",
+          "serverError": "Server error. Please try again later.",
+          "network": "Network error. Please check your connection."
+        },
+        "days": "days",
+        "used": "Used",
+        "noUpgradeTitle": "No Upgrade Options Available",
+        "noUpgradeDesc": "You're already on the highest plan available, or no upgrade options are currently available.",
+        "upgradeFrom": "Upgrade from"
+      },
+      "bookTrip": {
+        "title": "Book Your Trip",
+        "subtitle": "Find and book available bus trips",
+        "search": "Search trips...",
+        "availableTrips": "Available Trips",
+        "myBookings": "My Bookings",
+        "totalSeats": "Total Seats",
+        "advancedFilters": "Advanced Filters",
+        "clearAll": "Clear All",
+        "showFilters": "Show Filters",
+        "hideFilters": "Hide Filters",
+        "availableForBooking": "trip(s) available for booking",
+        "noTrips": "No Trips Found",
+        "noTripsMsg": "No trips match your current filters",
+        "view": "View",
+        "alreadyBooked": "Already Booked",
+        "checking": "Checking...",
+        "bookNow": "Book Now",
+        "confirmBooking": "Confirm Booking",
+        "cancel": "Cancel",
+        "tripInfo": "Trip Information",
+        "routeAndTiming": "Route & Timing",
+        "seatAvailability": "Seat Availability",
+        "available": "available",
+        "booked": "booked",
+        "total": "Total",
+        "availableSeats": "Available Seats",
+        "bookedSeats": "Booked Seats",
+        "selectPickup": "Select Pickup Location",
+        "noStops": "No stop locations available for this trip",
+        "bookTrip": "Book Trip",
+        "filtered": "filtered",
+        "table": {
+          "busRoute": "Bus & Route",
+          "seats": "Seats"
+        },
+        "filters": {
+          "allStatus": "All Status",
+          "dateRange": "Date Range",
+          "allDates": "All Dates",
+          "today": "Today",
+          "tomorrow": "Tomorrow",
+          "thisWeek": "This Week",
+          "customDate": "Custom Date",
+          "selectDate": "Select Date",
+          "chooseDate": "Choose date"
+        },
+          "fields": {
+            "bus": "Bus",
+            "driver": "Driver",
+            "conductor": "Conductor",
+            "origin": "Origin",
+            "destination": "Destination",
+            "date": "Date",
+            "timeRangeLabel": "Time (Departure / Arrival)",
+            "timeRangeLabelRtl": "Time (Arrival / Departure)"
+          },
+          "stopsTitle": "Stop Locations",
+          "stopArrival": "Arrival",
+          "stopDeparture": "Departure",
+          "tripDetailsTitle": "Trip Details",
+        "toast": {
+          "loadedTitle": "Trips Loaded Successfully",
+          "loadedMsg": "Found {{count}} available trips",
+          "loadFailedTitle": "Failed to load trips",
+          "tryAgain": "Please try again",
+          "tripDetailsFailedTitle": "Failed to load trip details",
+          "pickupRequiredTitle": "Please select a pickup location",
+          "pickupRequiredMsg": "You must choose a stop point",
+          "authErrorTitle": "Authentication Error",
+          "authErrorMsg": "Please log in again to book a trip",
+          "noActiveSubTitle": "No Active Subscription",
+          "noActiveSubMsg": "You need an active subscription to book a trip",
+          "bookingConfirmedTitle": "Booking Confirmed!",
+          "bookingConfirmedMsg": "Your trip has been successfully booked",
+          "bookingFailedTitle": "Booking Failed"
+        }
+      },
+      "voting": {
+        "title": "Voting & Surveys",
+        "subtitle": "Share your feedback by completing the surveys below",
+        "noSurveys": "No Surveys Available",
+        "noSurveysDesc": "Check back later for new surveys",
+        "questions": "questions",
+        "question": "question",
+        "daily": "Daily",
+        "closesAt": "Closes at",
+        "closedWindow": "Closed from",
+        "startVoting": "Start Voting",
+        "alreadyVoted": "Already Voted Today",
+        "voted": "Voted",
+        "open": "Open",
+        "submitVote": "Submit Vote",
+        "submitting": "Submitting...",
+        "cancel": "Cancel",
+        "pleaseAnswer": "Please answer",
+        "required": "Required",
+        "typeAnswer": "Type your answer...",
+        "toasts": {
+          "submitted": "Your vote has been recorded",
+          "submittedTitle": "Submitted!",
+          "error": "Error",
+          "submitFailed": "Failed to submit vote",
+          "loadFailed": "Failed to load surveys"
+        }
+      }
+    },
+    "driver": {
+      "profile": {
+        "notFound": {
+          "title": "Profile Not Found",
+          "message": "Unable to load profile information.",
+          "tryAgain": "Try Again"
+        },
+        "header": {
+          "driverTitle": "Professional Driver",
+          "lastUpdated": "Last updated",
+          "uploading": "Uploading...",
+          "changePhoto": "Change Photo",
+          "cancelEdit": "Cancel Edit",
+          "editProfile": "Edit Profile",
+          "alt": "Profile"
+        },
+        "overview": {
+          "title": "Driver Overview",
+          "description": "Your professional driver profile summary",
+          "userId": "Driver ID",
+          "licenseNumber": "License Number",
+          "roleLevel": "Role Level",
+          "roleDriver": "Driver",
+          "securityInfo": "Security Information",
+          "nationalId": "National ID"
+        },
+        "personal": {
+          "title": "Personal Information",
+          "description": "Manage your personal details and professional information",
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "email": "Email Address",
+          "phone": "Phone Number",
+          "licenseNumber": "License Number",
+          "placeholders": {
+            "firstName": "Enter your first name",
+            "lastName": "Enter your last name",
+            "email": "Enter your email",
+            "phone": "Enter your phone number",
+            "licenseNumber": "Enter your license number (8-10 digits)"
+          }
+        },
+        "footer": {
+          "title": "Professional Driver",
+          "message": "You have access to view assigned trips, manage your schedule, and update your professional information. Keep your license details current for compliance."
+        },
+        "alerts": {
+          "fillOne": "Please fill in at least one field to update.",
+          "firstNameLength": "First name must be between 2 and 50 characters.",
+          "lastNameLength": "Last name must be between 2 and 50 characters.",
+          "invalidEmail": "Please enter a valid email address.",
+          "licenseNumberFormat": "License number must be 8-10 digits.",
+          "updated": "Profile updated successfully!",
+          "updateFailed": "Failed to update profile. Please try again.",
+          "selectImage": "Please select an image file.",
+          "imageTooLarge": "Image size should not exceed 5MB.",
+          "pictureUpdated": "Profile picture updated successfully!",
+          "pictureUpdateFailed": "Failed to update profile picture. Please try again."
+        }
+      },
+      "myTrips": {
+        "title": "My Trips",
+        "subtitle": "Track and manage your assigned trips",
+        "refresh": "Refresh",
+        "filters": "Filters & Search",
+        "filtersDesc": "Find the trips you need quickly",
+        "searchPlaceholder": "Search location, bus number...",
+        "statusAll": "All Status",
+        "tripsShort": "trip(s)",
+        "clearFilters": "Clear Filters",
+        "listTitle": "All Trips",
+        "results": "results",
+        "total": "Total Trips",
+        "counts": {
+          "total": "Total"
+        },
+        "loadingYourTrips": "Loading your trips...",
+        "toasts": {
+          "loadErrorTitle": "Failed to Load Trips",
+          "loadErrorMessage": "An error occurred while loading your trips. Please try again."
+        },
+        "empty": {
+          "title": "No trips found",
+          "noAssigned": "You don't have any assigned trips yet.",
+          "noMatch": "No trips match your current filters."
+        },
+        "labels": {
+          "date": "Date",
+          "departure": "Departure",
+          "arrival": "Arrival",
+          "occupancy": "Occupancy",
+          "seatOccupancy": "Seat Occupancy",
+          "booked": "booked",
+          "available": "available",
+          "conductor": "Conductor",
+          "driver": "Driver",
+          "unassigned": "Unassigned",
+          "trip": "Trip",
+          "details": "Details",
+          "bus": "Bus",
+          "tripStatus": "Trip Status",
+          "route": "Route",
+          "scheduleTiming": "Schedule & Timing",
+          "tripDate": "Trip Date",
+          "departureTime": "Departure Time",
+          "arrivalTime": "Arrival Time",
+          "occupancyRate": "Occupancy Rate",
+          "totalSeats": "Total Seats",
+          "staffInfo": "Staff Information",
+          "tripDetails": "Trip Details",
+          "tripId": "Trip ID",
+          "busId": "Bus ID",
+          "driverId": "Driver ID",
+          "conductorId": "Conductor ID",
+          "stopLocations": "Stop Locations",
+          "stops": "stops",
+          "noStops": "No stop locations available for this trip."
+        },
+        "modal": {
+          "loading": "Loading trip details..."
+        }
+      },
+      "notifications": {
+        "title": "Driver Notifications",
+        "subtitle": "Stay updated with your trip assignments and system updates"
+      }
+    },
+    "supervisor": {
+      "profile": {
+        "notFound": {
+          "title": "Profile Not Found",
+          "message": "Unable to load profile information.",
+          "tryAgain": "Try Again"
+        },
+        "header": {
+          "supervisorTitle": "Trip Supervisor",
+          "lastUpdated": "Last updated",
+          "uploading": "Uploading...",
+          "changePhoto": "Change Photo",
+          "cancelEdit": "Cancel Edit",
+          "editProfile": "Edit Profile",
+          "alt": "Profile"
+        },
+        "overview": {
+          "title": "Supervisor Overview",
+          "description": "Your supervisory profile summary",
+          "userId": "Supervisor ID",
+          "roleLevel": "Role Level",
+          "roleSupervisor": "Supervisor",
+          "securityInfo": "Security Information",
+          "nationalId": "National ID"
+        },
+        "personal": {
+          "title": "Personal Information",
+          "description": "Manage your personal details and contact information",
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "email": "Email Address",
+          "phone": "Phone Number",
+          "placeholders": {
+            "firstName": "Enter your first name",
+            "lastName": "Enter your last name",
+            "email": "Enter your email",
+            "phone": "Enter your phone number"
+          }
+        },
+        "footer": {
+          "title": "Trip Supervisor",
+          "message": "You have supervisory access to monitor trips, manage student boarding, and ensure safety protocols. Your profile is synchronized across all trip management systems."
+        },
+        "alerts": {
+          "fillOne": "Please fill in at least one field to update.",
+          "firstNameLength": "First name must be between 2 and 50 characters.",
+          "lastNameLength": "Last name must be between 2 and 50 characters.",
+          "invalidEmail": "Please enter a valid email address.",
+          "updated": "Profile updated successfully!",
+          "updateFailed": "Failed to update profile. Please try again.",
+          "selectImage": "Please select an image file.",
+          "imageTooLarge": "Image size should not exceed 5MB.",
+          "pictureUpdated": "Profile picture updated successfully!",
+          "pictureUpdateFailed": "Failed to update profile picture. Please try again."
+        }
+      },
+      "myTrips": {
+        "title": "My Trips",
+        "subtitle": "Track and manage your assigned trips as supervisor",
+        "refresh": "Refresh",
+        "filters": "Filters & Search",
+        "filtersDesc": "Find the trips you need quickly",
+        "searchPlaceholder": "Search location, bus number...",
+        "statusAll": "All Status",
+        "tripsShort": "trip(s)",
+        "clearFilters": "Clear Filters",
+        "listTitle": "All Trips",
+        "results": "results",
+        "total": "Total Trips",
+        "counts": {
+          "total": "Total"
+        },
+        "loadingYourTrips": "Loading your trips...",
+        "toasts": {
+          "loadErrorTitle": "Failed to Load Trips",
+          "loadErrorMessage": "An error occurred while loading your trips. Please try again."
+        },
+        "empty": {
+          "title": "No trips found",
+          "noAssigned": "You don't have any assigned trips yet.",
+          "noMatch": "No trips match your current filters."
+        },
+        "labels": {
+          "date": "Date",
+          "departure": "Departure",
+          "arrival": "Arrival",
+          "occupancy": "Occupancy",
+          "seatOccupancy": "Seat Occupancy",
+          "booked": "booked",
+          "available": "available",
+          "conductor": "Conductor",
+          "driver": "Driver",
+          "unassigned": "Unassigned",
+          "trip": "Trip",
+          "details": "Details",
+          "bus": "Bus",
+          "tripStatus": "Trip Status",
+          "route": "Route",
+          "scheduleTiming": "Schedule & Timing",
+          "tripDate": "Trip Date",
+          "departureTime": "Departure Time",
+          "arrivalTime": "Arrival Time",
+          "occupancyRate": "Occupancy Rate",
+          "totalSeats": "Total Seats",
+          "staffInfo": "Staff Information",
+          "tripDetails": "Trip Details",
+          "tripId": "Trip ID",
+          "busId": "Bus ID",
+          "driverId": "Driver ID",
+          "conductorId": "Conductor ID",
+          "stopLocations": "Stop Locations",
+          "stops": "stops",
+          "stopArrival": "Arrival",
+          "stopDeparture": "Departure",
+          "noStops": "No stop locations available for this trip."
+        },
+        "modal": {
+          "loading": "Loading trip details..."
+        }
+      },
+      "notifications": {
+        "title": "Supervisor Notifications",
+        "subtitle": "Review and manage notifications, send announcements to students"
+      }
+    },
+    "movementManager": {
+      "profile": {
+        "notFound": {
+          "title": "Profile Not Found",
+          "message": "Unable to load profile information.",
+          "tryAgain": "Try Again"
+        },
+        "header": {
+          "lastUpdated": "Last updated",
+          "uploading": "Uploading...",
+          "changePhoto": "Change Photo",
+          "cancelEdit": "Cancel Edit",
+          "editProfile": "Edit Profile"
+        },
+        "overview": {
+          "title": "Manager Overview",
+          "description": "Your movement management profile summary",
+          "managerId": "Manager ID",
+          "roleLevel": "Role Level",
+          "roleManager": "Manager",
+          "securityInfo": "Security Information",
+          "nationalId": "National ID"
+        },
+        "personal": {
+          "title": "Personal Information",
+          "description": "Manage your personal details and contact information",
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "email": "Email Address",
+          "phone": "Phone Number",
+          "placeholders": {
+            "firstName": "Enter your first name",
+            "lastName": "Enter your last name",
+            "email": "Enter your email",
+            "phone": "Enter your phone number"
+          }
+        },
+        "footer": {
+          "message": "You have management access to oversee bus routes, coordinate schedules, and manage transportation operations. Your profile is synchronized across all management systems."
+        },
+        "alerts": {
+          "fillOne": "Please fill in at least one field to update.",
+          "firstNameLength": "First name must be between 2 and 50 characters.",
+          "lastNameLength": "Last name must be between 2 and 50 characters.",
+          "invalidEmail": "Please enter a valid email address.",
+          "updated": "Profile updated successfully!",
+          "updateFailed": "Failed to update profile. Please try again.",
+          "selectImage": "Please select an image file.",
+          "imageTooLarge": "Image size should not exceed 5MB.",
+          "pictureUpdated": "Profile picture updated successfully!",
+          "pictureUpdateFailed": "Failed to update profile picture. Please try again."
+        }
+      },
+      "trips": {
+        "title": "Trips",
+        "filters": {
+          "date": "Date",
+          "driver": "Driver",
+          "bus": "Bus",
+          "allDrivers": "All drivers",
+          "allBuses": "All buses",
+          "apply": "Apply",
+          "reset": "Reset"
+        },
+        "summary": {
+          "duration": "Duration",
+          "availableSeats": "Available Seats",
+          "busId": "Bus ID"
+        },
+        "form": {
+          "fields": {
+            "startLocation": "Start Location",
+            "endLocation": "End Location"
+          }
+        },
+        "table": {
+          "status": "Status",
+          "route": "Route",
+          "driver": "Driver",
+          "bus": "Bus"
+        },
+        "sections": {
+          "basicInfo": "Basic Information",
+          "schedule": "Schedule"
+        },
+        "actions": {
+          "edit": "Edit Trip",
+          "delete": "Delete"
+        },
+        "details": {
+          "title": "Trip Details",
+          "trip": "Trip",
+          "tripId": "Trip ID",
+          "created": "Created",
+          "lastUpdated": "Last Updated",
+          "departureTime": "Departure Time",
+          "arrivalTime": "Arrival Time",
+          "origin": "Origin",
+          "destination": "Destination",
+          "routeInformation": "Route Information",
+          "resources": "Resources",
+          "conductor": "Conductor",
+          "additional": "Additional Details",
+          "notes": "Notes",
+          "description": "Description"
+        },
+        "errors": {
+          "loadFailed": "Failed to load trips"
+        }
+      },
+      "redirectingTitle": "Redirecting to Bus Management...",
+      "redirectingMessage": "Please wait while we navigate to the buses page",
+      "buses": {
+        "title": "Bus Management",
+        "subtitle": "Manage fleet vehicles and their assignments",
+        "add": "Add New Bus",
+        "edit": "Edit Bus",
+        "update": "Update Bus",
+        "details": "Bus Details",
+        "total": "Total Buses",
+        "active": "Active",
+        "inactive": "Inactive",
+        "totalCapacity": "Total Capacity",
+        "avgSpeed": "Avg Speed",
+        "searchTitle": "Search & Filters",
+        "searchSubtitle": "Find specific buses or filter by criteria",
+        "searchPlaceholder": "Search buses...",
+        "applyFilters": "Apply Filters",
+        "fleet": "Fleet",
+        "fleetSubtitle": "Manage bus assignments and status",
+        "filters": {
+          "allStatus": "All Status",
+          "active": "Active",
+          "inactive": "Inactive",
+          "underMaintenance": "Under Maintenance",
+          "outOfService": "Out of Service",
+          "allCapacities": "All Capacities",
+          "small": "Small (≤30)",
+          "medium": "Medium (31-60)",
+          "large": "Large (>60)"
+        },
+        "table": {
+          "bus": "Bus",
+          "status": "Status",
+          "capacity": "Capacity",
+          "speed": "Speed",
+          "actions": "Actions",
+          "id": "ID",
+          "seatsLabel": "seats",
+          "kmh": "km/h"
+        },
+        "status": {
+          "Active": "Active",
+          "Inactive": "Inactive",
+          "UnderMaintenance": "Under Maintenance",
+          "OutOfService": "Out of Service"
+        },
+        "form": {
+          "busNumber": "Bus Number",
+          "busNumberPh": "Enter bus number",
+          "capacity": "Capacity",
+          "capacityPh": "Enter capacity",
+          "status": "Status",
+          "speed": "Speed (km/h)",
+          "speedPh": "Enter speed"
+        }
+      },
+      "notifications": {
+        "title": "Movement Manager Notifications",
+        "subtitle": "Manage trip and route notifications, communicate with drivers and supervisors"
+      }
+    }
+  }
+}
