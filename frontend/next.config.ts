@@ -5,6 +5,7 @@ const backendUrl = new URL(backendOrigin);
 
 const nextConfig: NextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: backendUrl.protocol.replace(':', '') as 'http' | 'https',
