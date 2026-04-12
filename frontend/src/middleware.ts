@@ -70,7 +70,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Protect all app routes except Next.js internals and static assets
-    '/((?!_next/|favicon.ico|favico2n.ico|api/).*)',
+    // Protect app routes, but skip Next internals, API routes, and static files.
+    '/((?!api/|_next/static/|_next/image/|favicon.ico|favico2n.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|txt|xml|woff|woff2)$).*)',
   ],
 };
