@@ -19,9 +19,19 @@ export class Attendance {
 
   @Prop()
   notes: string;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const AttendanceSchema = SchemaFactory.createForClass(Attendance);
+
+AttendanceSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 AttendanceSchema.index({ tripId: 1 });
 AttendanceSchema.index({ studentId: 1 });

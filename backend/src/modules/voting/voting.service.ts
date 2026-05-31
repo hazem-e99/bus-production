@@ -362,7 +362,6 @@ export class VotingService {
   }
 
   private async findUserByNumericId(numericId: number): Promise<any> {
-    const users = await this.userModel.find().exec();
-    return users.find(u => this.getNumericId(u) === numericId) || null;
+    return this.userModel.findOne({ numericId }).exec();
   }
 }

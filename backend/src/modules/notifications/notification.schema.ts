@@ -25,9 +25,19 @@ export class Notification {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
+
+NotificationSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 NotificationSchema.index({ userId: 1 });
 NotificationSchema.index({ isRead: 1 });

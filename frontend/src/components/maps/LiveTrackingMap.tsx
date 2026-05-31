@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { BusLocationData } from '@/hooks/useBusTracking';
 
-const GOOGLE_MAPS_KEY = 'AIzaSyD-kP77Ud8nIDSHdVXOYAX_GgVxw0IdW80';
+const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || 'AIzaSyD-kP77Ud8nIDSHdVXOYAX_GgVxw0IdW80';
 
 let googleMapsLoaded = false;
 let googleMapsPromise: Promise<void> | null = null;

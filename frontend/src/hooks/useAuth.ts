@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				
 				// Set cookie expiration based on rememberMe
 				const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 days or 1 day
-				document.cookie = `user=${encodeURIComponent(JSON.stringify(foundUser))}; path=/; max-age=${maxAge}`;
+				document.cookie = `user=${encodeURIComponent(JSON.stringify(foundUser))}; path=/; max-age=${maxAge}; Secure; SameSite=Lax`;
 				
 				return true;
 			}
@@ -152,7 +152,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			localStorage.removeItem('token');
 			localStorage.removeItem('authToken');
 			localStorage.removeItem('access_token');
-			document.cookie = 'user=; path=/; max-age=0';
+			document.cookie = 'user=; path=/; max-age=0; Secure; SameSite=Lax';
 		} catch (error: unknown) {
 			console.error('Logout error:', error);
 		}

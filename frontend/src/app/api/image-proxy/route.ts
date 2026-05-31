@@ -10,10 +10,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/logo2.png', req.url))
     }
 
-    // Prevent SSRF to localhost
     const decoded = decodeURIComponent(target)
-    if (/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(decoded)) {
+    let targetUrl: URL;
+    try {
+      targetUrl = new URL(decoded);
+    } catch {
       return NextResponse.redirect(new URL('/logo2.png', req.url))
+    }
+
+    if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') {
+      return NextResponse.redirect(new URL('/logo2.png', req.url))
+    }
+
+    // Resolve allowed backend hostname from environment variables
+    const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7126/api';
+    let allowedBackendHost = 'localhost';
+    try {
+      allowedBackendHost = new URL(backendBaseUrl).hostname;
+    } catch {}
+
+    // Allow requests only to backend, localhost, or 127.0.0.1 for safety
+    const isAllowedHost = 
+      targetUrl.hostname === allowedBackendHost ||
+      targetUrl.hostname === 'localhost' ||
+      targetUrl.hostname === '127.0.0.1';
+
+    if (!isAllowedHost) {
+      return NextResponse.json({ error: 'Forbidden host' }, { status: 403 })
     }
 
     const resp = await fetch(decoded, {
@@ -23,6 +46,12 @@ export async function GET(req: NextRequest) {
 
     if (!resp.ok) {
       return NextResponse.redirect(new URL('/logo2.png', req.url))
+    }
+
+    // Validate Content-Length before downloading (limit to 5MB)
+    const contentLength = Number(resp.headers.get('content-length') || 0);
+    if (contentLength > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File too large' }, { status: 413 })
     }
 
     // Copy content type and stream body

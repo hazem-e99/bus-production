@@ -34,9 +34,19 @@ export class Payment {
 
   @Prop()
   reviewNotes: string;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
+
+PaymentSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 PaymentSchema.index({ studentId: 1 });
 PaymentSchema.index({ status: 1 });

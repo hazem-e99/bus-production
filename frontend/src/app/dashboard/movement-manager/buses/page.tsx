@@ -27,6 +27,7 @@ import { Bus as BusType, BusRequest, BusListParams } from '@/types/bus';
 export default function MovementManagerBusesPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'Active' | 'Inactive' | 'UnderMaintenance' | 'OutOfService'>('all');
   const [capacityFilter, setCapacityFilter] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -41,6 +42,14 @@ export default function MovementManagerBusesPage() {
   });
   const [buses, setBuses] = useState<BusType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
   const buildParams = useCallback((): BusListParams => {
     let minCapacity = 0;
     let maxCapacity = 0;
@@ -50,14 +59,14 @@ export default function MovementManagerBusesPage() {
     return {
       page: 0,
       pageSize: 0,
-      busNumber: searchTerm,
+      busNumber: debouncedSearchTerm,
       status: statusFilter === 'all' ? '' : statusFilter as 'Active' | 'Inactive' | 'UnderMaintenance' | 'OutOfService',
       minSpeed: 0,
       maxSpeed: 0,
       minCapacity,
       maxCapacity,
     };
-  }, [searchTerm, statusFilter, capacityFilter]);
+  }, [debouncedSearchTerm, statusFilter, capacityFilter]);
 
   const handleApplyFilters = async () => {
     try {

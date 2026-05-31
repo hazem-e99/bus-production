@@ -42,8 +42,7 @@ export class TripBookingService {
   }
 
   private async findEntityByNumericId(model: Model<any>, numericId: number): Promise<any> {
-    const docs = await model.find().exec();
-    return docs.find((d) => this.getNumericId(d) === numericId) || null;
+    return model.findOne({ numericId }).exec();
   }
 
   async create(dto: any): Promise<ApiResponse<boolean>> {
@@ -147,7 +146,6 @@ export class TripBookingService {
   }
 
   private async findByNumericId(numericId: number): Promise<TripBookingDocument | null> {
-    const bookings = await this.bookingModel.find().exec();
-    return bookings.find((b) => this.getNumericId(b) === numericId) || null;
+    return this.bookingModel.findOne({ numericId }).exec();
   }
 }

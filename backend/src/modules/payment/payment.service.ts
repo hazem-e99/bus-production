@@ -51,8 +51,7 @@ export class PaymentService {
   }
 
   private async findByNumericId(model: Model<any>, numericId: number): Promise<any> {
-    const docs = await model.find().exec();
-    return docs.find((d) => this.getNumericId(d) === numericId) || null;
+    return model.findOne({ numericId }).exec();
   }
 
   async getAll(): Promise<ApiResponse<any[]>> {
@@ -62,8 +61,7 @@ export class PaymentService {
   }
 
   async getById(id: number): Promise<ApiResponse<any>> {
-    const payments = await this.paymentModel.find().exec();
-    const payment = payments.find((p) => this.getNumericId(p) === id);
+    const payment = await this.paymentModel.findOne({ numericId: id }).exec();
     if (!payment) throw new NotFoundException('Payment not found');
     return createApiResponse(await this.toViewModel(payment));
   }
@@ -80,16 +78,14 @@ export class PaymentService {
   }
 
   async delete(id: number): Promise<ApiResponse<boolean>> {
-    const payments = await this.paymentModel.find().exec();
-    const payment = payments.find((p) => this.getNumericId(p) === id);
+    const payment = await this.paymentModel.findOne({ numericId: id }).exec();
     if (!payment) throw new NotFoundException('Payment not found');
     await this.paymentModel.findByIdAndDelete(payment._id);
     return createApiResponse(true, 'Payment deleted');
   }
 
   async review(id: number, dto: any, adminId: number): Promise<ApiResponse<boolean>> {
-    const payments = await this.paymentModel.find().exec();
-    const payment = payments.find((p) => this.getNumericId(p) === id);
+    const payment = await this.paymentModel.findOne({ numericId: id }).exec();
     if (!payment) throw new NotFoundException('Payment not found');
     await this.paymentModel.findByIdAndUpdate(payment._id, {
       status: dto.status,

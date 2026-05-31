@@ -27,8 +27,7 @@ export class SubscriptionPlanService {
   }
 
   private async findByNumericId(id: number): Promise<SubscriptionPlanDocument | null> {
-    const plans = await this.planModel.find().exec();
-    return plans.find((p) => this.getNumericId(p) === id) || null;
+    return this.planModel.findOne({ numericId: id }).exec();
   }
 
   async getAll(): Promise<ApiResponse<any[]>> {

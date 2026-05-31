@@ -31,9 +31,19 @@ export class StudentSubscription {
 
   @Prop()
   suspendReason: string;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const StudentSubscriptionSchema = SchemaFactory.createForClass(StudentSubscription);
+
+StudentSubscriptionSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 StudentSubscriptionSchema.index({ studentId: 1 });
 StudentSubscriptionSchema.index({ status: 1 });

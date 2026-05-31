@@ -71,8 +71,7 @@ export async function POST(request: NextRequest) {
     console.log('Password reset link:', resetLink); // Remove in production
 
     return NextResponse.json({
-      message: 'If an account with that email exists, we have sent a password reset link.',
-      resetLink // Remove this in production, only for development
+      message: 'If an account with that email exists, we have sent a password reset link.'
     });
 
   } catch {

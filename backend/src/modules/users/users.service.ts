@@ -144,11 +144,7 @@ export class UsersService {
 
   private async findUserByNumericId(numericId: string): Promise<UserDocument | null> {
     const id = parseInt(numericId);
-    const users = await this.userModel.find().select('-password').exec();
-    return users.find((u) => {
-      const uid = parseInt((u._id as any).toString().slice(-8), 16) % 100000;
-      return uid === id;
-    }) || null;
+    return this.userModel.findOne({ numericId: id }).select('-password').exec();
   }
 
   async findByMongoId(mongoId: string): Promise<UserDocument | null> {
@@ -156,10 +152,6 @@ export class UsersService {
   }
 
   async findUserDocByNumericId(numericId: number): Promise<UserDocument | null> {
-    const users = await this.userModel.find().exec();
-    return users.find((u) => {
-      const uid = parseInt((u._id as any).toString().slice(-8), 16) % 100000;
-      return uid === numericId;
-    }) || null;
+    return this.userModel.findOne({ numericId }).exec();
   }
 }

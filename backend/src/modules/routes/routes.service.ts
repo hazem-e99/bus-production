@@ -33,8 +33,7 @@ export class RoutesService {
   }
 
   private async findByNumericId(id: number): Promise<TripRouteDocument | null> {
-    const routes = await this.routeModel.find().exec();
-    return routes.find((r) => this.getNumericId(r) === id) || null;
+    return this.routeModel.findOne({ numericId: id }).exec();
   }
 
   async getAll(): Promise<any[]> {

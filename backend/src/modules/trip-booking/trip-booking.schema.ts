@@ -25,9 +25,19 @@ export class TripBooking {
 
   @Prop()
   cancellationDate: Date;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const TripBookingSchema = SchemaFactory.createForClass(TripBooking);
+
+TripBookingSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 TripBookingSchema.index({ tripId: 1 });
 TripBookingSchema.index({ studentId: 1 });

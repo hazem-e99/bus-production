@@ -51,9 +51,19 @@ export class Trip {
 
   @Prop({ default: 0 })
   bookedSeats: number;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const TripSchema = SchemaFactory.createForClass(Trip);
+
+TripSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 TripSchema.index({ tripDate: 1 });
 TripSchema.index({ driverId: 1 });

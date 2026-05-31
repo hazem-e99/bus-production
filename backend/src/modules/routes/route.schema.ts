@@ -22,6 +22,16 @@ export class TripRoute {
 
   @Prop({ type: [String], default: [] })
   stopLocations: string[];
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const TripRouteSchema = SchemaFactory.createForClass(TripRoute);
+
+TripRouteSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});

@@ -22,6 +22,16 @@ export class SubscriptionPlan {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const SubscriptionPlanSchema = SchemaFactory.createForClass(SubscriptionPlan);
+
+SubscriptionPlanSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});

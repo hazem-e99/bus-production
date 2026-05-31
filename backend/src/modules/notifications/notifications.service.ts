@@ -44,13 +44,11 @@ export class NotificationsService {
   }
 
   private async findByNumericId(model: Model<any>, numericId: number): Promise<any> {
-    const docs = await model.find().exec();
-    return docs.find((d) => this.getNumericId(d) === numericId) || null;
+    return model.findOne({ numericId }).exec();
   }
 
   private async findNotifByNumericId(id: number): Promise<NotificationDocument | null> {
-    const docs = await this.notifModel.find().exec();
-    return docs.find((d) => this.getNumericId(d) === id) || null;
+    return this.notifModel.findOne({ numericId: id }).exec();
   }
 
   async getAll(userId: number): Promise<{ success: boolean; message: string | null; data: any[] }> {

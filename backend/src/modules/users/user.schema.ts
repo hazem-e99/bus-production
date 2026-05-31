@@ -75,8 +75,18 @@ export class User {
 
   @Prop()
   assignedRouteId: number;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 UserSchema.index({ role: 1 });

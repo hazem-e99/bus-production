@@ -55,9 +55,19 @@ export class VotingSurvey {
 
   @Prop()
   endDate: string;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const VotingSurveySchema = SchemaFactory.createForClass(VotingSurvey);
+
+VotingSurveySchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 VotingSurveySchema.index({ isActive: 1 });
 VotingSurveySchema.index({ createdByUserId: 1 });
@@ -81,9 +91,19 @@ export class VoteResponse {
 
   @Prop({ type: [{ questionIndex: Number, answer: String }], required: true })
   answers: Array<{ questionIndex: number; answer: string }>;
+
+  @Prop({ unique: true, index: true })
+  numericId: number;
 }
 
 export const VoteResponseSchema = SchemaFactory.createForClass(VoteResponse);
+
+VoteResponseSchema.pre('save', function (next) {
+  if (this.isNew || !this.numericId) {
+    this.numericId = parseInt(this._id.toString().slice(-8), 16) % 100000;
+  }
+  next();
+});
 
 VoteResponseSchema.index({ surveyId: 1, studentId: 1, voteDateKey: 1 }, { unique: true });
 VoteResponseSchema.index({ surveyId: 1 });

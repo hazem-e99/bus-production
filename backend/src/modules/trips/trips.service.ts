@@ -56,13 +56,11 @@ export class TripsService {
   }
 
   private async findEntityByNumericId(model: Model<any>, numericId: number): Promise<any> {
-    const docs = await model.find().exec();
-    return docs.find((d) => this.getNumericId(d) === numericId) || null;
+    return model.findOne({ numericId }).exec();
   }
 
   async findTripByNumericId(numericId: number): Promise<TripDocument | null> {
-    const trips = await this.tripModel.find().exec();
-    return trips.find((t) => this.getNumericId(t) === numericId) || null;
+    return this.tripModel.findOne({ numericId }).exec();
   }
 
   async getAll(): Promise<any> {

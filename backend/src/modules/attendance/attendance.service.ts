@@ -36,8 +36,7 @@ export class AttendanceService {
 
   async getById(id: string): Promise<any> {
     const numId = parseInt(id);
-    const records = await this.attendanceModel.find().exec();
-    const record = records.find((a) => this.getNumericId(a) === numId);
+    const record = await this.attendanceModel.findOne({ numericId: numId }).exec();
     if (!record) throw new NotFoundException('Attendance record not found');
     return this.toViewModel(record);
   }
@@ -49,21 +48,17 @@ export class AttendanceService {
 
   async update(id: string, dto: any): Promise<any> {
     const numId = parseInt(id);
-    const records = await this.attendanceModel.find().exec();
-    const record = records.find((a) => this.getNumericId(a) === numId);
-    if (!record) throw new NotFoundException('Attendance record not found');
     const updated = await this.attendanceModel
-      .findByIdAndUpdate(record._id, { $set: dto }, { new: true })
+      .findOneAndUpdate({ numericId: numId }, { $set: dto }, { new: true })
       .exec();
-    return this.toViewModel(updated!);
+    if (!updated) throw new NotFoundException('Attendance record not found');
+    return this.toViewModel(updated);
   }
 
   async delete(id: string): Promise<any> {
     const numId = parseInt(id);
-    const records = await this.attendanceModel.find().exec();
-    const record = records.find((a) => this.getNumericId(a) === numId);
-    if (!record) throw new NotFoundException('Attendance record not found');
-    await this.attendanceModel.findByIdAndDelete(record._id);
+    const deleted = await this.attendanceModel.findOneAndDelete({ numericId: numId }).exec();
+    if (!deleted) throw new NotFoundException('Attendance record not found');
     return { success: true, message: 'Attendance deleted' };
   }
 }

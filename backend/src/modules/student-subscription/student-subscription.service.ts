@@ -19,8 +19,7 @@ export class StudentSubscriptionService {
   }
 
   private async findByNumericId(model: Model<any>, id: number): Promise<any> {
-    const docs = await model.find().exec();
-    return docs.find((d) => this.getNumericId(d) === id) || null;
+    return model.findOne({ numericId: id }).exec();
   }
 
   private async toViewModel(sub: StudentSubscriptionDocument): Promise<any> {
@@ -48,8 +47,7 @@ export class StudentSubscriptionService {
   }
 
   private async findSubByNumericId(id: number): Promise<StudentSubscriptionDocument | null> {
-    const subs = await this.subModel.find().exec();
-    return subs.find((s) => this.getNumericId(s) === id) || null;
+    return this.subModel.findOne({ numericId: id }).exec();
   }
 
   async getMyActiveSubscription(userId: number): Promise<ApiResponse<any>> {

@@ -147,9 +147,8 @@ export default function RoutesPage() {
 
   const enrichRoutesWithStops = async (baseRoutes: RouteType[]) => {
     try {
-              const need = (baseRoutes || []).filter((r: BaseRoute) => {
-        const have = Array.isArray(r.stops) && r.stops.length > 0;
-        return !have;
+      const need = (baseRoutes || []).filter((r: BaseRoute) => {
+        return r.stops === undefined;
       });
       if (need.length === 0) return;
               const fulls = await Promise.all(need.map((r: BaseRoute) => routeAPI.getById(r.id)));

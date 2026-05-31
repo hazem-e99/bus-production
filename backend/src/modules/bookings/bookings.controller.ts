@@ -32,9 +32,7 @@ export class BookingsController {
   @Get(':id')
   async getById(@Param('id') id: string) {
     const numId = parseInt(id);
-    const bookings = await this.bookingModel.find().exec();
-    const booking = bookings.find((b) => this.getNumericId(b) === numId);
-    return booking || null;
+    return this.bookingModel.findOne({ numericId: numId }).exec();
   }
 
   @Post()
@@ -46,20 +44,20 @@ export class BookingsController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: any) {
     const numId = parseInt(id);
-    const bookings = await this.bookingModel.find().exec();
-    const booking = bookings.find((b) => this.getNumericId(b) === numId);
+    const booking = await this.bookingModel.findOneAndUpdate(
+      { numericId: numId },
+      { $set: dto },
+      { new: true }
+    ).exec();
     if (!booking) return { success: false, message: 'Not found' };
-    await this.bookingModel.findByIdAndUpdate(booking._id, { $set: dto });
     return { success: true };
   }
 
   @Delete(':id')
   async delete(@Param('id') id: string) {
     const numId = parseInt(id);
-    const bookings = await this.bookingModel.find().exec();
-    const booking = bookings.find((b) => this.getNumericId(b) === numId);
+    const booking = await this.bookingModel.findOneAndDelete({ numericId: numId }).exec();
     if (!booking) return { success: false, message: 'Not found' };
-    await this.bookingModel.findByIdAndDelete(booking._id);
     return { success: true };
   }
 }
