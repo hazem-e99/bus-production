@@ -27,8 +27,12 @@ install_mongodb() {
   fi
 
   systemctl enable mongod >/dev/null 2>&1 || true
-  systemctl restart mongod 2>/dev/null || systemctl start mongod
-  _mongo_wait_active
+  if systemctl is-active --quiet mongod; then
+    log_ok "mongod already running — leaving it alone."
+  else
+    systemctl start mongod
+  fi
+  _mongo_wait_ready
 
   _mongo_enforce_localhost_bind
   _mongo_ensure_app_user
@@ -42,13 +46,23 @@ _mongo_add_repo() {
     > "/etc/apt/sources.list.d/mongodb-org-${MONGO_MAJOR}.list"
 }
 
-_mongo_wait_active() {
+# Waits for mongod to be both systemd-active AND actually accepting TCP
+# connections on 127.0.0.1:27017. `systemctl is-active` can report "active"
+# slightly before mongod's listener is actually ready (WiredTiger
+# recovery/startup), which previously caused the very next mongosh call to
+# fail with ECONNREFUSED right after a restart. Checked at the TCP layer
+# (not via mongosh) so this works whether or not auth is enabled yet.
+_mongo_wait_ready() {
   local i
-  for i in $(seq 1 15); do
-    systemctl is-active --quiet mongod && return 0
+  for i in $(seq 1 30); do
+    if systemctl is-active --quiet mongod && (exec 3<>"/dev/tcp/127.0.0.1/27017") 2>/dev/null; then
+      exec 3>&- 2>/dev/null || true
+      exec 3<&- 2>/dev/null || true
+      return 0
+    fi
     sleep 1
   done
-  log_err "mongod did not become active in time. Last logs:"
+  log_err "mongod did not become ready (active + accepting connections on 127.0.0.1:27017) in time. Last logs:"
   journalctl -u mongod --no-pager -n 30 || true
   exit 1
 }
@@ -67,7 +81,7 @@ _mongo_enforce_localhost_bind() {
     printf '\nnet:\n  bindIp: 127.0.0.1\n' >> "$conf"
   fi
   systemctl restart mongod
-  _mongo_wait_active
+  _mongo_wait_ready
   log_ok "MongoDB now bound to 127.0.0.1 only."
 }
 
@@ -101,6 +115,6 @@ _mongo_ensure_app_user() {
   fi
 
   systemctl restart mongod
-  _mongo_wait_active
+  _mongo_wait_ready
   log_ok "MongoDB authentication enabled with dedicated application user."
 }
