@@ -1,0 +1,7 @@
+# Force LF line endings for everything that runs as a script on the Ubuntu
+# server, regardless of a contributor's local core.autocrlf setting. A CRLF
+# shebang line (`#!/usr/bin/env bash\r`) fails to execute on Linux.
+deploy/**/*.sh text eol=lf
+deploy/**/*.template text eol=lf
+backend/scripts/*.js text eol=lf
+*.sh text eol=lf

@@ -1,0 +1,26 @@
+# Root-level safety net. backend/.gitignore and frontend/.gitignore cover
+# their own node_modules/build output — this file catches anything created
+# at the repo root (e.g. by running a script from the wrong directory).
+
+# Environment / secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Backups / dumps — these belong on the server under /var/backups, never in git
+*.dump
+*.bak
+backup/
+backups/
+
+# Logs
+*.log
+npm-debug.log*

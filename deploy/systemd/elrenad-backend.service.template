@@ -1,0 +1,20 @@
+[Unit]
+Description=El Renad Bus System - Backend (NestJS)
+After=network.target mongod.service
+Wants=mongod.service
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__WORKDIR__
+ExecStart=__NODE_BIN__ __ENTRY__
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=__WORKDIR__/uploads __UPLOADS_PERSIST_DIR__
+
+[Install]
+WantedBy=multi-user.target

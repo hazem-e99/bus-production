@@ -44,8 +44,13 @@ async function bootstrap() {
   }
   app.useStaticAssets(resolvedUploadDir, { prefix: '/uploads/' });
 
-  await app.listen(port);
-  console.log(`🚀 Bus System Backend running on http://localhost:${port}`);
-  console.log(`📋 API Base URL: http://localhost:${port}/api`);
+  const host = configService.get<string>('HOST');
+  if (host) {
+    await app.listen(port, host);
+  } else {
+    await app.listen(port);
+  }
+  console.log(`🚀 Bus System Backend running on http://${host || 'localhost'}:${port}`);
+  console.log(`📋 API Base URL: http://${host || 'localhost'}:${port}/api`);
 }
 bootstrap();

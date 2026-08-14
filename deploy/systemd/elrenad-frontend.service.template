@@ -1,0 +1,19 @@
+[Unit]
+Description=El Renad Bus System - Frontend (Next.js)
+After=network.target __BACKEND_SERVICE__.service
+Wants=__BACKEND_SERVICE__.service
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__WORKDIR__
+ExecStart=__NODE_BIN__ __ENTRY__ start -p __FRONTEND_PORT__ -H 127.0.0.1
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

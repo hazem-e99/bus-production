@@ -1,214 +1,231 @@
-# دليل رفع نهائي على VPS (Hostinger) بدون تعديلات كل مرة
+# دليل النشر على VPS — El Renad Bus System (el-renad.com)
 
-الهدف من هذا الدليل:
-- تجهيز أول مرة فقط
-- بعد ذلك أي تحديث يكون بنفس 4 أوامر ثابتة
+نظام النشر بالكامل مؤتمت داخل مجلد `deploy/`. أمر واحد يجهز السيرفر من الصفر
+ويشغّل كل شيء، وهو نفس الأمر الذي تستخدمه لاحقًا لأي تحديث.
 
-معمارية النشر:
-- Frontend: el-renad.com
-- Backend API: api.el-renad.com
-- MongoDB: على نفس السيرفر داخليا
+## المعمارية
 
-----------------------------------------
-## المرحلة A) تجهيز مرة واحدة فقط
-----------------------------------------
+| الطبقة | التفاصيل |
+|---|---|
+| Frontend | Next.js 15 (SSR)، يعمل عبر `next start` على المنفذ الداخلي `3000` |
+| Backend | NestJS 10 + Mongoose، يعمل عبر `node dist/main.js` على المنفذ الداخلي `7126` |
+| قاعدة البيانات | MongoDB (محلي على نفس السيرفر)، قاعدة `bus-system` |
+| الدومين | `https://el-renad.com` (الواجهة + `/api` + `/uploads` + `/socket.io`) |
+| `www.el-renad.com` | إعادة توجيه 301 إلى `el-renad.com` |
+| العملية | كل من الـ backend والـ frontend يعملان كخدمتَي systemd تحت مستخدم غير جذري `elrenad` |
+| الويب سيرفر | Nginx كـ reverse proxy أمام الاثنين، مع شهادة SSL من Let's Encrypt |
 
-### ⚡ الطريقة السريعة التلقائية (موصى بها):
-لتجهيز السيرفر بالكامل بضغطة واحدة (تنزيل وتفعيل MongoDB 7.0، تثبيت Node.js 20، تثبيت PM2 و Nginx، ضبط جدار الحماية، إنشاء ملفات .env، وبناء الواجهة والخلفية، وعمل Seed لقاعدة البيانات المحلية وتشغيل كل شيء):
+الواجهة والـ API على نفس الدومين (`el-renad.com/api`) بدل استخدام
+`api.el-renad.com` — هذا يلغي الحاجة لإعداد CORS بين نطاقين، ويقلل عدد
+سجلات الـ DNS وشهادات SSL المطلوبة.
 
-1. اسحب المشروع في السيرفر أولاً:
-   ```bash
-   mkdir -p /var/www ; cd /var/www
-   git clone <رابط_المستودع> production2026
-   cd /var/www/production2026
-   ```
-2. نفذ أمر تشغيل السكربت التلقائي كـ root:
-   ```bash
-   chmod +x deploy/setup-and-deploy.sh
-   ./deploy/setup-and-deploy.sh
-   ```
+---
 
-*بعد انتهاء السكربت بنجاح، اذهب للخطوة رقم (12) لعمل شهادة الـ SSL مباشرة.*
+## المرحلة أ) أول نشر على سيرفر جديد
 
-----------------------------------------
-### 🛠️ الطريقة اليدوية (خطوة بخطوة):
+### 1) الدخول على السيرفر وسحب المشروع
 
-### 1) DNS عند شركة الدومين
-اعمل السجلات التالية (A Records):
-- el-renad.com -> IP السيرفر
-- www.el-renad.com -> IP السيرفر
-- api.el-renad.com -> IP السيرفر
+```bash
+ssh root@SERVER_IP
+mkdir -p /opt && cd /opt
+git clone https://github.com/hazem-e99/bus-production.git
+cd bus-production
+```
 
-انتظر انتشار DNS (غالبا من 5 دقائق إلى 30 دقيقة).
+> يفضَّل استنساخ المشروع في مسار يمكن لأي مستخدم آخر المرور منه (مثل
+> `/opt/bus-production` أو `/var/www/bus-production`) بدلاً من `/root/...`،
+> لأن خدمة التطبيق تعمل تحت مستخدم مخصص غير جذري (`elrenad`) ويحتاج صلاحية
+> عبور (`x`) على كل مجلد أب. إذا استنسخته داخل `/root` سيطبع السكربت تحذيرًا
+> واضحًا بالحل بدل الفشل الصامت.
 
-### 2) دخول السيرفر
+### 2) أمر النشر الوحيد
 
-  ssh root@SERVER_IP
+```bash
+sudo ./deploy/deploy.sh
+```
 
-### 3) تحديث النظام وتثبيت الأدوات
+هذا السكربت يقوم تلقائيًا بكل شيء:
 
-  apt update ; apt upgrade -y
-  apt install -y curl git nginx ufw
+1. يتحقق من إصدار أوبنتو ويهيّئ مستخدم النظام `elrenad` والمجلدات اللازمة.
+2. يثبّت الحزم الأساسية (Nginx، Certbot، git، build-essential...).
+3. يثبّت Node.js 22 (LTS) عبر NodeSource.
+4. يولّد أسرارًا عشوائية آمنة (JWT، كلمة مرور مستخدم MongoDB) ويحفظها خارج
+   المستودع في `/etc/elrenad/secrets.env` (صلاحيات 600، جذر فقط).
+5. يثبّت MongoDB محليًا، يقفله على `127.0.0.1` فقط، ويفعّل صلاحيات الدخول
+   (`authorization: enabled`) بمستخدم تطبيق مخصص (`elrenad_app`) بصلاحية
+   `readWrite` على قاعدة `bus-system` فقط — **وليس** حساب المشرف الأعلى.
+6. يُنشئ `backend/.env` و`frontend/.env` عند أول تشغيل فقط (لا يمسهما بعد
+   ذلك أبدًا — هذا ما يحافظ على الأسرار بين عمليات النشر).
+7. يربط `backend/uploads` برابط رمزي (`symlink`) إلى تخزين دائم خارج
+   المستودع (`/var/lib/elrenad/uploads`) — الصور المرفوعة لا تُحذف أبدًا عند
+   إعادة النشر.
+8. يثبّت الحزم ويبني الـ backend ثم الـ frontend (`npm ci && npm run build`).
+9. يُنشئ حساب المشرف `admin@elrenad.com` (أو يتأكد من صلاحياته إن كان
+   موجودًا) عبر سكربت idempotent يستخدم موديل المستخدم الحقيقي وتشفير bcrypt
+   نفسه المستخدم في تسجيل الدخول.
+10. يثبّت خدمتَي systemd (`elrenad-backend`, `elrenad-frontend`) ويشغّلهما.
+11. يضبط جدار الحماية UFW (يسمح فقط بـ SSH و80 و443).
+12. يضبط Nginx ويتحقق من صحة الإعداد قبل أي `reload`.
+13. يكتشف IP السيرفر العام ويقارنه بـ DNS الحالي للدومين.
+14. إذا كان DNS صحيحًا: يصدر شهادة SSL عبر Certbot تلقائيًا ويفعّل التجديد
+    التلقائي. إذا لم يكن DNS جاهزًا بعد: يطبع لك بالضبط السجلات المطلوبة
+    ويكمل النشر على HTTP بدون توقف.
+15. يشغّل فحوصات صحة شاملة (Mongo، Nginx، الخدمتان، واستجابة API فعليًا).
 
-### 4) تثبيت Node.js 20 + PM2
+السكربت **آمن لإعادة التشغيل** في أي وقت — لا يحذف بيانات، لا يكرر حساب
+المشرف، لا يعيد توليد الأسرار، ولا يصدر شهادة SSL مكررة.
 
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-  apt install -y nodejs
-  npm i -g pm2
-  node -v
-  npm -v
-  pm2 -v
+### 3) إعداد DNS
 
-### 5) تثبيت MongoDB على Ubuntu 22.04 (Jammy)
+عند مزوّد الدومين أنشئ:
 
-  curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
-  echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-  apt update
-  apt install -y mongodb-org
-  systemctl enable mongod
-  systemctl start mongod
-  systemctl status mongod --no-pager
-  mongosh --eval "db.runCommand({ ping: 1 })"
+```
+A     @       <IP السيرفر العام>
+A     www     <IP السيرفر العام>
+```
 
-### 6) Firewall
+(استخدم A record لكل من `@` و`www` — ليس CNAME — لأن كلاهما يشير لنفس IP
+السيرفر مباشرة.)
 
-  ufw allow OpenSSH
-  ufw allow 'Nginx Full'
-  ufw --force enable
-  ufw status
+إذا شغّلت `deploy.sh` قبل ضبط DNS، سيخبرك بذلك بوضوح ويتجاوز خطوة SSL فقط.
+بعد انتشار DNS (عادة 5–30 دقيقة) نفّذ نفس الأمر مرة أخرى:
 
-مهم:
-- لا تفتح 27017 ولا 7126 للعالم
-- MongoDB والBackend شغالين داخليا فقط
+```bash
+sudo ./deploy/deploy.sh
+```
 
-### 7) سحب المشروع
+وسيكمل إصدار الشهادة تلقائيًا دون التأثير على أي شيء آخر يعمل بالفعل.
 
-  mkdir -p /var/www ; cd /var/www
-  git clone REPO_URL production2026
-  cd /var/www/production2026
+### 4) تسجيل الدخول
 
-### 8) إعداد Backend مرة واحدة
+```
+البريد:     admin@elrenad.com
+كلمة المرور: elrenad99
+```
 
-  cd /var/www/production2026/backend
-  cp .env.example .env
-  nano .env
+**غيّر كلمة المرور هذه فور أول تسجيل دخول من داخل لوحة التحكم.** كلمة
+المرور الابتدائية موجودة فقط كنص عادي في ملف محمي على السيرفر نفسه
+(`/etc/elrenad/secrets.env`, صلاحيات 600) — لا وجود لها في Git، ولا تُطبع في
+أي سجل (log)، وقاعدة البيانات لا تخزّنها إلا كـ bcrypt hash.
 
-ضع هذا المحتوى (كما هو وعدل JWT_SECRET فقط):
+---
 
-  NODE_ENV=production
-  PORT=7126
-  MONGODB_URI=mongodb://127.0.0.1:27017/bus-system
-  DB_NAME=bus-system
-  JWT_SECRET=PUT_LONG_RANDOM_SECRET_HERE
-  JWT_EXPIRATION=7d
-  CORS_ORIGIN=https://el-renad.com,https://www.el-renad.com
-  UPLOAD_DIR=/var/www/production2026/backend/uploads
-  MAIL_USER=
-  MAIL_PASS=
+## المرحلة ب) أي تحديث لاحق
 
-ثم:
+```bash
+cd bus-production
+git pull
+sudo ./deploy/deploy.sh
+```
 
-  npm install
-  npm run build
-  npm run seed
+نفس الأمر بالضبط. عند إعادة التشغيل سيقوم فقط بما تغيّر فعليًا: يعيد تثبيت
+الحزم إذا تغيّر `package-lock.json`، يعيد البناء، يعيد تشغيل الخدمتين، ويترك
+كل شيء آخر (قاعدة البيانات، الأسرار، الشهادة، الملفات المرفوعة) كما هو.
 
-### 9) إعداد Frontend مرة واحدة
+---
 
-  cd /var/www/production2026/frontend
-  cp .env.example .env
-  nano .env
+## أوامر التشغيل اليومي
 
-ضع هذا المحتوى:
+### الحالة العامة
 
-  NODE_ENV=production
-  NEXT_PUBLIC_APP_URL=https://el-renad.com
-  NEXT_PUBLIC_API_BASE_URL=https://api.el-renad.com/api
-  NEXT_PUBLIC_BACKEND_ORIGIN=https://api.el-renad.com
-  NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=
-  NEXT_PUBLIC_CURRENCY=EGP
+```bash
+sudo ./deploy/status.sh
+```
 
-ثم:
+يعرض حالة كل خدمة، مساحة القرص، الذاكرة، المنافذ المفتوحة، وتاريخ انتهاء شهادة SSL.
 
-  npm install
-  npm run build
+### السجلات (Logs)
 
-### 10) تشغيل PM2 مرة واحدة
+```bash
+./deploy/logs.sh backend
+./deploy/logs.sh frontend
+./deploy/logs.sh nginx
+./deploy/logs.sh mongo
+```
 
-  cd /var/www/production2026
-  pm2 start deploy/ecosystem.config.cjs
-  pm2 save
-  pm2 startup
+### إعادة تشغيل التطبيق فقط
 
-تحقق:
+```bash
+sudo ./deploy/restart.sh
+```
 
-  pm2 status
-  pm2 logs bus-backend --lines 100
-  pm2 logs bus-frontend --lines 100
+لإعادة تشغيل Nginx وMongoDB أيضًا:
 
-### 11) Nginx مرة واحدة
+```bash
+sudo ./deploy/restart.sh --all
+```
 
-  cp /var/www/production2026/deploy/nginx/bus-system.conf /etc/nginx/sites-available/bus-system
-  ln -s /etc/nginx/sites-available/bus-system /etc/nginx/sites-enabled/bus-system
-  nginx -t
-  systemctl reload nginx
+### نسخة احتياطية
 
-### 12) SSL مرة واحدة
+```bash
+sudo ./deploy/backup.sh
+```
 
-  apt install -y certbot python3-certbot-nginx
-  certbot --nginx -d el-renad.com -d www.el-renad.com -d api.el-renad.com
+ينسخ احتياطيًا: قاعدة MongoDB كاملة (`mongodump`)، الملفات المرفوعة، وملفات
+`.env`. يُخزَّن كل شيء في `/var/backups/elrenad/<التاريخ_والوقت>/` مع
+الاحتفاظ بآخر 14 نسخة فقط. النسخ الاحتياطي للقراءة فقط — لا يغيّر شيئًا في
+قاعدة البيانات الحيّة.
 
-----------------------------------------
-## المرحلة B) تحديثات لاحقة بدون تعديل إعدادات
-----------------------------------------
+**لاستعادة نسخة احتياطية من MongoDB (يدويًا فقط، لا تشغّل هذا تلقائيًا):**
 
-بعد أول مرة، لا تعدل Nginx ولا env كل مرة.
-نفذ فقط:
+```bash
+source /etc/elrenad/secrets.env
+mongorestore \
+  --uri="mongodb://elrenad_app:${MONGO_APP_PASSWORD}@127.0.0.1:27017/bus-system?authSource=bus-system" \
+  --drop \
+  /var/backups/elrenad/<التاريخ_والوقت>/mongodb/bus-system
+```
 
-  cd /var/www/production2026
-  git pull
-  cd backend ; npm install ; npm run build
-  cd ../frontend ; npm install ; npm run build
-  cd .. ; pm2 restart deploy/ecosystem.config.cjs
+`--drop` يستبدل كل مجموعة (collection) موجودة بمحتوى النسخة الاحتياطية —
+استخدمها فقط عندما تنوي فعلاً التراجع عن بيانات الإنتاج الحالية.
 
-أو استخدم السكربت الجاهز (أفضل):
+---
 
-  cd /var/www/production2026
-  chmod +x deploy/update-production.sh
-  ./deploy/update-production.sh
+## استكشاف الأخطاء
 
-ولو في migration/seed جديد فقط وقت الحاجة:
+**Nginx يعطي 502 Bad Gateway**
+```bash
+sudo ./deploy/status.sh          # هل elrenad-backend/elrenad-frontend فعّالة؟
+./deploy/logs.sh backend
+./deploy/logs.sh frontend
+```
 
-  cd /var/www/production2026/backend
-  npm run seed
+**قاعدة البيانات لا تتصل**
+```bash
+systemctl status mongod --no-pager
+./deploy/logs.sh mongo
+```
+تأكد أن `MONGODB_URI` داخل `backend/.env` يطابق كلمة المرور الموجودة في
+`/etc/elrenad/secrets.env` (يجب ألا تتغيّر هذه الملفات يدويًا عادةً).
 
-----------------------------------------
-## فحص سريع بعد أي تحديث
-----------------------------------------
+**الصور المرفوعة (صور البروفايل) لا تظهر**
+تأكد أن `backend/uploads` رابط رمزي فعليًا:
+```bash
+ls -la backend/uploads   # يجب أن يظهر -> /var/lib/elrenad/uploads
+```
 
-  pm2 status
-  systemctl status nginx --no-pager
-  systemctl status mongod --no-pager
+**"another deployment is already running"**
+هناك تشغيل سابق لـ `deploy.sh` لم ينته بعد (أو تعطّل بشكل غير متوقع). انتظر
+انتهاءه، أو تحقق يدويًا:
+```bash
+ps aux | grep deploy.sh
+```
 
-اختبار URLs:
-- https://el-renad.com
-- https://api.el-renad.com
+**الخدمة تفشل بسبب صلاحيات (Permission denied)**
+غالبًا لأن المستودع مستنسخ داخل مسار لا يستطيع المستخدم `elrenad` المرور منه
+(مثل `/root/...`). شغّل `sudo ./deploy/deploy.sh` وسيطبع لك بالضبط أي مجلد
+يحتاج `chmod o+x`، أو انقل المستودع إلى `/opt/bus-production` وأعد التشغيل.
 
-----------------------------------------
-## أخطاء شائعة وحلها بسرعة
-----------------------------------------
+---
 
-1. Nginx يعطي 502
-- تحقق أن PM2 شغال
-- راجع logs للتطبيقين
+## ملاحظات أمنية مهمة
 
-2. CORS Error في المتصفح
-- راجع CORS_ORIGIN في backend .env
-- لازم يحتوي el-renad.com و www.el-renad.com
-
-3. الصور لا تظهر
-- راجع NEXT_PUBLIC_BACKEND_ORIGIN في frontend .env
-- لازم تكون https://api.el-renad.com
-
-4. التطبيق لا يتصل بMongoDB
-- تحقق mongod شغال
-- تحقق MONGODB_URI = mongodb://127.0.0.1:27017/bus-system
+- MongoDB لا يستمع إلا على `127.0.0.1` — غير متاح من الإنترنت إطلاقًا، ولا
+  حاجة لفتح المنفذ 27017 في جدار الحماية (ولم يُفتح).
+- منفذا التطبيق الداخليان (`3000` للـ frontend، `7126` للـ backend) مربوطان
+  على `127.0.0.1` فقط؛ Nginx هو الوحيد الذي يتحدث معهما.
+- الخدمتان تعملان تحت مستخدم نظام غير جذري (`elrenad`)، وليس root.
+- `backend/.env` و`frontend/.env` و`/etc/elrenad/secrets.env` كلها خارج Git
+  (`.gitignore`) ولا تُدفع أبدًا للمستودع.
+- Nginx يرفض تقديم أي ملف يبدأ اسمه بنقطة (`.env`, `.git`, ...).
+- شهادات SSL تتجدد تلقائيًا عبر `certbot.timer`.
