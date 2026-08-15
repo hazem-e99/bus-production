@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { api } from '@/lib/api';
 import { getTrackingSocketUrl } from '@/lib/backend-url';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 export interface BusLocationData {
   busId: number;
@@ -84,8 +85,8 @@ export function useDriverTracking(busId: number | null) {
           speed: position.coords.speed || 0,
         });
         setError(null);
-      } catch (err: any) {
-        setError(err.message || 'Failed to send location');
+      } catch (err: unknown) {
+        setError(getApiErrorMessage(err));
       }
     },
     [busId],
@@ -138,14 +139,20 @@ export function useDriverTracking(busId: number | null) {
       intervalRef.current = null;
     }
 
+    let stopError: string | null = null;
     if (busId) {
       try {
         await api.post(`/BusTracking/stop/${busId}`, {});
-      } catch {}
+      } catch (err: unknown) {
+        // Local tracking still stops below; let the driver know the server
+        // may not be aware tracking has stopped.
+        console.error('Failed to notify server that tracking stopped:', err);
+        stopError = getApiErrorMessage(err);
+      }
     }
 
     setIsTracking(false);
-    setError(null);
+    setError(stopError);
   }, [busId]);
 
   useEffect(() => {

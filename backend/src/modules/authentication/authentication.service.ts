@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,10 +12,13 @@ import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { createApiResponse, ApiResponse } from '../../common/interfaces/api-response.interface';
 import { EmailService } from './email.service';
+import { AppException } from '../../common/exceptions/app.exception';
+import { ErrorCodes } from '../../common/exceptions/error-codes';
 
 @Injectable()
 export class AuthenticationService {
   private idCounter = 1000;
+  private readonly logger = new Logger(AuthenticationService.name);
 
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
@@ -39,20 +42,28 @@ export class AuthenticationService {
   async login(loginDto: LoginDTO): Promise<ApiResponse<any>> {
     const user = await this.userModel.findOne({ email: loginDto.email }).exec();
     if (!user) {
-      return createApiResponse(null, 'Invalid email or password', false);
+      throw new AppException(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Invalid email or password.');
     }
 
     const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isPasswordValid) {
-      return createApiResponse(null, 'Invalid email or password', false);
+      throw new AppException(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Invalid email or password.');
     }
 
     if (!user.isEmailVerified) {
-      return createApiResponse(null, 'Email not verified. Please verify your email first.', false);
+      throw new AppException(
+        403,
+        ErrorCodes.AUTH_EMAIL_NOT_VERIFIED,
+        'Please verify your email before signing in.',
+      );
     }
 
     if (user.status === 'Suspended') {
-      return createApiResponse(null, 'Your account has been suspended', false);
+      throw new AppException(
+        403,
+        ErrorCodes.AUTH_ACCOUNT_SUSPENDED,
+        'Your account has been suspended. Please contact support.',
+      );
     }
 
     const numericId = parseInt((user._id as any).toString().slice(-8), 16) % 100000;
@@ -79,17 +90,25 @@ export class AuthenticationService {
 
   async registerStudent(dto: StudentRegistrationDTO): Promise<ApiResponse<boolean>> {
     if (dto.password !== dto.confirmPassword) {
-      return createApiResponse(false, 'Passwords do not match', false);
+      throw new AppException(400, ErrorCodes.PASSWORD_MISMATCH, 'Passwords do not match.');
     }
 
     const existingUser = await this.userModel.findOne({ email: dto.email }).exec();
     if (existingUser) {
-      return createApiResponse(false, 'Email already registered', false);
+      throw new AppException(
+        409,
+        ErrorCodes.EMAIL_ALREADY_REGISTERED,
+        'An account with this email address already exists.',
+      );
     }
 
     const existingNationalId = await this.userModel.findOne({ nationalId: dto.nationalId }).exec();
     if (existingNationalId) {
-      return createApiResponse(false, 'National ID already registered', false);
+      throw new AppException(
+        409,
+        ErrorCodes.NATIONAL_ID_ALREADY_REGISTERED,
+        'An account with this national ID already exists.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -114,9 +133,14 @@ export class AuthenticationService {
 
     try {
       await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to send verification email during student registration for ${dto.email}`, (error as Error)?.stack);
       await this.userModel.deleteOne({ _id: user._id }).exec();
-      return createApiResponse(false, 'Registration failed: unable to send the verification email. Please try again later.', false);
+      throw new AppException(
+        502,
+        ErrorCodes.EMAIL_DELIVERY_FAILED,
+        'Registration could not be completed because the verification email failed to send. Please try again later.',
+      );
     }
 
     return createApiResponse(true, 'Student registered successfully. Please check your email for the verification code.', true);
@@ -125,7 +149,11 @@ export class AuthenticationService {
   async registerStaff(dto: StaffRegistrationDTO): Promise<ApiResponse<boolean>> {
     const existingUser = await this.userModel.findOne({ email: dto.email }).exec();
     if (existingUser) {
-      return createApiResponse(false, 'Email already registered', false);
+      throw new AppException(
+        409,
+        ErrorCodes.EMAIL_ALREADY_REGISTERED,
+        'An account with this email address already exists.',
+      );
     }
 
     const defaultPassword = await bcrypt.hash('DefaultPass123!', 10);
@@ -147,9 +175,14 @@ export class AuthenticationService {
 
     try {
       await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to send verification email during staff registration for ${dto.email}`, (error as Error)?.stack);
       await this.userModel.deleteOne({ _id: user._id }).exec();
-      return createApiResponse(false, 'Registration failed: unable to send the verification email. Please try again later.', false);
+      throw new AppException(
+        502,
+        ErrorCodes.EMAIL_DELIVERY_FAILED,
+        'Registration could not be completed because the verification email failed to send. Please try again later.',
+      );
     }
 
     return createApiResponse(true, `${dto.role} registered successfully`, true);
@@ -158,7 +191,7 @@ export class AuthenticationService {
   async verifyEmail(dto: VerificationDTO): Promise<ApiResponse<boolean>> {
     const user = await this.userModel.findOne({ email: dto.email }).exec();
     if (!user) {
-      return createApiResponse(false, 'User not found', false);
+      throw new NotFoundException('User not found.');
     }
 
     if (user.isEmailVerified) {
@@ -166,11 +199,19 @@ export class AuthenticationService {
     }
 
     if (user.verificationCode !== dto.verificationCode) {
-      return createApiResponse(false, 'Invalid verification code', false);
+      throw new AppException(
+        400,
+        ErrorCodes.INVALID_VERIFICATION_CODE,
+        'The verification code you entered is incorrect.',
+      );
     }
 
     if (user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
-      return createApiResponse(false, 'Verification code expired', false);
+      throw new AppException(
+        400,
+        ErrorCodes.VERIFICATION_CODE_EXPIRED,
+        'This verification code has expired. Please request a new one.',
+      );
     }
 
     await this.userModel.findByIdAndUpdate(user._id, {
@@ -185,15 +226,20 @@ export class AuthenticationService {
   async forgotPassword(dto: ForgotPasswordDTO): Promise<ApiResponse<boolean>> {
     const user = await this.userModel.findOne({ email: dto.email }).exec();
     if (!user) {
+      // Deliberately not an error: avoid confirming/denying whether an email is registered.
       return createApiResponse(true, 'If the email exists, a reset token has been sent', true);
     }
 
     if (dto.action === 'verify' && dto.resetToken) {
       if (user.resetToken !== dto.resetToken) {
-        return createApiResponse(false, 'Invalid reset token', false);
+        throw new AppException(400, ErrorCodes.INVALID_RESET_TOKEN, 'The reset code you entered is incorrect.');
       }
       if (user.resetTokenExpires && new Date() > user.resetTokenExpires) {
-        return createApiResponse(false, 'Reset token expired', false);
+        throw new AppException(
+          400,
+          ErrorCodes.RESET_TOKEN_EXPIRED,
+          'This reset code has expired. Please request a new one.',
+        );
       }
       return createApiResponse(true, 'Reset token is valid', true);
     }
@@ -206,8 +252,13 @@ export class AuthenticationService {
 
     try {
       await this.emailService.sendPasswordResetCode(dto.email, resetToken, user.firstName);
-    } catch {
-      return createApiResponse(false, 'Unable to send the reset email. Please try again later.', false);
+    } catch (error) {
+      this.logger.error(`Failed to send password reset email to ${dto.email}`, (error as Error)?.stack);
+      throw new AppException(
+        502,
+        ErrorCodes.EMAIL_DELIVERY_FAILED,
+        'We could not send the password reset email. Please try again later.',
+      );
     }
 
     return createApiResponse(true, 'Reset token sent to email', true);
@@ -215,20 +266,24 @@ export class AuthenticationService {
 
   async resetPassword(dto: ResetPasswordDTO): Promise<ApiResponse<boolean>> {
     if (dto.newPassword !== dto.confirmPassword) {
-      return createApiResponse(false, 'Passwords do not match', false);
+      throw new AppException(400, ErrorCodes.PASSWORD_MISMATCH, 'Passwords do not match.');
     }
 
     const user = await this.userModel.findOne({ email: dto.email }).exec();
     if (!user) {
-      return createApiResponse(false, 'User not found', false);
+      throw new NotFoundException('User not found.');
     }
 
     if (user.resetToken !== dto.resetToken) {
-      return createApiResponse(false, 'Invalid reset token', false);
+      throw new AppException(400, ErrorCodes.INVALID_RESET_TOKEN, 'The reset code you entered is incorrect.');
     }
 
     if (user.resetTokenExpires && new Date() > user.resetTokenExpires) {
-      return createApiResponse(false, 'Reset token expired', false);
+      throw new AppException(
+        400,
+        ErrorCodes.RESET_TOKEN_EXPIRED,
+        'This reset code has expired. Please request a new one.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);

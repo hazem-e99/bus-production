@@ -28,6 +28,8 @@ import {
 import { useI18n } from '@/contexts/LanguageContext';
 import { formatDate } from '@/lib/format';
 import { deriveTripStatus, type DerivedTripStatus } from '@/lib/tripStatusUtil';
+import { getApiErrorMessage } from '@/lib/apiError';
+import { LoadingState, ErrorState } from '@/components/ui/PageState';
 
 // Use existing types from the codebase
 type Trip = TripViewModel;
@@ -41,6 +43,7 @@ export default function BookTripPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [bookings, setBookings] = useState<TripBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<TripStatus | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'week' | 'custom'>('all');
@@ -81,13 +84,13 @@ export default function BookTripPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       console.log('🔍 Loading trips data...');
-      
+
+      // Trips are the primary data for this page — a failure here is a real error
+      // state, not "no trips". Bookings are secondary: degrade to [] on failure.
       const [tripsData, bookingsData] = await Promise.all([
-        tripAPI.getAll().catch((error) => {
-          console.error('❌ Trips API Error:', error);
-          return [];
-        }),
+        tripAPI.getAll(),
         tripAPI.getBookingsByStudent(1).catch((error) => {
           console.error('❌ My Bookings API Error:', error);
           return [];
@@ -104,12 +107,14 @@ export default function BookTripPage() {
       if (tripsData && tripsData.length > 0) {
         const bookingChecks = tripsData.map(trip => checkTripBookingStatus(trip.id));
         await Promise.allSettled(bookingChecks);
-        
+
         // Success toast intentionally removed per requirement to avoid showing load counts
       }
     } catch (error) {
       console.error('❌ Error loading data:', error);
-      showToast({ type: 'error', title: t('pages.student.bookTrip.toast.loadFailedTitle', 'Failed to load trips'), message: t('pages.student.bookTrip.toast.tryAgain', 'Please try again') });
+      setTrips([]);
+      setLoadError(getApiErrorMessage(error));
+      showToast({ type: 'error', title: t('pages.student.bookTrip.toast.loadFailedTitle', 'Failed to load trips'), message: getApiErrorMessage(error) });
     } finally {
       setLoading(false);
     }
@@ -327,25 +332,12 @@ export default function BookTripPage() {
         });
         return;
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Error creating booking:', error);
-      console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      
-      let errorMessage = t('pages.student.bookTrip.toast.tryAgain', 'Please try again');
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (error.status) {
-        errorMessage = `Server error: ${error.status}`;
-      }
-      
-      showToast({ 
-        type: 'error', 
+      showToast({
+        type: 'error',
         title: t('pages.student.bookTrip.toast.bookingFailedTitle', 'Booking Failed'),
-        message: `${t('common.error', 'Error')}: ${errorMessage}`
+        message: getApiErrorMessage(error)
       });
     }
   };
@@ -373,7 +365,15 @@ export default function BookTripPage() {
     return <Badge variant={info.variant}>{info.icon}{statusLabel(status)}</Badge>;
   };
 
-  if (loading) return <div className="p-4 sm:p-6">{t('common.loading', 'Loading...')}</div>;
+  if (loading) return <div className="p-4 sm:p-6"><LoadingState label={t('common.loading', 'Loading...')} /></div>;
+
+  if (loadError && trips.length === 0) {
+    return (
+      <div className="p-4 sm:p-6">
+        <ErrorState message={loadError} onRetry={load} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-6">

@@ -1,9 +1,9 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BusLocation, BusLocationDocument } from './bus-location.schema';
 import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
-import { createApiResponse, createErrorResponse } from '../../common/interfaces/api-response.interface';
+import { createApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Injectable()
 export class BusTrackingService {
@@ -33,7 +33,7 @@ export class BusTrackingService {
   async getLocationByBusId(busId: number) {
     const location = await this.busLocationModel.findOne({ busId }).exec();
     if (!location) {
-      return createErrorResponse('No location data found for this bus');
+      throw new NotFoundException('No location data found for this bus.');
     }
     return createApiResponse(location);
   }

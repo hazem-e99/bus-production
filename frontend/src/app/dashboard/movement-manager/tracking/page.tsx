@@ -11,6 +11,8 @@ import {
   BusLocationData,
 } from '@/hooks/useBusTracking';
 import { busAPI } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
+import { getApiErrorMessage } from '@/lib/apiError';
 import {
   Radio,
   Bus,
@@ -27,6 +29,7 @@ export default function MovementManagerTrackingPage() {
   const [initialLocations, setInitialLocations] = useState<BusLocationData[]>([]);
   const [busNames, setBusNames] = useState<Record<number, string>>({});
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,10 +50,12 @@ export default function MovementManagerTrackingPage() {
         setLastRefresh(new Date());
       } catch (err) {
         console.error('Failed to load tracking data:', err);
+        showToast({ type: 'error', title: 'Failed to load tracking data', message: getApiErrorMessage(err) });
       }
     };
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const mergedLocations = (() => {
@@ -68,7 +73,9 @@ export default function MovementManagerTrackingPage() {
       const resp = await busTrackingAPI.getAllLocations();
       setInitialLocations(resp?.data || []);
       setLastRefresh(new Date());
-    } catch {}
+    } catch (err: unknown) {
+      showToast({ type: 'error', title: 'Refresh failed', message: getApiErrorMessage(err) });
+    }
   };
 
   return (

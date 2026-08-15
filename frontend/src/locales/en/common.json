@@ -33,6 +33,20 @@
   "supervisor": "Supervisor",
   "movementManager": "Movement Manager"
   },
+  "errors": {
+    "network": "Unable to connect to the server. Please check your internet connection and try again.",
+    "timeout": "The request took too long. Please try again.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "forbidden": "You don't have permission to perform this action.",
+    "notFound": "The requested item could not be found.",
+    "validation": "Please correct the highlighted fields and try again.",
+    "server": "Something went wrong on our side. Please try again.",
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "We couldn't load this information. Please try again.",
+    "saveFailed": "We couldn't save your changes. Please try again.",
+    "deleteFailed": "Unable to delete this item. Please try again.",
+    "createFailed": "Unable to create the record. Please check the entered information and try again."
+  },
   "topbar": {
     "subtitle": "Transportation Management System",
     "notifications": "Notifications",

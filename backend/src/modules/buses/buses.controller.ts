@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { BusesService } from './buses.service';
+import { BusDto } from './dto/bus.dto';
 
 @Controller('api/Buses')
 export class BusesController {
@@ -29,7 +30,7 @@ export class BusesController {
   }
 
   @Post()
-  async create(@Body() busData: any) {
+  async create(@Body() busData: BusDto) {
     return this.busesService.create(busData);
   }
 
@@ -39,7 +40,7 @@ export class BusesController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() busData: any) {
+  async update(@Param('id') id: string, @Body() busData: BusDto) {
     return this.busesService.update(parseInt(id), busData);
   }
 

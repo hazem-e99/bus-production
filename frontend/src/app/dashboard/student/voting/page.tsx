@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { useI18n } from '@/contexts/LanguageContext';
 import { votingAPI } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/apiError';
 import { ClipboardCheck, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface SurveyQuestion {
@@ -65,11 +66,13 @@ export default function StudentVotingPage() {
         try {
           const hasVoted = await votingAPI.hasVoted(s.id);
           if (hasVoted?.data) votedSet.add(s.id);
-        } catch {}
+        } catch (error: unknown) {
+          console.error(`Failed to check vote status for survey ${s.id}:`, error);
+        }
       }));
       setVotedSurveyIds(votedSet);
-    } catch (err: any) {
-      showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: err.message || t(`${P}.toasts.loadFailed`, 'Failed to load surveys') });
+    } catch (err: unknown) {
+      showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: getApiErrorMessage(err) });
     } finally {
       setLoading(false);
     }

@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { DbMigrationService } from './common/services/db-migration.service';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 import { AuthenticationModule } from './modules/authentication/authentication.module';
 import { UsersModule } from './modules/users/users.module';
@@ -57,6 +58,7 @@ import { VotingModule } from './modules/voting/voting.module';
     VotingModule,
   ],
   providers: [
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     DbMigrationService,

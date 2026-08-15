@@ -10,9 +10,12 @@ import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { deriveTripStatus, getRefreshIntervalMs } from '@/lib/tripStatusUtil';
 import { useI18n } from '@/contexts/LanguageContext';
+import { useToast } from '@/components/ui/Toast';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 export default function TripsPage() {
   const { t } = useI18n();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<'all' | 'completed'>('all');
   const [trips, setTrips] = useState<TripViewModel[]>([]);
   const [allTrips, setAllTrips] = useState<TripViewModel[]>([]);
@@ -45,9 +48,8 @@ export default function TripsPage() {
       setDriverNameOptions(unique(data.map(t => String((t.driverName ?? t.driverId ?? '') || ''))));
       setSupervisorNameOptions(unique(data.map(t => String((t.conductorName ?? t.conductorId ?? '') || ''))));
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      console.error('Failed to load trips:', errorMessage);
-      // toast({ title: 'Failed to load trips', description: errorMessage });
+      console.error('Failed to load trips:', e);
+      showToast({ type: 'error', title: t('pages.trips.loadFailedTitle', 'Failed to load trips'), message: getApiErrorMessage(e) });
     } finally {
       setLoading(false);
     }

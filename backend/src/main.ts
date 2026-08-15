@@ -5,6 +5,9 @@ import { AppModule } from './app.module';
 import { join, isAbsolute } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as fs from 'fs';
+import { AppException } from './common/exceptions/app.exception';
+import { ErrorCodes } from './common/exceptions/error-codes';
+import { formatValidationErrors } from './common/utils/format-validation-errors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -31,6 +34,15 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       skipMissingProperties: false,
+      exceptionFactory: (validationErrors) => {
+        const errors = formatValidationErrors(validationErrors);
+        return new AppException(
+          422,
+          ErrorCodes.VALIDATION_ERROR,
+          'Please correct the highlighted fields.',
+          errors,
+        );
+      },
     }),
   );
 

@@ -10,6 +10,7 @@ import { Shield, ArrowLeft } from 'lucide-react';
 import { authAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 function ResetPasswordVerificationForm() {
   const [verificationCode, setVerificationCode] = useState('');
@@ -71,13 +72,14 @@ function ResetPasswordVerificationForm() {
         setIsVerified(true);
       }
       
-    } catch {
-      console.error('Verification failed:', Error);
-      setError(t('pages.auth.resetPasswordVerification.errors.failed', 'Verification failed. Please try again.'));
-      showToast({ 
-        type: 'error', 
-        title: t('pages.auth.resetPasswordVerification.toasts.errorTitle', 'Error!'), 
-        message: t('pages.auth.resetPasswordVerification.toasts.errorMessage', 'Verification failed. Please try again.') 
+    } catch (err: unknown) {
+      console.error('Reset token verification failed:', err);
+      const message = getApiErrorMessage(err);
+      setError(message);
+      showToast({
+        type: 'error',
+        title: t('pages.auth.resetPasswordVerification.toasts.errorTitle', 'Error!'),
+        message,
       });
     } finally {
       setIsLoading(false);

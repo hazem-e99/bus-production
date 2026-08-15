@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import tripService from '@/services/tripService';
 import { TripViewModel } from '@/types/trip';
 import Link from 'next/link';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/Toast';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -13,10 +13,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { MapPin, Clock, Calendar, Users, Bus, ArrowLeft, Edit, Route } from 'lucide-react';
 import { useI18n } from '@/contexts/LanguageContext';
 import { formatDate as formatWithLocale } from '@/lib/format';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 export default function TripDetailsPage() {
   const params = useParams();
-  const { toast } = useToast();
+  const { showToast } = useToast();
   const { t, lang } = useI18n();
   const [trip, setTrip] = useState<TripViewModel | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -30,13 +31,14 @@ export default function TripDetailsPage() {
         const data = await tripService.getById(id);
         setTrip(data);
       } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error('Failed to load trip:', errorMessage);
+        console.error('Failed to load trip:', e);
+        showToast({ type: 'error', title: 'Failed to load trip', message: getApiErrorMessage(e) });
       } finally {
         setLoading(false);
       }
     })();
-  }, [params, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

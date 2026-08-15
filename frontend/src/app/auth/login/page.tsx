@@ -12,6 +12,7 @@ import { validateLogin } from '@/utils/validateLogin';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import Image from 'next/image';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -50,16 +51,12 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password, rememberMe);
-      if (success) {
-        const userRole = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).role : 'student';
-        const dashboardPath = `/dashboard/${userRole.toLowerCase()}`;
-        router.push(dashboardPath);
-      } else {
-        setError(t('pages.auth.login.errors.invalidCredentials', 'Invalid email or password'));
-      }
-    } catch {
-      setError(t('pages.auth.login.errors.generic', 'An error occurred. Please try again.'));
+      await login(email, password, rememberMe);
+      const userRole = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).role : 'student';
+      const dashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+      router.push(dashboardPath);
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

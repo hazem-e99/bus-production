@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { api, busAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 // User interface
 interface User {
@@ -80,8 +81,7 @@ export default function MovementManagerTripsPage() {
       }
       setItems(Array.isArray(data) ? data : []);
     } catch (e: unknown) {
-  const error = e as Error;
-  setError(error?.message || t('pages.movementManager.trips.errors.loadFailed'));
+      setError(getApiErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,10 @@ export default function MovementManagerTripsPage() {
           const label = b?.busNumber ? `${b.busNumber} (#${id})` : `#${id}`;
           return { id, label };
         }).filter(b => Number.isFinite(b.id) && b.id > 0));
-      } catch {}
+      } catch (error: unknown) {
+        // Secondary lookup data for filter dropdowns — the main trips list still loads.
+        console.error('Failed to load driver/bus reference data:', error);
+      }
     };
     loadRefs();
   }, []);
@@ -180,7 +183,7 @@ export default function MovementManagerTripsPage() {
 
           {error && <div className="text-red-600 text-sm">{t('pages.movementManager.trips.errors.loadFailed', error)}</div>}
 
-          <TripList trips={items} onView={onView} onEdit={() => {}} onDelete={() => {}} i18nBase="pages.movementManager.trips" />
+          <TripList trips={items} onView={onView} onEdit={() => {}} onDelete={() => {}} loading={loading} error={error} onRetry={load} i18nBase="pages.movementManager.trips" />
         </div>
       )}
 

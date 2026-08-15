@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Bus, BusDocument } from './bus.schema';
@@ -57,7 +57,7 @@ export class BusesService {
       return createApiResponse(this.toViewModel(bus), 'Bus created successfully', true);
     } catch (error: any) {
       if (error.code === 11000) {
-        return createApiResponse(null, 'Bus number already exists', false);
+        throw new ConflictException('A bus with this number already exists.');
       }
       throw error;
     }

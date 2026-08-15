@@ -68,10 +68,13 @@ export class PaymentService {
 
   async create(dto: any, userId: number): Promise<ApiResponse<boolean>> {
     const plan = await this.findByNumericId(this.planModel, dto.subscriptionPlanId);
+    if (!plan) {
+      throw new NotFoundException('The selected subscription plan could not be found.');
+    }
     await this.paymentModel.create({
       ...dto,
       studentId: userId,
-      amount: plan?.price || 0,
+      amount: plan.price || 0,
       status: 'Pending',
     });
     return createApiResponse(true, 'Payment created successfully');

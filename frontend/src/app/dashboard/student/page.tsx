@@ -153,7 +153,9 @@ export default function StudentDashboard() {
 								startTime: trip.startTime || '',
 								endTime: trip.endTime || ''
 							});
-						} catch {}
+						} catch (error: unknown) {
+							console.error('Failed to load latest trip details:', error);
+						}
 					} else {
 						setLatestTrip(null);
 					}

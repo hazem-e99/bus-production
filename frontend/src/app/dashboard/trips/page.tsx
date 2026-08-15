@@ -6,6 +6,7 @@ import TripList from '@/components/trips/TripList';
 import { tripService as libTripService } from '@/lib/tripService';
 import tripService from '@/services/tripService';
 import type { TripResponse } from '@/types/trip';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 type AdminTab = 'all' | 'completed';
 
@@ -29,8 +30,7 @@ export default function TripsPage() {
       }
       setItems(Array.isArray(data) ? data : []);
     } catch (e: unknown) {
-      const err = e as Error;
-      setError(err?.message || 'Failed to load trips');
+      setError(getApiErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -58,8 +58,7 @@ export default function TripsPage() {
           <CardTitle>{tab === 'completed' ? 'Completed Trips' : 'All Trips'}</CardTitle>
         </CardHeader>
         <CardContent>
-          {error && <div className="text-red-600 text-sm mb-3">{error}</div>}
-          <TripList trips={items} onView={() => {}} onEdit={() => {}} onDelete={() => {}} loading={loading} i18nBase="pages.admin.trips" />
+          <TripList trips={items} onView={() => {}} onEdit={() => {}} onDelete={() => {}} loading={loading} error={error} onRetry={load} i18nBase="pages.admin.trips" />
         </CardContent>
       </Card>
     </div>

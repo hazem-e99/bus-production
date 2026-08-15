@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { api, busAPI } from '@/lib/api';
 import { useCallback } from 'react';
+import { useToast } from '@/components/ui/Toast';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 // User interface
 interface User {
@@ -52,6 +54,7 @@ type Mode = 'list' | 'create' | 'edit' | 'view';
 
 export default function AdminTripsPage() {
   const { t } = useI18n();
+  const { showToast } = useToast();
   const [mode, setMode] = useState<Mode>('list');
   const [items, setItems] = useState<TripResponse[]>([]);
   const [current, setCurrent] = useState<TripResponse | null>(null);
@@ -74,12 +77,11 @@ export default function AdminTripsPage() {
       else data = await tripService.getAll();
       setItems(Array.isArray(data) ? data : []);
     } catch (e: unknown) {
-  const error = e as Error;
-  setError(error?.message || t('pages.admin.trips.loadFailed', 'Failed to load trips'));
+      setError(getApiErrorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, [filterDate, filterDriver, filterBus, t]);
+  }, [filterDate, filterDriver, filterBus]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -101,7 +103,10 @@ export default function AdminTripsPage() {
           const label = b?.busNumber ? `${b.busNumber} (#${id})` : `#${id}`;
           return { id, label };
         }).filter(b => Number.isFinite(b.id) && b.id > 0));
-      } catch {}
+      } catch (error: unknown) {
+        // Secondary lookup data for filter dropdowns — the main trips list still loads.
+        console.error('Failed to load driver/bus reference data:', error);
+      }
     };
     loadRefs();
   }, []);
@@ -111,12 +116,11 @@ export default function AdminTripsPage() {
   const onView = (t: TripResponse) => { setCurrent(t); setMode('view'); };
   const onDelete = async (tr: TripResponse) => {
     if (!confirm(`${t('pages.admin.trips.confirmDeletePrefix', 'Delete trip')} #${tr.id}?`)) return;
-    try { 
-      await tripService.delete(tr.id); 
-      await load(); 
-    } catch (e: unknown) { 
-      const error = e as Error;
-      alert(error?.message || t('pages.admin.trips.deleteFailed', 'Delete failed')); 
+    try {
+      await tripService.delete(tr.id);
+      await load();
+    } catch (e: unknown) {
+      showToast({ type: 'error', title: t('pages.admin.trips.deleteFailed', 'Delete failed'), message: getApiErrorMessage(e) });
     }
   };
 
@@ -162,9 +166,7 @@ export default function AdminTripsPage() {
             </div>
           </div>
 
-          {error && <div className="text-red-600 text-sm">{error}</div>}
-
-          <TripList trips={items} onView={onView} onEdit={onEdit} onDelete={onDelete} loading={loading} />
+          <TripList trips={items} onView={onView} onEdit={onEdit} onDelete={onDelete} loading={loading} error={error} onRetry={load} />
         </div>
       )}
 

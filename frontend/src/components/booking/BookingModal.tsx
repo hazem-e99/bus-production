@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -18,6 +18,7 @@ import {
 import { tripAPI, bookingAPI } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/utils/formatDate';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
   const [selectedStopId, setSelectedStopId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tripsLoadError, setTripsLoadError] = useState('');
 
   // Generate available dates (next 30 days)
   const availableDates = Array.from({ length: 30 }, (_, i) => {
@@ -64,23 +66,26 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
   });
 
   // Fetch trips for selected date
-  useEffect(() => {
-    const loadTrips = async () => {
-      if (!formData.date) { 
-        setTripsByDate([]); 
-        return; 
-      }
-      try {
-        const data = await tripAPI.getByDate(formData.date);
-        setTripsByDate(Array.isArray(data) ? data as unknown as TripWithStops[] : []);
-      } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error('Failed to load trips:', errorMessage);
-        setTripsByDate([]);
-      }
-    };
-    loadTrips();
+  const loadTrips = useCallback(async () => {
+    if (!formData.date) {
+      setTripsByDate([]);
+      setTripsLoadError('');
+      return;
+    }
+    try {
+      setTripsLoadError('');
+      const data = await tripAPI.getByDate(formData.date);
+      setTripsByDate(Array.isArray(data) ? data as unknown as TripWithStops[] : []);
+    } catch (e: unknown) {
+      console.error('Failed to load trips:', e);
+      setTripsByDate([]);
+      setTripsLoadError(getApiErrorMessage(e));
+    }
   }, [formData.date]);
+
+  useEffect(() => {
+    loadTrips();
+  }, [loadTrips]);
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -124,7 +129,7 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
     } catch (error) {
       console.error('Failed to load trip details:', error);
       // Keep the basic trip data even if detailed loading fails
-      setError('Failed to load trip details. Please try again.');
+      setError(getApiErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -156,9 +161,8 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
       onSuccess(data);
       handleClose();
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      console.error('Booking creation failed:', errorMessage);
-      setError('Failed to create booking. Please try again.');
+      console.error('Booking creation failed:', e);
+      setError(getApiErrorMessage(e));
     } finally {
       setIsLoading(false);
     }
@@ -259,11 +263,18 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
                     <span>Available Trips Preview</span>
                   </CardTitle>
                   <CardDescription>
-                    {tripsByDate.length} trip{tripsByDate.length !== 1 ? 's' : ''} available for {formatDate(formData.date)}
+                    {tripsLoadError
+                      ? 'We could not load trips for this date.'
+                      : `${tripsByDate.length} trip${tripsByDate.length !== 1 ? 's' : ''} available for ${formatDate(formData.date)}`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {tripsByDate.length > 0 ? (
+                  {tripsLoadError ? (
+                    <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-error">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm font-medium">{tripsLoadError}</span>
+                    </div>
+                  ) : tripsByDate.length > 0 ? (
                     <div className="space-y-3">
                       {tripsByDate.slice(0, 3).map((t) => (
                         <div key={t.id} className="flex items-center justify-between p-3 bg-card-hover rounded-lg">
@@ -325,7 +336,19 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
               </Button>
             </div>
 
-            {tripsByDate.length === 0 ? (
+            {tripsLoadError ? (
+              <div className="text-center py-12">
+                <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-300" />
+                <p className="text-text-primary font-medium mb-1">{tripsLoadError}</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => loadTrips()}
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : tripsByDate.length === 0 ? (
               <div className="text-center py-12 text-text-muted">
                 <Bus className="w-20 h-20 mx-auto mb-6 text-border" />
                 <p className="text-lg mb-2">No trips available for the selected date</p>

@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './user.schema';
 import { createApiResponse, ApiResponse } from '../../common/interfaces/api-response.interface';
+import { AppException } from '../../common/exceptions/app.exception';
+import { ErrorCodes } from '../../common/exceptions/error-codes';
 
 @Injectable()
 export class UsersService {
@@ -102,7 +104,7 @@ export class UsersService {
 
   async changePassword(userId: string, payload: { currentPassword: string; password: string; confirmPassword: string }): Promise<ApiResponse<boolean>> {
     if (payload.password !== payload.confirmPassword) {
-      return createApiResponse(false, 'Passwords do not match', false);
+      throw new AppException(400, ErrorCodes.PASSWORD_MISMATCH, 'Passwords do not match.');
     }
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
@@ -110,7 +112,7 @@ export class UsersService {
     }
     const isValid = await bcrypt.compare(payload.currentPassword, user.password);
     if (!isValid) {
-      return createApiResponse(false, 'Current password is incorrect', false);
+      throw new AppException(400, ErrorCodes.CURRENT_PASSWORD_INCORRECT, 'Current password is incorrect.');
     }
     const hashed = await bcrypt.hash(payload.password, 10);
     await this.userModel.findByIdAndUpdate(userId, { password: hashed });

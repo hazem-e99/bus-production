@@ -1,15 +1,15 @@
 import { IsEmail, MinLength, IsString, IsOptional } from 'class-validator';
 
 export class ForgotPasswordDTO {
-  @IsEmail()
-  @MinLength(1)
+  @IsEmail({}, { message: 'Please enter a valid email address.' })
+  @MinLength(1, { message: 'Email address is required.' })
   email: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Reset token must be a string.' })
   resetToken?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Action must be a string.' })
   action?: string;
 }

@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { authAPI } from '@/lib/api';
 import { validateVerification } from '@/utils/validateVerification';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 function VerificationForm() {
   const [verificationCode, setVerificationCode] = useState('');
@@ -70,11 +71,12 @@ function VerificationForm() {
       }
     } catch (err: unknown) {
       console.error('Verification error:', err);
-      setError('Verification failed. Please try again.');
-      showToast({ 
-        type: 'error', 
-        title: 'Verification Error', 
-        message: 'Verification failed. Please try again.' 
+      const message = getApiErrorMessage(err);
+      setError(message);
+      showToast({
+        type: 'error',
+        title: 'Verification Failed',
+        message,
       });
     } finally {
       setIsLoading(false);

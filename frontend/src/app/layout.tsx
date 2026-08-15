@@ -8,6 +8,7 @@ import ConsoleSilencer from '@/components/layout/ConsoleSilencer';
 import ThemeInitializer from '@/components/layout/ThemeInitializer';
 import LayoutShell from '@/components/layout/LayoutShell';
 import I18nProvider from '@/components/providers/I18nProvider';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] });
@@ -32,15 +33,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={lang} dir={dir}>
       <body className={lang === 'ar' ? cairo.className : inter.className}>
-        <AuthProvider>
-          <ToastProvider>
-            <ConsoleSilencer />
-            <ThemeInitializer />
-            <I18nProvider initialLang={lang}>
-              <LayoutShell>{children}</LayoutShell>
-            </I18nProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ToastProvider>
+              <ConsoleSilencer />
+              <ThemeInitializer />
+              <I18nProvider initialLang={lang}>
+                <LayoutShell>{children}</LayoutShell>
+              </I18nProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

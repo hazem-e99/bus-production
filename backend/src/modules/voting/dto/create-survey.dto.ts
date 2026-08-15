@@ -2,54 +2,56 @@ import { IsString, IsArray, IsBoolean, IsOptional, ValidateNested, IsEnum, MinLe
 import { Type } from 'class-transformer';
 
 export class SurveyQuestionDTO {
-  @IsString()
-  @MinLength(1)
+  @IsString({ message: 'Question text is required.' })
+  @MinLength(1, { message: 'Question text is required.' })
   questionText: string;
 
-  @IsEnum(['multiple-choice', 'yes-no', 'rating', 'text'])
+  @IsEnum(['multiple-choice', 'yes-no', 'rating', 'text'], {
+    message: 'Question type must be one of multiple-choice, yes-no, rating, or text.',
+  })
   questionType: string;
 
-  @IsArray()
+  @IsArray({ message: 'Options must be a list.' })
   @IsOptional()
   options?: string[];
 
-  @IsBoolean()
+  @IsBoolean({ message: 'isRequired must be true or false.' })
   @IsOptional()
   isRequired?: boolean;
 }
 
 export class CreateSurveyDTO {
-  @IsString()
-  @MinLength(1)
+  @IsString({ message: 'Title is required.' })
+  @MinLength(1, { message: 'Title is required.' })
   title: string;
 
-  @IsString()
+  @IsString({ message: 'Description must be a string.' })
   @IsOptional()
   description?: string;
 
-  @IsArray()
-  @ArrayMinSize(1)
+  @IsArray({ message: 'Questions must be a list.' })
+  @ArrayMinSize(1, { message: 'At least one question is required.' })
   @ValidateNested({ each: true })
   @Type(() => SurveyQuestionDTO)
   questions: SurveyQuestionDTO[];
 
-  @IsBoolean()
+  @IsBoolean({ message: 'isRecurringDaily must be true or false.' })
   @IsOptional()
   isRecurringDaily?: boolean;
 
-  @IsString()
+  @IsString({ message: 'Daily open time must be a string.' })
   @IsOptional()
   dailyOpenTime?: string;
 
-  @IsString()
+  @IsString({ message: 'Daily close time must be a string.' })
   @IsOptional()
   dailyCloseTime?: string;
 
-  @IsString()
+  @IsString({ message: 'Start date must be a string.' })
   @IsOptional()
   startDate?: string;
 
-  @IsString()
+  @IsString({ message: 'End date must be a string.' })
   @IsOptional()
   endDate?: string;
 }

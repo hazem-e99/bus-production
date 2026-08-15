@@ -10,6 +10,8 @@ import { Plus, Edit, Trash2, X, Search, MapPin, Calendar, User, Bus } from 'luci
 import { tripBookingAPI, tripAPI, studentAPI } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { getApiErrorMessage } from '@/lib/apiError';
+import { LoadingState } from '@/components/ui/PageState';
 import { 
   TripBookingViewModel, 
   CreateTripBookingDTO, 
@@ -69,7 +71,7 @@ export default function TripBookingsPage() {
       setTrips(tripsData || []);
       setStudents(studentsData || []);
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to load data';
+      const errorMessage = getApiErrorMessage(err);
       setError(errorMessage);
       showToast({ 
         type: 'error', 
@@ -95,7 +97,7 @@ export default function TripBookingsPage() {
       const bookingsData = await tripBookingAPI.search(searchData);
       setBookings(bookingsData || []);
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to search bookings';
+      const errorMessage = getApiErrorMessage(err);
       showToast({ 
         type: 'error', 
         title: 'Search Failed', 
@@ -138,7 +140,7 @@ export default function TripBookingsPage() {
         });
       }
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to load booking details';
+      const errorMessage = getApiErrorMessage(err);
       showToast({ 
         type: 'error', 
         title: 'Error', 
@@ -189,7 +191,7 @@ export default function TripBookingsPage() {
       }
       setShowModal(false);
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to save booking';
+      const errorMessage = getApiErrorMessage(err);
       showToast({ 
         type: 'error', 
         title: 'Save Failed', 
@@ -216,7 +218,7 @@ export default function TripBookingsPage() {
         throw new Error(response.message || 'Update failed');
       }
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to update pickup location';
+      const errorMessage = getApiErrorMessage(err);
       showToast({ 
         type: 'error', 
         title: 'Update Failed', 
@@ -274,7 +276,7 @@ export default function TripBookingsPage() {
         throw new Error(response.message || 'Action failed');
       }
     } catch (err: any) {
-      const errorMessage = err?.message || 'Action failed';
+      const errorMessage = getApiErrorMessage(err);
       showToast({ 
         type: 'error', 
         title: 'Action Failed', 
@@ -304,7 +306,7 @@ export default function TripBookingsPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6"><LoadingState /></div>;
   }
 
   return (

@@ -24,6 +24,8 @@ import { Bus as BusType, BusRequest, BusListParams } from '@/types/bus';
 import { formatDate } from '@/utils/formatDate';
 import { useToast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ErrorState } from '@/components/ui/PageState';
+import { getApiErrorMessage } from '@/lib/apiError';
 import Image from 'next/image';
 import busTwo from '@/../public/bus_two.png';
 
@@ -44,6 +46,7 @@ export default function BusesPage() {
   });
   const [buses, setBuses] = useState<BusType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [, setIsAddingBus] = useState(false);
   const [addMessage, setAddMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [editMessage, setEditMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -125,7 +128,8 @@ export default function BusesPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        
+        setLoadError(null);
+
         // Use default params for initial load (no filters)
         const initialParams: BusListParams = {
           page: 0,
@@ -175,12 +179,13 @@ export default function BusesPage() {
         console.error('Failed to fetch data:', error);
         // Set empty arrays on error to prevent crashes
         setBuses([]);
-        
+        setLoadError(getApiErrorMessage(error));
+
         // Show error toast
-        showToast({ 
-          type: 'error', 
-          title: t('pages.admin.buses.toast.loadFailedTitle', 'Failed to load buses'), 
-          message: t('pages.admin.buses.toast.loadFailedMsg', 'Please check your connection and try again.') 
+        showToast({
+          type: 'error',
+          title: t('pages.admin.buses.toast.loadFailedTitle', 'Failed to load buses'),
+          message: getApiErrorMessage(error)
         });
       } finally {
         setIsLoading(false);
@@ -210,6 +215,7 @@ export default function BusesPage() {
   const handleApplyFilters = async () => {
     try {
       setIsLoading(true);
+      setLoadError(null);
       const updatedBusesResponse = await busAPI.getAll(buildParams());
       const busesList = Array.isArray(updatedBusesResponse) ? updatedBusesResponse : (updatedBusesResponse?.data || []);
       const cleanBusesData = busesList
@@ -231,6 +237,8 @@ export default function BusesPage() {
     } catch (error) {
       console.error('Failed to apply filters:', error);
       setBuses([]);
+      setLoadError(getApiErrorMessage(error));
+      showToast({ type: 'error', title: t('pages.admin.buses.toast.loadFailedTitle', 'Failed to load buses'), message: getApiErrorMessage(error) });
     } finally {
       setIsLoading(false);
     }
@@ -471,6 +479,14 @@ export default function BusesPage() {
             <p className="mt-6 text-text-secondary text-lg font-medium">{t('pages.admin.buses.loading', 'Loading buses...')}</p>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (loadError && buses.length === 0) {
+    return (
+      <div className="space-y-8 p-6">
+        <ErrorState message={loadError} onRetry={handleApplyFilters} />
       </div>
     );
   }

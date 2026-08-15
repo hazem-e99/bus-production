@@ -526,7 +526,9 @@ export default function MovementManagerRoutesPage() {
                             if (full) {
                               setSelectedRoute(mapFromLegacy(full));
                             }
-                          } catch {}
+                          } catch (error: unknown) {
+                            console.error('Failed to load full route details:', error);
+                          }
                         }}
                       >
                         <Eye className="w-4 h-4" />

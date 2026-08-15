@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function DashboardLayout({
   children,
@@ -50,7 +51,9 @@ export default function DashboardLayout({
   return (
     <div suppressHydrationWarning>
       <div className="mx-auto w-full max-w-screen-2xl px-3 sm:px-4 lg:px-6 py-6">
-        {children}
+        <ErrorBoundary title="Something went wrong while displaying this page.">
+          {children}
+        </ErrorBoundary>
       </div>
     </div>
   );

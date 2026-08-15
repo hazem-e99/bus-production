@@ -39,7 +39,10 @@ function ForgotPasswordForm() {
     setIsLoading(true);
     try {
       await authAPI.forgotPassword({ email });
-    } catch {}
+    } catch {
+      // Intentionally ignored: never reveal via the UI whether the address is registered
+      // or whether delivery failed (the backend still logs real delivery failures server-side).
+    }
     // For privacy and better UX, always proceed to verification and show a neutral toast
     showToast({
       type: 'success',

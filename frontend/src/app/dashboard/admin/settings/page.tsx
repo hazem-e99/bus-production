@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { settingsAPI } from '@/lib/api';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ApiError, getApiErrorMessage } from '@/lib/apiError';
 
 interface SystemSettings {
   id: string;
@@ -85,8 +86,8 @@ export default function SettingsPage() {
       // apply theme immediately after loading
       applyThemeColors(normalized.primaryColor, normalized.secondaryColor);
     } catch (error: unknown) {
-      // Handle 404 errors gracefully by using defaults
-      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('404')) {
+      // Handle "not found" gracefully by falling back to defaults
+      if (error instanceof ApiError && error.status === 404) {
         const defaults: SystemSettings = {
           id: 'system-settings',
           systemName: 'University Bus Management System',
@@ -104,7 +105,7 @@ export default function SettingsPage() {
         showToast({
           type: 'error',
           title: 'Error!',
-          message: 'Failed to load system settings. Please try again.'
+          message: getApiErrorMessage(error)
         });
       }
     } finally {
@@ -140,12 +141,12 @@ export default function SettingsPage() {
       
       setTimeout(() => setSaved(false), 3000);
       
-    } catch {
-      console.error('Error saving settings:', Error);
+    } catch (error: unknown) {
+      console.error('Error saving settings:', error);
       showToast({
         type: 'error',
         title: 'Error!',
-        message: 'Failed to save settings. Please try again.'
+        message: getApiErrorMessage(error)
       });
     } finally {
       setSaving(false);
@@ -182,12 +183,12 @@ export default function SettingsPage() {
         message: 'Settings reset to default values.'
       });
       
-    } catch {
-      console.error('Error resetting settings:', Error);
+    } catch (error: unknown) {
+      console.error('Error resetting settings:', error);
       showToast({
         type: 'error',
         title: 'Error!',
-        message: 'Failed to reset settings. Please try again.'
+        message: getApiErrorMessage(error)
       });
     } finally {
       setSaving(false);

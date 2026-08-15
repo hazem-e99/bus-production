@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { BroadcastNotificationDto, CreateNotificationDto } from './dto/notification.dto';
 
 @Controller('api/Notifications')
 export class NotificationsController {
@@ -32,12 +33,12 @@ export class NotificationsController {
   }
 
   @Post()
-  async create(@Body() dto: any) {
+  async create(@Body() dto: CreateNotificationDto) {
     return this.notificationsService.create(dto);
   }
 
   @Post('broadcast')
-  async broadcast(@Body() dto: any) {
+  async broadcast(@Body() dto: BroadcastNotificationDto) {
     return this.notificationsService.broadcast(dto);
   }
 

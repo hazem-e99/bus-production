@@ -160,7 +160,11 @@ export default function RoutesPage() {
         }
         return r;
       }));
-    } catch {}
+    } catch (error: unknown) {
+      // Secondary enrichment only — the base route list already loaded successfully,
+      // so this stays a console log rather than a user-facing toast.
+      console.error('Failed to enrich routes with stop details:', error);
+    }
   };
 
   // Also enrich when routes list changes (e.g., after pagination/filtering)
@@ -507,7 +511,9 @@ export default function RoutesPage() {
                             if (full) {
                               setSelectedRoute(full);
                             }
-                          } catch {}
+                          } catch (error: unknown) {
+                            console.error('Failed to load full route details:', error);
+                          }
                         }}
                       >
                         <Eye className="w-4 h-4" />

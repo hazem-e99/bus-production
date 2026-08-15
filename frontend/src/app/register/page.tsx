@@ -10,6 +10,7 @@ import { Bus, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
 import { validateStudentRegistration } from '@/utils/validateStudentRegistration';
+import { getApiErrorMessage } from '@/lib/apiError';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
@@ -103,11 +104,10 @@ export default function RegisterPage() {
 			// Redirect to verification page with email
 			router.push(`/auth/verification?email=${encodeURIComponent(email)}`);
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Please try again.';
-			showToast({ 
-				type: 'error', 
-				title: t('pages.auth.register.toasts.errorTitle', 'Registration Failed'), 
-				message: errorMessage 
+			showToast({
+				type: 'error',
+				title: t('pages.auth.register.toasts.errorTitle', 'Registration Failed'),
+				message: getApiErrorMessage(err),
 			});
 		} finally {
 			setLoading(false);

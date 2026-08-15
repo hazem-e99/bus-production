@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller, Get, Post, Put, Patch, Delete,
   Param, Body, Query, UseGuards, UseInterceptors,
   UploadedFile, Req,
@@ -6,6 +7,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+
+const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
 @Controller('api/Users')
 export class UsersController {
@@ -93,11 +96,25 @@ export class UsersController {
   }
 
   @Put('update-profile-picture')
-  @UseInterceptors(FileInterceptor('profilePicture'))
+  @UseInterceptors(
+    FileInterceptor('profilePicture', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_req, file, callback) => {
+        if (!ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype)) {
+          callback(new BadRequestException('Only JPEG, PNG, WEBP, or GIF images are allowed.'), false);
+          return;
+        }
+        callback(null, true);
+      },
+    }),
+  )
   async updateProfilePicture(
     @CurrentUser('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new BadRequestException('No file was uploaded.');
+    }
     const fileUrl = `/uploads/${file.filename || file.originalname}`;
     return this.usersService.updateProfilePicture(userId, fileUrl);
   }

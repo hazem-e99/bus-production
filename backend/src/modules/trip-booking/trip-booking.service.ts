@@ -46,11 +46,12 @@ export class TripBookingService {
   }
 
   async create(dto: any): Promise<ApiResponse<boolean>> {
-    await this.bookingModel.create(dto);
     const trip = await this.findEntityByNumericId(this.tripModel, dto.tripId);
-    if (trip) {
-      await this.tripModel.findByIdAndUpdate(trip._id, { $inc: { bookedSeats: 1 } });
+    if (!trip) {
+      throw new NotFoundException('The selected trip could not be found.');
     }
+    await this.bookingModel.create(dto);
+    await this.tripModel.findByIdAndUpdate(trip._id, { $inc: { bookedSeats: 1 } });
     return createApiResponse(true, 'Booking created successfully');
   }
 

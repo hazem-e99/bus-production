@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { TripResponse } from '@/types/trip';
 import { formatDate as formatWithLocale } from '@/lib/format';
+import { ErrorState } from '@/components/ui/PageState';
 
 interface TripListProps {
   trips: TripResponse[];
@@ -26,16 +27,21 @@ interface TripListProps {
   onView: (trip: TripResponse) => void;
   onDelete: (trip: TripResponse) => void;
   loading?: boolean;
+  /** Set when the trips failed to load — rendered instead of the empty state, with an optional retry. */
+  error?: string | null;
+  onRetry?: () => void;
   /** Base i18n path, e.g., 'pages.movementManager.trips' or 'pages.admin.trips'. Defaults to admin. */
   i18nBase?: string;
 }
 
-export default function TripList({ 
-  trips, 
-  onEdit, 
-  onView, 
-  onDelete, 
+export default function TripList({
+  trips,
+  onEdit,
+  onView,
+  onDelete,
   loading = false,
+  error = null,
+  onRetry,
   i18nBase = 'pages.admin.trips'
 }: TripListProps) {
   const { t, lang } = useI18n();
@@ -135,6 +141,16 @@ export default function TripList({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-gray-600">{L('loading', 'Loading trips...')}</span>
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <ErrorState message={error} onRetry={onRetry} />
         </CardContent>
       </Card>
     );

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getApiConfig } from "./config";
+import { ApiError } from "./apiError";
 import {
   LoginDTO,
   VerificationDTO,
@@ -55,6 +56,29 @@ import {
 } from "@/types/notification";
 
 const apiConfig = getApiConfig();
+
+const REQUEST_TIMEOUT_MS = 20000;
+
+// Guards against firing multiple session-expired redirects when several
+// requests 401 at (roughly) the same time.
+let isHandlingSessionExpiry = false;
+
+function handleSessionExpired() {
+  if (typeof window === "undefined" || isHandlingSessionExpiry) return;
+  isHandlingSessionExpiry = true;
+  try {
+    window.localStorage.removeItem("user");
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("authToken");
+    window.localStorage.removeItem("access_token");
+    document.cookie = "user=; path=/; max-age=0; Secure; SameSite=Lax";
+  } catch {
+    // ignore storage access failures (e.g. private browsing)
+  }
+  const current = window.location.pathname + window.location.search;
+  const target = `/auth/login?sessionExpired=1${current.startsWith("/auth") ? "" : `&next=${encodeURIComponent(current)}`}`;
+  window.location.href = target;
+}
 
 // Generic API functions
 async function apiRequest<T>(
@@ -147,78 +171,78 @@ async function apiRequest<T>(
       );
     }
 
-    const response = await fetch(finalUrl, {
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        ...(finalOptions.method === "GET"
-          ? { "Cache-Control": "no-cache", Pragma: "no-cache" }
-          : {}),
-        ...authHeaders,
-        ...finalOptions?.headers,
-      },
-      ...finalOptions,
-    });
+    const hasAuthHeader = Boolean(authHeaders["Authorization"]);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(finalUrl, {
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          ...(finalOptions.method === "GET"
+            ? { "Cache-Control": "no-cache", Pragma: "no-cache" }
+            : {}),
+          ...authHeaders,
+          ...finalOptions?.headers,
+        },
+        signal: controller.signal,
+        ...finalOptions,
+      });
+    } catch (fetchError: unknown) {
+      if (fetchError instanceof DOMException && fetchError.name === "AbortError") {
+        throw new ApiError({
+          message: "The request took too long. Please try again.",
+          isTimeout: true,
+        });
+      }
+      throw new ApiError({
+        message: "Unable to connect to the server. Please check your internet connection and try again.",
+        isNetworkError: true,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     console.log("📥 Response status:", response.status, response.statusText);
 
     if (!response.ok) {
-      // Attempt to read error body for better diagnostics, including validation details
+      // Parse the backend's standardized error body: { message, errorCode, errors }
       let errorMessage: string | undefined;
+      let errorCode: string | null = null;
+      let fieldErrors: Record<string, string> | null = null;
       try {
         const ct = response.headers.get("content-type") || "";
         if (ct.toLowerCase().includes("application/json")) {
           const j = await response.clone().json();
-          // Common patterns: { message }, { title }, ValidationProblemDetails: { errors: { field: [..] } }
           if (typeof j?.message === "string" && j.message.trim()) {
             errorMessage = j.message;
-          } else if (typeof j?.title === "string" && j.title.trim()) {
-            errorMessage = j.title;
-          } else if (j?.errors && typeof j.errors === "object") {
-            const parts: string[] = [];
-            for (const [field, arr] of Object.entries(j.errors)) {
-              const msgs = Array.isArray(arr) ? arr.join("; ") : String(arr);
-              parts.push(`${field}: ${msgs}`);
-            }
-            if (parts.length) errorMessage = parts.join(" | ");
-          } else {
-            errorMessage = JSON.stringify(j);
           }
-        } else {
-          const txt = await response.clone().text();
-          if (txt && txt.trim()) errorMessage = txt;
+          if (typeof j?.errorCode === "string") {
+            errorCode = j.errorCode;
+          }
+          if (j?.errors && typeof j.errors === "object") {
+            fieldErrors = j.errors as Record<string, string>;
+          }
         }
-      } catch {}
-      // Handle specific error cases
-      if (response.status === 404 || response.status === 401) {
-        console.warn(
-          `⚠️ Endpoint not found or unauthorized: ${endpoint}. Verify against Swagger and adjust.`
-        );
+      } catch {
+        // Body wasn't readable/JSON (e.g. an upstream proxy error page) — fall back to a generic message below.
       }
 
-      if (response.status === 401) {
-        console.warn(
-          `⚠️ Unauthorized access to: ${endpoint} - This endpoint may require authentication`
-        );
-        // For critical endpoints, surface the error to the caller instead of returning empty
-        if (
-          endpoint.includes("/TripRoutes") ||
-          endpoint.includes("/Buses") ||
-          endpoint.includes("/Trips") ||
-          endpoint.includes("/Trip")
-        ) {
-          throw new Error("Unauthorized");
-        }
-        return [] as T;
+      if (response.status === 401 && hasAuthHeader) {
+        handleSessionExpired();
       }
 
-      const baseMsg = `API request failed: ${response.status} ${response.statusText}`;
-      const withBody = errorMessage ? `${baseMsg} - ${errorMessage}` : baseMsg;
-      throw new Error(withBody);
+      throw new ApiError({
+        message: errorMessage || `Request failed with status ${response.status}.`,
+        status: response.status,
+        code: errorCode,
+        errors: fieldErrors,
+      });
     }
 
     // Try to parse JSON safely; handle 204/empty bodies and servers that return JSON with wrong content-type
-    const contentType = response.headers.get("content-type") || "";
     const contentLengthHeader = response.headers.get("content-length");
     const contentLength = contentLengthHeader
       ? parseInt(contentLengthHeader, 10)
@@ -246,26 +270,13 @@ async function apiRequest<T>(
       return rawText as unknown as T;
     }
   } catch (error: unknown) {
-    console.error(`❌ API request failed for ${endpoint}:`, error);
-
-    // For critical endpoints, re-throw the error
-    if (
-      endpoint.includes("/Users") ||
-      endpoint.includes("/Buses") ||
-      endpoint.includes("/Routes") ||
-      endpoint.includes("/Trips") ||
-      endpoint.includes("/TripRoutes") ||
-      endpoint.includes("/Trip")
-    ) {
+    if (error instanceof ApiError) {
       throw error;
     }
-
-    // For non-critical endpoints, return empty data
-    console.log("🔄 Returning empty data for failed non-critical endpoint");
-    if (Array.isArray([] as T)) {
-      return [] as T;
-    }
-    return null as T;
+    console.error(`❌ API request failed for ${endpoint}:`, error);
+    throw new ApiError({
+      message: "Something went wrong. Please try again.",
+    });
   }
 }
 

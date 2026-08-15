@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/com
 import { useToast } from '@/components/ui/Toast';
 import { Lock, ArrowLeft } from 'lucide-react';
 import { authAPI } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 function NewPasswordForm() {
   const router = useRouter();
@@ -48,7 +49,7 @@ function NewPasswordForm() {
         setError((resp as { message?: string })?.message || 'Failed to reset password.');
       }
     } catch (e: unknown) {
-      setError((e as any)?.message || 'Failed to reset password.');
+      setError(getApiErrorMessage(e));
     } finally {
       setIsLoading(false);
     }

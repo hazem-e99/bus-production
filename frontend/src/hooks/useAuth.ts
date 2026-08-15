@@ -5,10 +5,12 @@ import { User } from '@/types/user';
 import { authAPI } from '@/lib/api';
 import { settingsAPI } from '@/lib/api';
 import { LoginResponse, LoginViewModel } from '@/types/auth';
+import { ApiError } from '@/lib/apiError';
 
 interface AuthContextType {
 	user: User | null;
-	login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
+	/** Resolves on success, throws (ApiError when available) with the real failure reason otherwise. */
+	login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
 	logout: () => void;
 	isLoading: boolean;
 }
@@ -62,84 +64,81 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		setIsLoading(false);
 	}, []);
 
-	const login = async (email: string, password: string, rememberMe: boolean = false): Promise<boolean> => {
+	const login = async (email: string, password: string, rememberMe: boolean = false): Promise<void> => {
 		setIsLoading(true);
-		
+
 		try {
-			// Use global authentication API
+			// Use global authentication API — throws ApiError on invalid credentials,
+			// unverified email, suspended account, network failure, etc.
 			const response: LoginResponse = await authAPI.login({ email, password, rememberMe });
-			
-			if (response && response.success) {
-				// Login successful - extract user data from new schema
-				const userData: LoginViewModel = response.data;
-				
-				// Normalize API role to app's internal role keys for navigation
-				const apiRole = String(userData.role || '').trim();
-				const roleMap: Record<string, User['role']> = {
-					Admin: 'admin',
-					Driver: 'driver',
-					MovementManager: 'movement-manager',
-					Conductor: 'supervisor',
-					Supervisor: 'supervisor',
-					Student: 'student',
-				};
-				const normalizedRole: User['role'] = roleMap[apiRole] || (apiRole.toLowerCase() as User['role']) || 'student';
-				
-				// Create user object from LoginViewModel
-				const foundUser: User = {
-					id: userData.id,
-					profileId: userData.profileId,
-					email: userData.email || '',
-					fullName: userData.fullName || '',
-					role: normalizedRole,
-					token: userData.token || '',
-					expiration: userData.expiration || '',
-					// Add default values for compatibility
-					name: userData.fullName || '',
-					phone: '',
-					nationalId: '',
-					department: '',
-					academicYear: '',
-					status: 'active',
-					subscriptionStatus: 'none',
-					createdAt: new Date().toISOString(),
-					updatedAt: new Date().toISOString()
-				};
-				
-				// Check maintenance mode and block non-admin logins (optional - ignore if endpoint doesn't exist)
-				try {
-					const maintenanceResponse = await settingsAPI.getMaintenanceMode();
-					if (maintenanceResponse && maintenanceResponse.maintenanceMode && foundUser.role !== 'admin') {
-						return false;
-					}
-				} catch (error: unknown) {
-					// Silently ignore 404 errors for maintenance mode check
-					      if (!(error as Error)?.message?.includes('404')) {
-						console.error('Failed to check maintenance mode:', error);
-					}
-				}
-				
-				// Set user and store in localStorage/cookie
-				setUser(foundUser);
-				localStorage.setItem('user', JSON.stringify(foundUser));
-				
-				// Store token separately for API calls
-				if (userData.token) {
-					localStorage.setItem('token', userData.token);
-					localStorage.setItem('authToken', userData.token);
-				}
-				
-				// Set cookie expiration based on rememberMe
-				const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 days or 1 day
-				document.cookie = `user=${encodeURIComponent(JSON.stringify(foundUser))}; path=/; max-age=${maxAge}; Secure; SameSite=Lax`;
-				
-				return true;
+
+			if (!response || !response.success || !response.data) {
+				throw new ApiError({ message: response?.message || 'Unable to sign in. Please try again.' });
 			}
-			
-			return false;
-		} catch (error: unknown) {
-			console.error('Login error:', error);
-			return false;
+
+			// Login successful - extract user data from new schema
+			const userData: LoginViewModel = response.data;
+
+			// Normalize API role to app's internal role keys for navigation
+			const apiRole = String(userData.role || '').trim();
+			const roleMap: Record<string, User['role']> = {
+				Admin: 'admin',
+				Driver: 'driver',
+				MovementManager: 'movement-manager',
+				Conductor: 'supervisor',
+				Supervisor: 'supervisor',
+				Student: 'student',
+			};
+			const normalizedRole: User['role'] = roleMap[apiRole] || (apiRole.toLowerCase() as User['role']) || 'student';
+
+			// Create user object from LoginViewModel
+			const foundUser: User = {
+				id: userData.id,
+				profileId: userData.profileId,
+				email: userData.email || '',
+				fullName: userData.fullName || '',
+				role: normalizedRole,
+				token: userData.token || '',
+				expiration: userData.expiration || '',
+				// Add default values for compatibility
+				name: userData.fullName || '',
+				phone: '',
+				nationalId: '',
+				department: '',
+				academicYear: '',
+				status: 'active',
+				subscriptionStatus: 'none',
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
+			};
+
+			// Check maintenance mode and block non-admin logins (optional - ignore if endpoint doesn't exist)
+			try {
+				const maintenanceResponse = await settingsAPI.getMaintenanceMode();
+				if (maintenanceResponse && maintenanceResponse.maintenanceMode && foundUser.role !== 'admin') {
+					throw new ApiError({ message: 'The system is currently under maintenance. Please try again later.' });
+				}
+			} catch (error: unknown) {
+				if (error instanceof ApiError) {
+					throw error;
+				}
+				// Ignore failures of the maintenance-mode check itself (e.g. endpoint missing) — not the user's problem.
+				console.error('Failed to check maintenance mode:', error);
+			}
+
+			// Set user and store in localStorage/cookie
+			setUser(foundUser);
+			localStorage.setItem('user', JSON.stringify(foundUser));
+
+			// Store token separately for API calls
+			if (userData.token) {
+				localStorage.setItem('token', userData.token);
+				localStorage.setItem('authToken', userData.token);
+			}
+
+			// Set cookie expiration based on rememberMe
+			const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 days or 1 day
+			document.cookie = `user=${encodeURIComponent(JSON.stringify(foundUser))}; path=/; max-age=${maxAge}; Secure; SameSite=Lax`;
 		} finally {
 			setIsLoading(false);
 		}
