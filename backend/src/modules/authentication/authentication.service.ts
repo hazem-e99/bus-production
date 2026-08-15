@@ -95,7 +95,7 @@ export class AuthenticationService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await this.userModel.create({
+    const user = await this.userModel.create({
       firstName: dto.firstName,
       lastName: dto.lastName,
       nationalId: dto.nationalId,
@@ -112,7 +112,12 @@ export class AuthenticationService {
       verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
+    try {
+      await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
+    } catch {
+      await this.userModel.deleteOne({ _id: user._id }).exec();
+      return createApiResponse(false, 'Registration failed: unable to send the verification email. Please try again later.', false);
+    }
 
     return createApiResponse(true, 'Student registered successfully. Please check your email for the verification code.', true);
   }
@@ -126,7 +131,7 @@ export class AuthenticationService {
     const defaultPassword = await bcrypt.hash('DefaultPass123!', 10);
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await this.userModel.create({
+    const user = await this.userModel.create({
       firstName: dto.firstName,
       lastName: dto.lastName,
       nationalId: dto.nationalId,
@@ -140,7 +145,12 @@ export class AuthenticationService {
       verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
+    try {
+      await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
+    } catch {
+      await this.userModel.deleteOne({ _id: user._id }).exec();
+      return createApiResponse(false, 'Registration failed: unable to send the verification email. Please try again later.', false);
+    }
 
     return createApiResponse(true, `${dto.role} registered successfully`, true);
   }
@@ -194,7 +204,11 @@ export class AuthenticationService {
       resetTokenExpires: new Date(Date.now() + 60 * 60 * 1000),
     });
 
-    await this.emailService.sendPasswordResetCode(dto.email, resetToken, user.firstName);
+    try {
+      await this.emailService.sendPasswordResetCode(dto.email, resetToken, user.firstName);
+    } catch {
+      return createApiResponse(false, 'Unable to send the reset email. Please try again later.', false);
+    }
 
     return createApiResponse(true, 'Reset token sent to email', true);
   }
