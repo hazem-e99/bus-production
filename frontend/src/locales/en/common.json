@@ -354,6 +354,10 @@
     "trips": {
       "title": "Trips",
       "newTrip": "New Trip",
+      "tabs": {
+        "all": "All",
+        "completed": "Completed trips"
+      },
       "autoRenew": "Auto reschedule completed trips",
       "filters": {
         "allDates": "All Dates",
@@ -1563,6 +1567,11 @@
       },
       "trips": {
         "title": "Trips",
+        "tabs": {
+          "all": "All",
+          "filters": "Filters",
+          "completed": "Completed trips"
+        },
         "filters": {
           "date": "Date",
           "driver": "Driver",
