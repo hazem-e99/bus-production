@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
+import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
-import { 
-  Settings, 
+import {
+  Settings,
   Save,
   RefreshCw,
   AlertTriangle,
@@ -17,11 +18,16 @@ import {
   Palette,
   Globe,
   Wrench,
-  CheckCircle
+  CheckCircle,
+  ShieldAlert,
+  Trash2,
+  Lock
 } from 'lucide-react';
-import { settingsAPI } from '@/lib/api';
+import { settingsAPI, adminSystemAPI, PurgeDatabaseResponseData } from '@/lib/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ApiError, getApiErrorMessage } from '@/lib/apiError';
+
+const PURGE_CONFIRMATION_PHRASE = 'DELETE ALL DATA';
 
 interface SystemSettings {
   id: string;
@@ -51,7 +57,15 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
   const { t, language: currentLanguage } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'general' | 'appearance' | 'maintenance'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'appearance' | 'maintenance' | 'danger'>('general');
+
+  // Danger Zone: purge-all-data state
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+  const [purgeConfirmText, setPurgeConfirmText] = useState('');
+  const [purgePassword, setPurgePassword] = useState('');
+  const [isPurging, setIsPurging] = useState(false);
+  const [purgeError, setPurgeError] = useState('');
+  const isPurgeConfirmed = purgeConfirmText === PURGE_CONFIRMATION_PHRASE && purgePassword.length > 0;
 
   // Load settings from db.json
   useEffect(() => {
@@ -195,6 +209,59 @@ export default function SettingsPage() {
     }
   };
 
+  const openPurgeModal = () => {
+    setPurgeConfirmText('');
+    setPurgePassword('');
+    setPurgeError('');
+    setShowPurgeModal(true);
+  };
+
+  const closePurgeModal = () => {
+    if (isPurging) return; // never allow closing mid-request
+    setShowPurgeModal(false);
+    setPurgeConfirmText('');
+    setPurgePassword('');
+    setPurgeError('');
+  };
+
+  const handlePurgeDatabase = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    // Defense in depth: never proceed on an accidental Enter-key submit or a
+    // programmatic call before both fields are genuinely valid.
+    if (!isPurgeConfirmed || isPurging) return;
+
+    setIsPurging(true);
+    setPurgeError('');
+    try {
+      const resp = await adminSystemAPI.purgeDatabase({
+        confirmationPhrase: purgeConfirmText,
+        password: purgePassword,
+      });
+      const data = resp?.data as PurgeDatabaseResponseData | undefined;
+      setShowPurgeModal(false);
+      setPurgeConfirmText('');
+      setPurgePassword('');
+
+      const deletedTotal = data?.deleted
+        ? Object.values(data.deleted).reduce((sum, n) => sum + (n || 0), 0)
+        : undefined;
+      showToast({
+        type: 'success',
+        title: t('deleteAllDataSuccessTitle'),
+        message: deletedTotal !== undefined
+          ? `${t('deleteAllDataSuccessMessage')} (${deletedTotal})`
+          : t('deleteAllDataSuccessMessage'),
+      });
+    } catch (error: unknown) {
+      // Keep the modal open on failure so the admin can correct the password
+      // or retry, without having to re-type the confirmation phrase.
+      setPurgePassword('');
+      setPurgeError(getApiErrorMessage(error));
+    } finally {
+      setIsPurging(false);
+    }
+  };
+
   // Apply color changes to CSS variables
   const applyThemeColors = (primary: string, secondary: string) => {
     const root = document.documentElement;
@@ -288,6 +355,14 @@ export default function SettingsPage() {
           </Button>
           <Button variant={activeTab === 'maintenance' ? 'default' : 'outline'} onClick={() => setActiveTab('maintenance')} size="sm">
             <Wrench className="w-4 h-4 mr-2" /> Maintenance
+          </Button>
+          <Button
+            variant={activeTab === 'danger' ? 'destructive' : 'outline'}
+            onClick={() => setActiveTab('danger')}
+            size="sm"
+            className={activeTab !== 'danger' ? 'text-error border-error/30 hover:bg-error/5 hover:border-error' : ''}
+          >
+            <ShieldAlert className="w-4 h-4 mr-2" /> {t('dangerZone')}
           </Button>
         </div>
       </div>
@@ -452,6 +527,38 @@ export default function SettingsPage() {
               </div>
             )}
 
+            {activeTab === 'danger' && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                  <ShieldAlert className="w-5 h-5 mr-2 text-error" />
+                  {t('dangerZone')}
+                </h3>
+                <p className="text-sm text-gray-500">{t('dangerZoneDescription')}</p>
+
+                <div className="rounded-xl border-2 border-error/30 bg-error/5 p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-error/10 rounded-lg flex-shrink-0">
+                        <Trash2 className="w-5 h-5 text-error" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-error">{t('deleteAllData')}</h4>
+                        <p className="text-sm text-gray-600 mt-1 max-w-xl">{t('deleteAllDataDescription')}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      onClick={openPurgeModal}
+                      className="w-full sm:w-auto flex-shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      {t('deleteAllDataButton')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Last Updated */}
             <div className="pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between text-sm text-gray-500">
@@ -502,6 +609,101 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Danger Zone: Delete All Database Data confirmation modal */}
+      <Modal
+        isOpen={showPurgeModal}
+        onClose={closePurgeModal}
+        title={t('deleteAllDataModalTitle')}
+        size="md"
+      >
+        <form onSubmit={handlePurgeDatabase} className="space-y-5">
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-error/10 border border-error/30">
+            <AlertTriangle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-error">{t('deleteAllDataWarning')}</p>
+              <p className="text-sm text-gray-700">{t('deleteAllDataIrreversible')}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="font-medium text-gray-800">{t('whatWillBeDeleted')}</p>
+              <p className="text-gray-600 mt-0.5">{t('whatWillBeDeletedList')}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-800">{t('whatWillBePreserved')}</p>
+              <p className="text-gray-600 mt-0.5">{t('whatWillBePreservedList')}</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('typeToConfirm').replace('{phrase}', '')}
+              <code className="ml-1 px-1.5 py-0.5 rounded bg-gray-100 text-error font-mono text-xs align-middle">
+                {PURGE_CONFIRMATION_PHRASE}
+              </code>
+            </label>
+            <Input
+              value={purgeConfirmText}
+              onChange={(e) => setPurgeConfirmText(e.target.value)}
+              placeholder={PURGE_CONFIRMATION_PHRASE}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              disabled={isPurging}
+              className={purgeConfirmText && purgeConfirmText !== PURGE_CONFIRMATION_PHRASE ? 'border-error focus-visible:ring-error' : ''}
+            />
+            {purgeConfirmText && purgeConfirmText !== PURGE_CONFIRMATION_PHRASE && (
+              <p className="text-xs text-error mt-1">{t('confirmationPhraseMismatch')}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
+              <Lock className="w-3.5 h-3.5" />
+              {t('currentPasswordLabel')}
+            </label>
+            <Input
+              type="password"
+              value={purgePassword}
+              onChange={(e) => setPurgePassword(e.target.value)}
+              placeholder={t('currentPasswordPlaceholder')}
+              autoComplete="current-password"
+              disabled={isPurging}
+            />
+          </div>
+
+          {purgeError && (
+            <div className="text-sm text-error bg-error/10 border border-error/30 rounded-lg p-3">
+              {purgeError}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={closePurgeModal} disabled={isPurging}>
+              {t('cancel')}
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={!isPurgeConfirmed || isPurging}
+            >
+              {isPurging ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  {t('deletingInProgress')}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t('deleteAllDataButton')}
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -1273,6 +1273,30 @@ export const settingsAPI = {
   },
 };
 
+// Admin system-level operations (Admin-only, backend-enforced) - use global endpoints
+export interface PurgeDatabaseResponseData {
+  atomic: boolean;
+  deleted: Record<string, number>;
+  preserved: {
+    admin: { id: string; email: string };
+    settings: boolean;
+  };
+}
+
+export const adminSystemAPI = {
+  // POST /api/Admin/System/purge - hard-deletes all application data except the
+  // current admin's own account and system settings. Backend re-validates the
+  // confirmation phrase and the admin's current password.
+  purgeDatabase: (payload: { confirmationPhrase: string; password: string }) =>
+    apiRequest<{ success: boolean; message: string | null; data: PurgeDatabaseResponseData }>(
+      "/Admin/System/purge",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }
+    ),
+};
+
 // Student-specific API calls - use global endpoints
 export const studentAPI = {
   // Get all students using GET /api/Users/students-data

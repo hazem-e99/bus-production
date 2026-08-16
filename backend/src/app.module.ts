@@ -26,6 +26,7 @@ import { TripRoutesModule } from './modules/trip-routes/trip-routes.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { BusTrackingModule } from './modules/bus-tracking/bus-tracking.module';
 import { VotingModule } from './modules/voting/voting.module';
+import { AdminSystemModule } from './modules/admin-system/admin-system.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { VotingModule } from './modules/voting/voting.module';
     BookingsModule,
     BusTrackingModule,
     VotingModule,
+    AdminSystemModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
