@@ -24,6 +24,7 @@ import {
   Radio,
   Satellite,
   ClipboardCheck,
+  Settings,
 } from 'lucide-react';
 import { UserRole } from '@/types/user';
 import { notificationAPI } from '@/lib/api';
@@ -51,6 +52,7 @@ const navigationItems = {
     { name: 'Student Subscriptions', href: '/dashboard/admin/student-subscriptions', icon: LayoutDashboard, badge: 'Subs' },
     { name: 'Voting', href: '/dashboard/admin/voting', icon: ClipboardCheck, badge: 'Surveys' },
     { name: 'Notifications', href: '/dashboard/admin/notifications', icon: Bell },
+    { name: 'Settings', href: '/dashboard/admin/settings', icon: Settings },
     { name: 'Profile', href: '/dashboard/admin/profile', icon: User, badge: 'Account' },
   ],
   student: [
