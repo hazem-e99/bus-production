@@ -112,9 +112,13 @@ export class AuthenticationService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const user = await this.userModel.create({
+    // Email verification is disabled: Gmail SMTP deliverability for OTP codes
+    // is unreliable (spam placement), so accounts are activated immediately
+    // instead of gating on a code the student may never receive. See
+    // docs/email-deliverability.md. forgotPassword/resetPassword still email
+    // a reset code and are unaffected by this.
+    await this.userModel.create({
       firstName: dto.firstName,
       lastName: dto.lastName,
       nationalId: dto.nationalId,
@@ -126,24 +130,10 @@ export class AuthenticationService {
       password: hashedPassword,
       role: 'Student',
       status: 'Active',
-      isEmailVerified: false,
-      verificationCode,
-      verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      isEmailVerified: true,
     });
 
-    try {
-      await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
-    } catch (error) {
-      this.logger.error(`Failed to send verification email during student registration for ${dto.email}`, (error as Error)?.stack);
-      await this.userModel.deleteOne({ _id: user._id }).exec();
-      throw new AppException(
-        502,
-        ErrorCodes.EMAIL_DELIVERY_FAILED,
-        'Registration could not be completed because the verification email failed to send. Please try again later.',
-      );
-    }
-
-    return createApiResponse(true, 'Student registered successfully. Please check your email for the verification code.', true);
+    return createApiResponse(true, 'Student registered successfully. You can now sign in.', true);
   }
 
   async registerStaff(dto: StaffRegistrationDTO): Promise<ApiResponse<boolean>> {
@@ -157,9 +147,9 @@ export class AuthenticationService {
     }
 
     const defaultPassword = await bcrypt.hash('DefaultPass123!', 10);
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const user = await this.userModel.create({
+    // Email verification disabled here too — see registerStudent for why.
+    await this.userModel.create({
       firstName: dto.firstName,
       lastName: dto.lastName,
       nationalId: dto.nationalId,
@@ -168,22 +158,8 @@ export class AuthenticationService {
       role: dto.role,
       password: defaultPassword,
       status: 'Active',
-      isEmailVerified: false,
-      verificationCode,
-      verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      isEmailVerified: true,
     });
-
-    try {
-      await this.emailService.sendVerificationCode(dto.email, verificationCode, dto.firstName);
-    } catch (error) {
-      this.logger.error(`Failed to send verification email during staff registration for ${dto.email}`, (error as Error)?.stack);
-      await this.userModel.deleteOne({ _id: user._id }).exec();
-      throw new AppException(
-        502,
-        ErrorCodes.EMAIL_DELIVERY_FAILED,
-        'Registration could not be completed because the verification email failed to send. Please try again later.',
-      );
-    }
 
     return createApiResponse(true, `${dto.role} registered successfully`, true);
   }

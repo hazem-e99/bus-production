@@ -30,20 +30,7 @@ import {
 import { userAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
 import { toBackendAssetUrl } from '@/lib/backend-url';
-import { getDepartmentOptions } from '@/lib/constants';
-
-// Academic Year enum options
-const ACADEMIC_YEAR_OPTIONS = [
-  'PreparatoryYear', 'FirstYear', 'SecondYear', 'ThirdYear', 'FourthYear', 'FifthYear', 'SixthYear', 'SeventhYear',
-  'MastersFirstYear', 'MastersSecondYear', 'MastersThirdYear',
-  'PhDFirstYear', 'PhDSecondYear', 'PhDThirdYear', 'PhDFourthYear', 'PhDFifthYear', 'PhDSixthYear',
-  'ResidencyFirstYear', 'ResidencySecondYear', 'ResidencyThirdYear', 'ResidencyFourthYear', 'ResidencyFifthYear',
-  'FellowshipFirstYear', 'FellowshipSecondYear',
-  'ExchangeStudent', 'VisitingStudent', 'NonDegreeStudent', 'ContinuingEducation',
-  'DiplomaFirstYear', 'DiplomaSecondYear', 'DiplomaThirdYear',
-  'ProfessionalFirstYear', 'ProfessionalSecondYear', 'ProfessionalThirdYear', 'ProfessionalFourthYear',
-  'RepeatYear', 'ThesisWriting', 'DissertationWriting'
-];
+import { getDepartmentOptions, getYearOfStudyOptions } from '@/lib/constants';
 
 interface StudentProfile {
   id: number;
@@ -174,9 +161,10 @@ export default function StudentProfilePage() {
         apiData.department = formData.department.trim();
       }
       if (formData.yearOfStudy && formData.yearOfStudy.trim()) {
-        // Backend expects a numeric yearOfStudy per Swagger example; map enum to index if needed
-        const idx = ACADEMIC_YEAR_OPTIONS.indexOf(formData.yearOfStudy.trim());
-        apiData.yearOfStudy = idx >= 0 ? idx + 1 : Number(formData.yearOfStudy);
+        // Sent as the raw key (e.g. 'FirstYear'), same as the registration
+        // page — the backend stores yearOfStudy as a free-form string, no
+        // numeric conversion needed.
+        apiData.yearOfStudy = formData.yearOfStudy.trim();
       }
       if (formData.emergencyContact.trim()) {
         apiData.emergencyContact = formData.emergencyContact.trim();
@@ -208,8 +196,9 @@ export default function StudentProfilePage() {
         return;
       }
 
-      // Validate year of study is one of the enum options
-      if (formData.yearOfStudy && !ACADEMIC_YEAR_OPTIONS.includes(formData.yearOfStudy)) {
+      // Validate year of study (allow the student's pre-existing value too, in
+      // case it predates the current year-of-study list)
+      if (formData.yearOfStudy && !getYearOfStudyOptions(profile?.yearOfStudy).includes(formData.yearOfStudy)) {
         alert(t('pages.student.profile.alerts.yearRange', 'Please select a valid academic year.'));
         return;
       }
@@ -781,7 +770,7 @@ export default function StudentProfilePage() {
                         }`}
                       >
                         <option value="">{t('pages.student.profile.yearPlaceholder', 'Select academic year')}</option>
-                        {ACADEMIC_YEAR_OPTIONS.map(y => (
+                        {getYearOfStudyOptions(profile?.yearOfStudy).map(y => (
                           <option key={y} value={y}>{y}</option>
                         ))}
                       </Select>

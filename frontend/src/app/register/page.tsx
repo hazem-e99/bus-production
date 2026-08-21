@@ -13,7 +13,7 @@ import { validateStudentRegistration } from '@/utils/validateStudentRegistration
 import { getApiErrorMessage } from '@/lib/apiError';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { DEPARTMENTS } from '@/lib/constants';
+import { DEPARTMENTS, YEARS_OF_STUDY } from '@/lib/constants';
 
 export default function RegisterPage() {
 	const [firstName, setFirstName] = useState('');
@@ -34,19 +34,7 @@ export default function RegisterPage() {
 	const { t } = useI18n();
 
 	const departments = DEPARTMENTS;
-
-	const yearsOfStudy = [
-		'PreparatoryYear', 'FirstYear', 'SecondYear', 'ThirdYear', 'FourthYear',
-		'FifthYear', 'SixthYear', 'SeventhYear',
-		'MastersFirstYear', 'MastersSecondYear', 'MastersThirdYear',
-		'PhDFirstYear', 'PhDSecondYear', 'PhDThirdYear', 'PhDFourthYear', 'PhDFifthYear', 'PhDSixthYear',
-		'ResidencyFirstYear', 'ResidencySecondYear', 'ResidencyThirdYear', 'ResidencyFourthYear', 'ResidencyFifthYear',
-		'FellowshipFirstYear', 'FellowshipSecondYear',
-		'ExchangeStudent', 'VisitingStudent', 'NonDegreeStudent', 'ContinuingEducation',
-		'DiplomaFirstYear', 'DiplomaSecondYear', 'DiplomaThirdYear',
-		'ProfessionalFirstYear', 'ProfessionalSecondYear', 'ProfessionalThirdYear', 'ProfessionalFourthYear',
-		'RepeatYear', 'ThesisWriting', 'DissertationWriting'
-	];
+	const yearsOfStudy = YEARS_OF_STUDY;
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
@@ -86,14 +74,15 @@ export default function RegisterPage() {
 				throw new Error(data?.error || 'Failed to register');
 			}
 
-			showToast({ 
-				type: 'success', 
-				title: t('pages.auth.register.toasts.successTitle', 'Registration Successful'), 
-				message: t('pages.auth.register.toasts.successMessage', 'Your account has been created successfully. Please check your email for verification code.') 
+			showToast({
+				type: 'success',
+				title: t('pages.auth.register.toasts.successTitle', 'Registration Successful'),
+				message: t('pages.auth.register.toasts.successMessageNoVerification', 'Your account has been created successfully. You can now sign in.')
 			});
 
-			// Redirect to verification page with email
-			router.push(`/auth/verification?email=${encodeURIComponent(email)}`);
+			// Email verification is disabled — the account is active immediately,
+			// so go straight to login instead of the verification-code page.
+			router.push('/auth/login');
 		} catch (err: unknown) {
 			showToast({
 				type: 'error',

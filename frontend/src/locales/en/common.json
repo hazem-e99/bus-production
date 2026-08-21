@@ -240,6 +240,7 @@
           "validationTitle": "Validation Error",
           "successTitle": "Registration Successful",
           "successMessage": "Your account has been created successfully. Please check your email for verification code.",
+          "successMessageNoVerification": "Your account has been created successfully. You can now sign in.",
           "errorTitle": "Registration Failed"
         }
       }

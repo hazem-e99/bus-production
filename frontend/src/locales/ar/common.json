@@ -240,6 +240,7 @@
           "validationTitle": "خطأ في التحقق",
           "successTitle": "تم التسجيل بنجاح",
           "successMessage": "تم إنشاء حسابك بنجاح. يرجى التحقق من بريدك للحصول على رمز التحقق.",
+          "successMessageNoVerification": "تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول.",
           "errorTitle": "فشل التسجيل"
         }
       }

@@ -36,6 +36,35 @@ export function getDepartmentOptions(currentValue?: string | null): string[] {
   return [...DEPARTMENTS];
 }
 
+// Single source of truth for the student "Year of Study" dropdown, used by
+// the registration page, the student profile page, and the admin student
+// create/edit pages. Limited to the first 5 undergraduate years — the
+// previous list also included Masters/PhD/Residency/Fellowship/Diploma/
+// Professional/Exchange/Repeat variants, which are no longer offered.
+// Values are the existing English keys (unchanged), stored as-is on
+// `User.yearOfStudy` (a free-form string on the backend, not a schema enum).
+export const YEARS_OF_STUDY = [
+  'FirstYear',
+  'SecondYear',
+  'ThirdYear',
+  'FourthYear',
+  'FifthYear',
+] as const;
+
+/**
+ * Returns YEARS_OF_STUDY plus the given current value if it isn't already in
+ * the list (e.g. a student record saved before this list was trimmed, such
+ * as 'PreparatoryYear' or 'MastersFirstYear'). Keeps legacy values visible/
+ * selectable in edit forms instead of the dropdown silently reverting to
+ * blank on load.
+ */
+export function getYearOfStudyOptions(currentValue?: string | null): string[] {
+  if (currentValue && !(YEARS_OF_STUDY as readonly string[]).includes(currentValue)) {
+    return [...YEARS_OF_STUDY, currentValue];
+  }
+  return [...YEARS_OF_STUDY];
+}
+
 export const ROLES = {
   ADMIN: 'admin',
   STUDENT: 'student',

@@ -20,7 +20,7 @@ import {
 import { studentAPI } from '@/lib/api';
 import { StudentViewModel } from '@/types/user';
 import { validateStudentEdit } from '@/utils/validateStudentRegistration';
-import { getDepartmentOptions } from '@/lib/constants';
+import { getDepartmentOptions, getYearOfStudyOptions } from '@/lib/constants';
 
 interface StudentEditData {
   firstName: string;
@@ -57,19 +57,9 @@ export default function EditStudentPage() {
   // the student's currently-saved value even if it predates this list.
   const departments = getDepartmentOptions(student?.department);
 
-  // Academic year options from Swagger schema
-  const yearsOfStudy = [
-    'PreparatoryYear', 'FirstYear', 'SecondYear', 'ThirdYear', 'FourthYear',
-    'FifthYear', 'SixthYear', 'SeventhYear',
-    'MastersFirstYear', 'MastersSecondYear', 'MastersThirdYear',
-    'PhDFirstYear', 'PhDSecondYear', 'PhDThirdYear', 'PhDFourthYear', 'PhDFifthYear', 'PhDSixthYear',
-    'ResidencyFirstYear', 'ResidencySecondYear', 'ResidencyThirdYear', 'ResidencyFourthYear', 'ResidencyFifthYear',
-    'FellowshipFirstYear', 'FellowshipSecondYear',
-    'ExchangeStudent', 'VisitingStudent', 'NonDegreeStudent', 'ContinuingEducation',
-    'DiplomaFirstYear', 'DiplomaSecondYear', 'DiplomaThirdYear',
-    'ProfessionalFirstYear', 'ProfessionalSecondYear', 'ProfessionalThirdYear', 'ProfessionalFourthYear',
-    'RepeatYear', 'ThesisWriting', 'DissertationWriting'
-  ];
+  // Academic year options (single source of truth: src/lib/constants.ts).
+  // Includes the student's currently-saved value even if it predates this list.
+  const yearsOfStudy = getYearOfStudyOptions(student?.yearOfStudy);
 
   // Fetch student data
   useEffect(() => {
