@@ -5,6 +5,7 @@ import { StudentSubscriptionService } from './student-subscription.service';
 import { StudentSubscription, StudentSubscriptionSchema } from './student-subscription.schema';
 import { User, UserSchema } from '../users/user.schema';
 import { SubscriptionPlan, SubscriptionPlanSchema } from '../subscription-plan/subscription-plan.schema';
+import { Payment, PaymentSchema } from '../payment/payment.schema';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { SubscriptionPlan, SubscriptionPlanSchema } from '../subscription-plan/s
       { name: StudentSubscription.name, schema: StudentSubscriptionSchema },
       { name: User.name, schema: UserSchema },
       { name: SubscriptionPlan.name, schema: SubscriptionPlanSchema },
+      { name: Payment.name, schema: PaymentSchema },
     ]),
   ],
   controllers: [StudentSubscriptionController],

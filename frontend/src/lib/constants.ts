@@ -1,5 +1,41 @@
 export const APP_NAME = 'El Renad';
 
+// Single source of truth for the student "Department" dropdown, used by the
+// registration page, the student profile page, and the admin student
+// create/edit pages. Values are the exact Arabic labels required by the
+// business — stored as-is on `User.department` (a free-form string on the
+// backend, not a schema enum), so no translation lookup is needed at render
+// time. If a student's stored department predates this list (an old English
+// key), the option is preserved as an extra entry so the field keeps
+// displaying and saving correctly instead of silently resetting — see
+// `getDepartmentOptions()`.
+export const DEPARTMENTS = [
+  'علاج طبيعي',
+  'طب اسنان',
+  'صيدلة',
+  'تمريض',
+  'ذكاء اصطناعي',
+  'حقوق',
+  'علوم صحية',
+  'علوم حيوية',
+  'لغات وترجمه',
+  'فنون تطبيقيه',
+  'الإدارة و العلوم المالية و الاقتصادية',
+] as const;
+
+/**
+ * Returns DEPARTMENTS plus the given current value if it isn't already in the
+ * list (e.g. a student record saved before this enum was updated). Keeps
+ * legacy department values visible/selectable in edit forms instead of the
+ * dropdown silently reverting to blank on load.
+ */
+export function getDepartmentOptions(currentValue?: string | null): string[] {
+  if (currentValue && !(DEPARTMENTS as readonly string[]).includes(currentValue)) {
+    return [...DEPARTMENTS, currentValue];
+  }
+  return [...DEPARTMENTS];
+}
+
 export const ROLES = {
   ADMIN: 'admin',
   STUDENT: 'student',

@@ -30,19 +30,7 @@ import {
 import { userAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
 import { toBackendAssetUrl } from '@/lib/backend-url';
-
-// Department and Year of Study options (same as registration page)
-const departments = [
-  'Medicine', 'Dentistry', 'Pharmacy', 'VeterinaryMedicine', 'Nursing',
-  'CivilEngineering', 'MechanicalEngineering', 'ElectricalEngineering', 'ComputerEngineering', 'ChemicalEngineering',
-  'Architecture', 'ComputerScience', 'InformationTechnology', 'SoftwareEngineering', 'DataScience',
-  'BusinessAdministration', 'Accounting', 'Finance', 'Marketing', 'Economics', 'Management',
-  'Law', 'ArabicLanguageAndLiterature', 'EnglishLanguageAndLiterature', 'History', 'Philosophy',
-  'Geography', 'PoliticalScience', 'Psychology', 'Sociology', 'SocialWork', 'InternationalRelations',
-  'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Agriculture', 'AgriculturalEngineering',
-  'Education', 'FineArts', 'Music', 'GraphicDesign', 'MassCommunication', 'Journalism',
-  'PhysicalEducation', 'TourismAndHotels'
-];
+import { getDepartmentOptions } from '@/lib/constants';
 
 // Academic Year enum options
 const ACADEMIC_YEAR_OPTIONS = [
@@ -226,8 +214,9 @@ export default function StudentProfilePage() {
         return;
       }
 
-      // Validate department
-      if (apiData.department && !departments.includes(apiData.department)) {
+      // Validate department (allow the student's pre-existing value too, in case
+      // it predates the current department list and hasn't been changed here)
+      if (apiData.department && !getDepartmentOptions(profile?.department).includes(apiData.department)) {
         alert(t('pages.student.profile.alerts.invalidDepartment', 'Please select a valid department.'));
         return;
       }
@@ -762,7 +751,7 @@ export default function StudentProfilePage() {
                         }`}
                       >
                         <option value="">{t('pages.student.profile.selectDepartment', 'Select Department')}</option>
-                        {departments.map(dept => (
+                        {getDepartmentOptions(profile?.department).map(dept => (
                           <option key={dept} value={dept}>{dept}</option>
                         ))}
                       </Select>

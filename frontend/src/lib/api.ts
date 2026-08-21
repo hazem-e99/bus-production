@@ -1425,6 +1425,17 @@ export const studentSubscriptionAPI = {
       method: "PUT",
       body: JSON.stringify(suspendData),
     }),
+
+  // PUT /api/StudentSubscription/by-student/{studentId}/reset — Admin-only.
+  // Cancels the student's active subscription and rejects any pending
+  // payment so they're free to pick a plan again. Records are preserved.
+  resetForStudent: (
+    studentId: number | string
+  ): Promise<{ success: boolean; message: string | null; data: { subscriptionsReset: number; paymentsReset: number } | null }> =>
+    apiRequest<{ success: boolean; message: string | null; data: { subscriptionsReset: number; paymentsReset: number } | null }>(
+      `/StudentSubscription/by-student/${studentId}/reset`,
+      { method: "PUT" }
+    ),
 };
 
 // ==================== Voting / Surveys ====================

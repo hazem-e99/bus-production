@@ -14,6 +14,7 @@ _ensure_backend_env() {
   local env_file="$BACKEND_DIR/.env"
   if [ -f "$env_file" ]; then
     log_ok "backend/.env already exists — leaving it untouched."
+    _append_missing_backend_env_vars "$env_file"
     return
   fi
 
@@ -35,10 +36,34 @@ UPLOAD_DIR=./uploads
 
 MAIL_USER=
 MAIL_PASS=
+MAIL_FROM_NAME=El Renad
+MAIL_REPLY_TO=
 EOF
   chown "root:$APP_GROUP" "$env_file"
   chmod 640 "$env_file"
   log_ok "backend/.env created (mode 640, readable by $APP_GROUP)."
+}
+
+# Appends newly-introduced, non-secret env vars to an existing backend/.env
+# without touching any existing line (never overwrites secrets or manual
+# customization). Safe to run on every deploy — only appends a key if it is
+# completely absent from the file.
+_append_missing_backend_env_vars() {
+  local env_file="$1"
+  local appended=0
+
+  if ! grep -q '^MAIL_FROM_NAME=' "$env_file"; then
+    printf '\nMAIL_FROM_NAME=El Renad\n' >> "$env_file"
+    appended=1
+  fi
+  if ! grep -q '^MAIL_REPLY_TO=' "$env_file"; then
+    printf 'MAIL_REPLY_TO=\n' >> "$env_file"
+    appended=1
+  fi
+
+  if [ "$appended" = "1" ]; then
+    log_ok "backend/.env: added new MAIL_FROM_NAME/MAIL_REPLY_TO defaults (existing values untouched)."
+  fi
 }
 
 _ensure_frontend_env() {

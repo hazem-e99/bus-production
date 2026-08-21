@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { StudentSubscription, StudentSubscriptionDocument } from './student-subscription.schema';
 import { User, UserDocument } from '../users/user.schema';
 import { SubscriptionPlan, SubscriptionPlanDocument } from '../subscription-plan/subscription-plan.schema';
+import { Payment, PaymentDocument } from '../payment/payment.schema';
 import { createApiResponse, ApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class StudentSubscriptionService {
     @InjectModel(StudentSubscription.name) private subModel: Model<StudentSubscriptionDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SubscriptionPlan.name) private planModel: Model<SubscriptionPlanDocument>,
+    @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
   ) {}
 
   private getNumericId(doc: any): number {
@@ -125,5 +127,44 @@ export class StudentSubscriptionService {
       suspendReason: dto.reason,
     });
     return createApiResponse(true, 'Subscription suspended');
+  }
+
+  /**
+   * Admin action: clears whatever is currently blocking a student from picking
+   * a subscription plan again — their active subscription (if any) and any
+   * payment still awaiting review (e.g. a cash payment picked by mistake).
+   * Neither is deleted: the subscription is marked Cancelled and the payment
+   * Rejected, so payment/financial history and the admin audit trail
+   * (payment.reviewNotes, adminReviewedById, reviewedAt) are fully preserved —
+   * only the fields that gate re-selection are changed.
+   */
+  async resetForStudent(studentId: number, adminId: number): Promise<ApiResponse<{ subscriptionsReset: number; paymentsReset: number }>> {
+    const student = await this.userModel.findOne({ numericId: studentId, role: 'Student' }).exec();
+    if (!student) throw new NotFoundException('Student not found');
+
+    const subsResult = await this.subModel.updateMany(
+      { studentId, isActive: true },
+      { $set: { isActive: false, status: 'Cancelled', suspendReason: 'Reset by admin' } },
+    ).exec();
+
+    const paymentsResult = await this.paymentModel.updateMany(
+      { studentId, status: 'Pending' },
+      {
+        $set: {
+          status: 'Rejected',
+          reviewNotes: 'Reset by admin: student allowed to select a plan again',
+          adminReviewedById: adminId,
+          reviewedAt: new Date(),
+        },
+      },
+    ).exec();
+
+    return createApiResponse(
+      {
+        subscriptionsReset: subsResult.modifiedCount ?? 0,
+        paymentsReset: paymentsResult.modifiedCount ?? 0,
+      },
+      'Subscription reset successfully. The student can select a plan again.',
+    );
   }
 }

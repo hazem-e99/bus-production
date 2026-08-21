@@ -3,14 +3,15 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useI18n } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/Toast';
-import { studentAPI, paymentAPI, subscriptionPlansAPI } from '@/lib/api';
+import { studentAPI, paymentAPI, subscriptionPlansAPI, studentSubscriptionAPI } from '@/lib/api';
 import { PaymentMethod, PaymentStatus, ReviewPaymentDTO } from '@/types/subscription';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import { CheckCircle, XCircle, Clock, AlertCircle, Users, CreditCard, Search, Activity, Filter, X } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { CheckCircle, XCircle, Clock, AlertCircle, Users, CreditCard, Search, Activity, Filter, X, RotateCcw } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 
 // Updated interfaces based on Swagger schemas
@@ -78,6 +79,8 @@ export default function StudentSubscriptionsPage() {
   const [customDateTo, setCustomDateTo] = useState('');
   const [amountFilter, setAmountFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [resetTarget, setResetTarget] = useState<{ studentId: number; studentName: string } | null>(null);
+  const [resetting, setResetting] = useState(false);
   const { showToast } = useToast();
   const tRef = useRef(t);
   const toastRef = useRef(showToast);
@@ -292,6 +295,34 @@ export default function StudentSubscriptionsPage() {
         title: 'Failed to review payment',
         message: 'Please try again'
       });
+    }
+  };
+
+  const confirmResetSubscription = async () => {
+    if (!resetTarget) return;
+    try {
+      setResetting(true);
+      const result = await studentSubscriptionAPI.resetForStudent(resetTarget.studentId);
+      if (result?.success) {
+        showToast({
+          type: 'success',
+          title: t('pages.admin.studentSubscriptions.reset.successTitle', 'Subscription reset'),
+          message: t('pages.admin.studentSubscriptions.reset.successMessage', 'The student can now select a subscription plan again.'),
+        });
+        await load();
+      } else {
+        throw new Error(result?.message || 'Reset failed');
+      }
+    } catch (error) {
+      console.error('❌ Error resetting subscription:', error);
+      showToast({
+        type: 'error',
+        title: t('pages.admin.studentSubscriptions.reset.errorTitle', 'Failed to reset subscription'),
+        message: t('pages.admin.studentSubscriptions.reset.errorMessage', 'Please try again'),
+      });
+    } finally {
+      setResetting(false);
+      setResetTarget(null);
     }
   };
 
@@ -662,8 +693,19 @@ export default function StudentSubscriptionsPage() {
                         </div>
                       )}
                       {row.status === 'Accepted' && (
-                        <div className="text-sm text-green-600 font-medium">
-                          ✓ {t('pages.admin.studentSubscriptions.labels.active', 'Active')}
+                        <div className="flex flex-col items-start gap-2">
+                          <div className="text-sm text-green-600 font-medium">
+                            ✓ {t('pages.admin.studentSubscriptions.labels.active', 'Active')}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setResetTarget({ studentId: row.studentId, studentName: row.studentName })}
+                            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                            {t('pages.admin.studentSubscriptions.actions.reset', 'Reset Subscription')}
+                          </Button>
                         </div>
                       )}
                       {row.status === 'Rejected' && (
@@ -680,6 +722,23 @@ export default function StudentSubscriptionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={!!resetTarget}
+        title={t('pages.admin.studentSubscriptions.reset.confirmTitle', 'Reset this student\'s subscription?')}
+        description={
+          resetTarget
+            ? `${resetTarget.studentName} — ${t(
+                'pages.admin.studentSubscriptions.reset.confirmDescription',
+                'Current subscription will be cancelled and any pending payment rejected. The student will be able to choose a plan again. Payment records are kept.'
+              )}`
+            : ''
+        }
+        confirmText={resetting ? t('common.processing', 'Processing...') : t('pages.admin.studentSubscriptions.reset.confirmButton', 'Reset Subscription')}
+        cancelText={t('common.cancel', 'Cancel')}
+        onCancel={() => setResetTarget(null)}
+        onConfirm={confirmResetSubscription}
+      />
     </div>
   );
 }

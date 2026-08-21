@@ -13,6 +13,7 @@ import { validateStudentRegistration } from '@/utils/validateStudentRegistration
 import { getApiErrorMessage } from '@/lib/apiError';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export default function RegisterPage() {
 	const [firstName, setFirstName] = useState('');
@@ -32,17 +33,7 @@ export default function RegisterPage() {
 	const router = useRouter();
 	const { t } = useI18n();
 
-	const departments = [
-		'Medicine', 'Dentistry', 'Pharmacy', 'VeterinaryMedicine', 'Nursing',
-		'CivilEngineering', 'MechanicalEngineering', 'ElectricalEngineering', 'ComputerEngineering', 'ChemicalEngineering',
-		'Architecture', 'ComputerScience', 'InformationTechnology', 'SoftwareEngineering', 'DataScience',
-		'BusinessAdministration', 'Accounting', 'Finance', 'Marketing', 'Economics', 'Management',
-		'Law', 'ArabicLanguageAndLiterature', 'EnglishLanguageAndLiterature', 'History', 'Philosophy',
-		'Geography', 'PoliticalScience', 'Psychology', 'Sociology', 'SocialWork', 'InternationalRelations',
-		'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Agriculture', 'AgriculturalEngineering',
-		'Education', 'FineArts', 'Music', 'GraphicDesign', 'MassCommunication', 'Journalism',
-		'PhysicalEducation', 'TourismAndHotels'
-	];
+	const departments = DEPARTMENTS;
 
 	const yearsOfStudy = [
 		'PreparatoryYear', 'FirstYear', 'SecondYear', 'ThirdYear', 'FourthYear',

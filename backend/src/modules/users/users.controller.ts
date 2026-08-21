@@ -7,6 +7,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
@@ -119,7 +120,14 @@ export class UsersController {
     return this.usersService.updateProfilePicture(userId, fileUrl);
   }
 
+  /**
+   * Permanently (hard) deletes the user document — see
+   * UsersService.deleteUser, which uses Model.findByIdAndDelete. Admin-only:
+   * this physically removes the account, so a normal user must never be able
+   * to invoke it for themselves or anyone else.
+   */
   @Delete(':id')
+  @Roles('Admin')
   async deleteUser(@Param('id') id: string) {
     return this.usersService.deleteUser(id);
   }

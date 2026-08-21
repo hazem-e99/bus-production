@@ -1,6 +1,7 @@
 import { Controller, Get, Put, Param, Body } from '@nestjs/common';
 import { StudentSubscriptionService } from './student-subscription.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('api/StudentSubscription')
 export class StudentSubscriptionController {
@@ -54,5 +55,20 @@ export class StudentSubscriptionController {
   @Put(':id/suspend')
   async suspend(@Param('id') id: string, @Body() dto: any) {
     return this.subService.suspend(parseInt(id), dto);
+  }
+
+  /**
+   * Admin-only: clears a student's active subscription and any pending
+   * payment so they can select a plan again (e.g. they picked the wrong
+   * package). Payment/subscription records are preserved (status-changed,
+   * not deleted) — see StudentSubscriptionService.resetForStudent.
+   */
+  @Put('by-student/:studentId/reset')
+  @Roles('Admin')
+  async resetForStudent(
+    @Param('studentId') studentId: string,
+    @CurrentUser('numericId') adminId: number,
+  ) {
+    return this.subService.resetForStudent(parseInt(studentId), adminId);
   }
 }

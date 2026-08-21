@@ -710,7 +710,7 @@ export default function UsersPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setConfirmState({ open: true, userId: row.original.id.toString(), message: `Delete ${row.original.name}?` })}
+                      onClick={() => setConfirmState({ open: true, userId: row.original.id.toString(), message: `Are you sure you want to permanently delete ${row.original.name}? This action cannot be undone.` })}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1333,8 +1333,9 @@ export default function UsersPage() {
       </Modal>
       <ConfirmDialog
         open={confirmState.open}
-        title="Delete user?"
+        title="Permanently delete user?"
         description={confirmState.message}
+        confirmText="Delete Permanently"
         onCancel={() => setConfirmState({ open: false })}
         onConfirm={handleDeleteConfirmed}
       />

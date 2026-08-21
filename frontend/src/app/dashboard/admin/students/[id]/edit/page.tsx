@@ -20,6 +20,7 @@ import {
 import { studentAPI } from '@/lib/api';
 import { StudentViewModel } from '@/types/user';
 import { validateStudentEdit } from '@/utils/validateStudentRegistration';
+import { getDepartmentOptions } from '@/lib/constants';
 
 interface StudentEditData {
   firstName: string;
@@ -52,18 +53,9 @@ export default function EditStudentPage() {
   const [errors, setErrors] = useState<string[]>([]);
   const { showToast } = useToast();
 
-  // Department options from Swagger schema
-  const departments = [
-    'Medicine', 'Dentistry', 'Pharmacy', 'VeterinaryMedicine', 'Nursing',
-    'CivilEngineering', 'MechanicalEngineering', 'ElectricalEngineering', 'ComputerEngineering', 'ChemicalEngineering',
-    'Architecture', 'ComputerScience', 'InformationTechnology', 'SoftwareEngineering', 'DataScience',
-    'BusinessAdministration', 'Accounting', 'Finance', 'Marketing', 'Economics', 'Management',
-    'Law', 'ArabicLanguageAndLiterature', 'EnglishLanguageAndLiterature', 'History', 'Philosophy',
-    'Geography', 'PoliticalScience', 'Psychology', 'Sociology', 'SocialWork', 'InternationalRelations',
-    'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Agriculture', 'AgriculturalEngineering',
-    'Education', 'FineArts', 'Music', 'GraphicDesign', 'MassCommunication', 'Journalism',
-    'PhysicalEducation', 'TourismAndHotels'
-  ];
+  // Department options (single source of truth: src/lib/constants.ts). Includes
+  // the student's currently-saved value even if it predates this list.
+  const departments = getDepartmentOptions(student?.department);
 
   // Academic year options from Swagger schema
   const yearsOfStudy = [

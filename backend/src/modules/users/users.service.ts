@@ -81,6 +81,21 @@ export class UsersService {
     return createApiResponse(this.toViewModel(user), 'Profile updated successfully');
   }
 
+  /**
+   * Hard delete: the user document is physically removed from the `users`
+   * collection (Model.findByIdAndDelete), not soft-deleted — there is no
+   * `isDeleted`/`deletedAt` field on the User schema. Auth is stateless JWT
+   * (JwtStrategy re-fetches the user by id on every request), so a deleted
+   * user's existing token stops working immediately, with no separate
+   * session/refresh-token store to invalidate.
+   *
+   * Consistent with this app's no-`ref` data model (see
+   * AdminSystemService.deleteAllCollections for the same pattern at purge
+   * scale): related records that reference this user by numericId
+   * (payments, subscriptions, bookings, notifications, attendance) are left
+   * in place rather than force-deleted, since they are financial/audit
+   * records the business needs preserved even after the account is gone.
+   */
   async deleteUser(id: string): Promise<ApiResponse<boolean>> {
     const user = await this.findUserByNumericId(id);
     if (!user) {

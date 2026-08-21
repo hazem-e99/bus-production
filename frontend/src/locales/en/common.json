@@ -728,11 +728,21 @@
         },
         "actions": {
           "accept": "Accept",
-          "reject": "Reject"
+          "reject": "Reject",
+          "reset": "Reset Subscription"
         },
         "reviewNotes": {
           "accept": "Payment approved by admin",
           "reject": "Payment rejected by admin"
+        },
+        "reset": {
+          "confirmTitle": "Reset this student's subscription?",
+          "confirmDescription": "Current subscription will be cancelled and any pending payment rejected. The student will be able to choose a plan again. Payment records are kept.",
+          "confirmButton": "Reset Subscription",
+          "successTitle": "Subscription reset",
+          "successMessage": "The student can now select a subscription plan again.",
+          "errorTitle": "Failed to reset subscription",
+          "errorMessage": "Please try again"
         },
         "toasts": {
           "loadSuccess": "Data Loaded Successfully",
