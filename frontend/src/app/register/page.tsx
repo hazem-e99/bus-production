@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { Bus, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { authAPI } from '@/lib/api';
+import { authAPI, preferredAreasAPI } from '@/lib/api';
 import { validateStudentRegistration } from '@/utils/validateStudentRegistration';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { DEPARTMENTS, YEARS_OF_STUDY } from '@/lib/constants';
+import { PreferredAreaViewModel } from '@/types/preferredArea';
 
 export default function RegisterPage() {
 	const [firstName, setFirstName] = useState('');
@@ -23,6 +24,9 @@ export default function RegisterPage() {
 	const [email, setEmail] = useState('');
 	const [studentAcademicNumber, setStudentAcademicNumber] = useState('');
 	const [department, setDepartment] = useState('');
+	const [preferredArea, setPreferredArea] = useState('');
+	const [areas, setAreas] = useState<PreferredAreaViewModel[]>([]);
+	const [areasLoading, setAreasLoading] = useState(true);
 	const [yearOfStudy, setYearOfStudy] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,9 +40,27 @@ export default function RegisterPage() {
 	const departments = DEPARTMENTS;
 	const yearsOfStudy = YEARS_OF_STUDY;
 
+	// Preferred Area is admin-managed (unlike the static Department/Year-of-Study
+	// lists above), so it's fetched from the backend on mount rather than imported
+	// from constants.ts. GET /PreferredArea/active is @Public() — no auth required.
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			try {
+				const data = await preferredAreasAPI.getActive();
+				if (!cancelled) setAreas(data);
+			} catch {
+				// Fail open: leave areas empty rather than crashing the registration page.
+			} finally {
+				if (!cancelled) setAreasLoading(false);
+			}
+		})();
+		return () => { cancelled = true; };
+	}, []);
+
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
-		
+
 		// Prepare data for validation
 		const userData = {
 			firstName,
@@ -48,6 +70,7 @@ export default function RegisterPage() {
 			phoneNumber,
 			studentAcademicNumber,
 			department,
+			preferredArea,
 			yearOfStudy,
 			password,
 			confirmPassword
@@ -216,8 +239,8 @@ export default function RegisterPage() {
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<div>
 										<label className="block text-sm font-medium text-text-primary mb-1">{t('pages.auth.register.fields.department', 'Department')} *</label>
-										<Select 
-											value={department} 
+										<Select
+											value={department}
 											onChange={(e) => setDepartment(e.target.value)}
 											required
 											className="h-11 rounded-xl bg-background/70 transition-colors focus:ring-2 focus:ring-primary/40 focus:border-primary"
@@ -230,8 +253,8 @@ export default function RegisterPage() {
 									</div>
 									<div>
 										<label className="block text-sm font-medium text-text-primary mb-1">{t('pages.auth.register.fields.yearOfStudy', 'Year of Study')} *</label>
-										<Select 
-											value={yearOfStudy} 
+										<Select
+											value={yearOfStudy}
 											onChange={(e) => setYearOfStudy(e.target.value)}
 											required
 											className="h-11 rounded-xl bg-background/70 transition-colors focus:ring-2 focus:ring-primary/40 focus:border-primary"
@@ -241,6 +264,33 @@ export default function RegisterPage() {
 												<option key={year} value={year}>{year}</option>
 											))}
 										</Select>
+									</div>
+								</div>
+
+								<div className="grid grid-cols-1 gap-4">
+									<div>
+										<label className="block text-sm font-medium text-text-primary mb-1">{t('pages.auth.register.fields.preferredArea', 'منطقتك المفضلة')} *</label>
+										<Select
+											value={preferredArea}
+											onChange={(e) => setPreferredArea(e.target.value)}
+											required
+											disabled={areasLoading}
+											className="h-11 rounded-xl bg-background/70 transition-colors focus:ring-2 focus:ring-primary/40 focus:border-primary"
+										>
+											<option value="">
+												{areasLoading
+													? t('pages.auth.register.placeholders.loadingAreas', 'Loading areas...')
+													: t('pages.auth.register.placeholders.selectPreferredArea', 'Select your preferred area')}
+											</option>
+											{areas.map(a => (
+												<option key={a.id} value={a.name ?? ''}>{a.name}</option>
+											))}
+										</Select>
+										{!areasLoading && areas.length === 0 && (
+											<p className="text-xs text-red-500 mt-1">
+												{t('pages.auth.register.hints.noAreasAvailable', 'No preferred areas are available yet. Please contact support.')}
+											</p>
+										)}
 									</div>
 								</div>
 							</div>

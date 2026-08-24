@@ -23,6 +23,7 @@ export interface User {
   expiration?: string;
   // Additional fields for compatibility
   department?: string;
+  preferredArea?: string;
   academicYear?: string;
   subscriptionStatus?: 'active' | 'expired' | 'none';
 }
@@ -41,6 +42,7 @@ export interface StudentViewModel {
   studentProfileId: number;
   studentAcademicNumber?: string;
   department?: string;
+  preferredArea?: string;
   yearOfStudy?: string;
   emergencyContact?: string;
   emergencyPhone?: string;
@@ -51,6 +53,7 @@ export interface Student extends User {
   studentId?: string;
   studentAcademicNumber?: string;
   department: string;
+  preferredArea?: string;
   academicYear: string;
   subscriptionStatus: 'active' | 'expired' | 'none';
   subscriptionExpiry?: string;

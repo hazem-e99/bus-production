@@ -8,6 +8,7 @@ export interface StudentRegistrationData {
   phoneNumber: string;
   studentAcademicNumber: string;
   department: string;
+  preferredArea: string;
   yearOfStudy: string;
   password: string;
   confirmPassword: string;
@@ -65,11 +66,15 @@ export const validateStudentRegistration = (data: StudentRegistrationData): Vali
   if (!data.department?.trim()) {
     errors.push('Department is required');
   }
-  
+
+  if (!data.preferredArea?.trim()) {
+    errors.push('Preferred area is required');
+  }
+
   if (!data.yearOfStudy?.trim()) {
     errors.push('Year of study is required');
   }
-  
+
   if (!data.password?.trim()) {
     errors.push('Password is required');
   } else if (data.password.length < 6) {
@@ -179,7 +184,11 @@ export const validateStudentEdit = (data: Omit<StudentRegistrationData, 'passwor
   if (!data.department?.trim()) {
     errors.push('Department is required');
   }
-  
+
+  if (!data.preferredArea?.trim()) {
+    errors.push('Preferred area is required');
+  }
+
   if (!data.yearOfStudy?.trim()) {
     errors.push('Year of study is required');
   }

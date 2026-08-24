@@ -82,6 +82,7 @@
     "analytics": "Analytics",
     "voting": "Voting",
     "reports": "Reports",
+    "preferred_areas": "Preferred Areas",
     "badges": {
       "manage": "Manage",
       "fleet": "Fleet",
@@ -94,7 +95,8 @@
       "plan": "Plan",
       "surveys": "Surveys",
       "forms": "Forms",
-      "data": "Data"
+      "data": "Data",
+      "locations": "Locations"
     }
   },
   "pages": {
@@ -212,6 +214,7 @@
           "email": "Email",
           "studentAcademicNumber": "Student Academic Number",
           "department": "Department",
+          "preferredArea": "Preferred Area",
           "yearOfStudy": "Year of Study",
           "password": "Password",
           "confirmPassword": "Confirm Password"
@@ -224,13 +227,16 @@
           "universityEmail": "Enter university email",
           "studentAcademicNumber": "Enter student academic number",
           "selectDepartment": "Select Department",
+          "selectPreferredArea": "Select your preferred area",
+          "loadingAreas": "Loading areas...",
           "selectYearOfStudy": "Select Year of Study",
           "password": "Enter password",
           "confirmPassword": "Confirm password"
         },
         "hints": {
           "nationalIdTitle": "National ID must be exactly 14 digits",
-          "passwordMin": "Minimum 6 characters"
+          "passwordMin": "Minimum 6 characters",
+          "noAreasAvailable": "No preferred areas are available yet. Please contact support."
         },
         "cta": {
           "creating": "Creating Account...",
@@ -654,6 +660,73 @@
           "planDeleted": "Plan deleted successfully",
           "planActivated": "Plan activated successfully",
           "planDeactivated": "Plan deactivated successfully",
+          "successTitle": "Success"
+        }
+      },
+      "preferredAreas": {
+        "loading": "Loading...",
+        "title": "Preferred Areas",
+        "subtitle": "Manage the areas students can select at registration",
+        "addButton": "Add Area",
+        "listTitle": "Areas",
+        "listCountLabel": "area(s)",
+        "table": {
+          "id": "ID",
+          "name": "Name",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "editArea": "Edit Area",
+          "activateArea": "Activate Area",
+          "deactivateArea": "Deactivate Area",
+          "deleteArea": "Delete Area"
+        },
+        "modal": {
+          "editTitle": "Edit Area",
+          "addTitle": "Add Area"
+        },
+        "form": {
+          "name": "Name",
+          "nameHint": "2-100 characters, e.g. a district or city name.",
+          "namePlaceholder": "e.g. Nasr City",
+          "saveChanges": "Save Changes",
+          "createArea": "Create Area"
+        },
+        "errors": {
+          "loadFailedMsg": "Failed to load preferred areas",
+          "loadFailedTitle": "Load Failed",
+          "error": "Error",
+          "loadAreaDetails": "Failed to load area details",
+          "updateFailed": "Update failed",
+          "creationFailed": "Creation failed",
+          "saveFailedMsg": "Failed to save area",
+          "saveFailedTitle": "Save Failed",
+          "actionFailed": "Action failed",
+          "actionFailedTitle": "Action Failed"
+        },
+        "confirms": {
+          "deleteTitle": "Delete Area",
+          "deleteDesc": "Are you sure you want to delete this area? Students who already selected it keep their saved value, but it will no longer appear on the registration form.",
+          "activateTitle": "Activate Area",
+          "activateDesc": "Are you sure you want to activate this area? It will appear on the registration form again.",
+          "deactivateTitle": "Deactivate Area",
+          "deactivateDesc": "Are you sure you want to deactivate this area? It will be hidden from the registration form.",
+          "confirmTitle": "Confirm Action",
+          "confirmDesc": "Are you sure?"
+        },
+        "toasts": {
+          "areaUpdated": "Area Updated",
+          "updatedSuccessfully": "has been updated successfully",
+          "areaCreated": "Area Created",
+          "createdSuccessfully": "has been created successfully",
+          "areaDeleted": "Area deleted successfully",
+          "areaActivated": "Area activated successfully",
+          "areaDeactivated": "Area deactivated successfully",
           "successTitle": "Success"
         }
       },
@@ -1133,6 +1206,7 @@
         "studentId": "Student ID",
         "academicNumber": "Academic Number",
         "department": "Department",
+        "preferredArea": "Preferred Area",
         "yearOfStudy": "Year of Study",
         "yearShort": "Year",
         "academicStatus": "Academic Status",
@@ -1152,6 +1226,7 @@
         "phone": "Phone Number",
         "phonePlaceholder": "Enter your phone number",
         "selectDepartment": "Select Department",
+        "selectPreferredArea": "Select Preferred Area",
         "yearPlaceholder": "Enter year of study (1-8)",
         "footerTitle": "Student Account",
         "footerDesc": "You have access to view and book bus trips, manage your profile, and track your travel history. Keep your information updated for better service.",
@@ -1162,6 +1237,7 @@
           "invalidEmail": "Please enter a valid email address.",
           "yearRange": "Year of study must be between 1 and 8.",
           "invalidDepartment": "Please select a valid department.",
+          "invalidPreferredArea": "Please select a valid preferred area.",
           "emergencyContactLength": "Emergency contact name must not exceed 100 characters.",
           "emergencyPhoneLength": "Emergency phone number must not exceed 20 characters.",
           "updateSuccess": "Student profile updated successfully!",

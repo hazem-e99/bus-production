@@ -16,6 +16,7 @@ import { TripBookingModule } from './modules/trip-booking/trip-booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SubscriptionPlanModule } from './modules/subscription-plan/subscription-plan.module';
+import { PreferredAreaModule } from './modules/preferred-area/preferred-area.module';
 import { StudentSubscriptionModule } from './modules/student-subscription/student-subscription.module';
 import { RoutesModule } from './modules/routes/routes.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
@@ -47,6 +48,7 @@ import { AdminSystemModule } from './modules/admin-system/admin-system.module';
     PaymentModule,
     NotificationsModule,
     SubscriptionPlanModule,
+    PreferredAreaModule,
     StudentSubscriptionModule,
     RoutesModule,
     TripRoutesModule,

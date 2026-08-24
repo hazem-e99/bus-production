@@ -28,6 +28,7 @@ export class UsersService {
       updatedAt: (user as any).updatedAt,
       studentAcademicNumber: user.studentAcademicNumber,
       department: user.department,
+      preferredArea: user.preferredArea,
       yearOfStudy: user.yearOfStudy,
       emergencyContact: user.emergencyContact,
       emergencyPhone: user.emergencyPhone,

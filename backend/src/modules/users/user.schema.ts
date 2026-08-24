@@ -55,6 +55,9 @@ export class User {
   department: string;
 
   @Prop()
+  preferredArea: string;
+
+  @Prop()
   yearOfStudy: string;
 
   @Prop()

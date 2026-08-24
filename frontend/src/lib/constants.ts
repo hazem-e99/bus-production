@@ -65,6 +65,23 @@ export function getYearOfStudyOptions(currentValue?: string | null): string[] {
   return [...YEARS_OF_STUDY];
 }
 
+/**
+ * Merges a fetched, runtime (admin-managed) options list with a stray current
+ * value not present in it — e.g. a student's saved preferredArea that an
+ * admin later renamed or deleted from the Preferred Areas admin page. Keeps
+ * the value visible/selectable in edit forms instead of the dropdown
+ * silently reverting to blank. Same purpose as getDepartmentOptions()/
+ * getYearOfStudyOptions() above, but for lists that come from the backend
+ * (e.g. preferredAreasAPI.getActive()) rather than a static array, so it
+ * takes the fetched list as a parameter instead of closing over a constant.
+ */
+export function mergeWithCurrentValue(fetchedNames: string[], currentValue?: string | null): string[] {
+  if (currentValue && !fetchedNames.includes(currentValue)) {
+    return [...fetchedNames, currentValue];
+  }
+  return fetchedNames;
+}
+
 export const ROLES = {
   ADMIN: 'admin',
   STUDENT: 'student',

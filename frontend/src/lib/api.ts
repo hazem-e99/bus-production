@@ -43,6 +43,13 @@ import {
   SubscriptionReportApiResponse,
 } from "@/types/subscription";
 import {
+  PreferredAreaViewModel,
+  PreferredAreaViewModelApiResponse,
+  PreferredAreaViewModelIEnumerableApiResponse,
+  CreatePreferredAreaDTO,
+  UpdatePreferredAreaDTO,
+} from "@/types/preferredArea";
+import {
   TripBookingViewModel,
   CreateTripBookingDTO,
   ChangePickupTripBookingDTO,
@@ -579,6 +586,7 @@ export const userAPI = {
     email?: string;
     phoneNumber?: string;
     department?: string;
+    preferredArea?: string;
     yearOfStudy?: number;
     emergencyContact?: string;
     emergencyPhone?: string;
@@ -1133,6 +1141,57 @@ export const subscriptionPlansAPI = {
     );
     return resp?.data ?? [];
   },
+};
+
+// Preferred Area API — admin-managed list shown on the registration dropdown.
+// GET /active is @Public() on the backend (registration happens pre-login);
+// every other route requires Admin.
+export const preferredAreasAPI = {
+  // GET /api/PreferredArea (Admin-only)
+  getAll: async (): Promise<PreferredAreaViewModel[]> => {
+    const resp = await apiRequest<PreferredAreaViewModelIEnumerableApiResponse>("/PreferredArea");
+    return resp?.data ?? [];
+  },
+  // GET /api/PreferredArea/active (public)
+  getActive: async (): Promise<PreferredAreaViewModel[]> => {
+    const resp = await apiRequest<PreferredAreaViewModelIEnumerableApiResponse>("/PreferredArea/active");
+    return resp?.data ?? [];
+  },
+  // GET /api/PreferredArea/{id} (Admin-only)
+  getById: async (id: number | string): Promise<PreferredAreaViewModel | null> => {
+    const resp = await apiRequest<PreferredAreaViewModelApiResponse>(`/PreferredArea/${id}`);
+    return resp?.data ?? null;
+  },
+  // POST /api/PreferredArea with CreatePreferredAreaDTO (Admin-only)
+  create: (data: CreatePreferredAreaDTO): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>("/PreferredArea", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  // PUT /api/PreferredArea/{id} with UpdatePreferredAreaDTO (Admin-only)
+  update: (
+    id: number | string,
+    data: UpdatePreferredAreaDTO
+  ): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/PreferredArea/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  // DELETE /api/PreferredArea/{id} (Admin-only)
+  delete: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/PreferredArea/${id}`, {
+      method: "DELETE",
+    }),
+  // PUT /api/PreferredArea/{id}/activate (Admin-only)
+  activate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/PreferredArea/${id}/activate`, {
+      method: "PUT",
+    }),
+  // PUT /api/PreferredArea/{id}/deactivate (Admin-only)
+  deactivate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/PreferredArea/${id}/deactivate`, {
+      method: "PUT",
+    }),
 };
 
 // TripBooking API - use global endpoints

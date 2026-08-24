@@ -82,6 +82,7 @@
     "analytics": "التحليلات",
     "voting": "التصويت",
     "reports": "التقارير",
+    "preferred_areas": "المناطق المفضلة",
     "badges": {
       "manage": "إدارة",
       "fleet": "الأسطول",
@@ -94,7 +95,8 @@
       "plan": "باقة",
       "surveys": "استبيانات",
       "forms": "نماذج",
-      "data": "بيانات"
+      "data": "بيانات",
+      "locations": "مواقع"
     }
   },
   "pages": {
@@ -212,6 +214,7 @@
           "email": "البريد الإلكتروني",
           "studentAcademicNumber": "الرقم الأكاديمي للطالب",
           "department": "القسم",
+          "preferredArea": "منطقتك المفضلة",
           "yearOfStudy": "السنة الدراسية",
           "password": "كلمة المرور",
           "confirmPassword": "تأكيد كلمة المرور"
@@ -224,13 +227,16 @@
           "universityEmail": "أدخل البريد الجامعي",
           "studentAcademicNumber": "أدخل الرقم الأكاديمي للطالب",
           "selectDepartment": "اختر القسم",
+          "selectPreferredArea": "اختر منطقتك المفضلة",
+          "loadingAreas": "جاري تحميل المناطق...",
           "selectYearOfStudy": "اختر السنة الدراسية",
           "password": "أدخل كلمة المرور",
           "confirmPassword": "أدخل تأكيد كلمة المرور"
         },
         "hints": {
           "nationalIdTitle": "يجب أن يكون الرقم القومي 14 رقمًا بالضبط",
-          "passwordMin": "الحد الأدنى 6 أحرف"
+          "passwordMin": "الحد الأدنى 6 أحرف",
+          "noAreasAvailable": "لا توجد مناطق متاحة حاليًا. يرجى التواصل مع الدعم."
         },
         "cta": {
           "creating": "جارٍ إنشاء الحساب...",
@@ -790,6 +796,73 @@
             "successTitle": "نجاح"
           }
         },
+        "preferredAreas": {
+          "loading": "جاري التحميل...",
+          "title": "المناطق المفضلة",
+          "subtitle": "إدارة المناطق التي يمكن للطلاب اختيارها عند التسجيل",
+          "addButton": "إضافة منطقة",
+          "listTitle": "المناطق",
+          "listCountLabel": "منطقة",
+          "table": {
+            "id": "المعرف",
+            "name": "الاسم",
+            "status": "الحالة",
+            "actions": "الإجراءات"
+          },
+          "status": {
+            "active": "نشطة",
+            "inactive": "غير نشطة"
+          },
+          "actions": {
+            "editArea": "تعديل المنطقة",
+            "activateArea": "تفعيل المنطقة",
+            "deactivateArea": "إلغاء تفعيل المنطقة",
+            "deleteArea": "حذف المنطقة"
+          },
+          "modal": {
+            "editTitle": "تعديل المنطقة",
+            "addTitle": "إضافة منطقة"
+          },
+          "form": {
+            "name": "الاسم",
+            "nameHint": "2-100 حرف، مثل اسم حي أو مدينة.",
+            "namePlaceholder": "مثال: مدينة نصر",
+            "saveChanges": "حفظ التغييرات",
+            "createArea": "إنشاء منطقة"
+          },
+          "errors": {
+            "loadFailedMsg": "فشل في تحميل المناطق المفضلة",
+            "loadFailedTitle": "فشل التحميل",
+            "error": "خطأ",
+            "loadAreaDetails": "فشل في تحميل تفاصيل المنطقة",
+            "updateFailed": "فشل التحديث",
+            "creationFailed": "فشل الإنشاء",
+            "saveFailedMsg": "فشل في حفظ المنطقة",
+            "saveFailedTitle": "فشل الحفظ",
+            "actionFailed": "فشل الإجراء",
+            "actionFailedTitle": "فشل الإجراء"
+          },
+          "confirms": {
+            "deleteTitle": "حذف المنطقة",
+            "deleteDesc": "هل أنت متأكد من حذف هذه المنطقة؟ الطلاب الذين اختاروها بالفعل يحتفظون بقيمتهم المحفوظة، لكنها لن تظهر بعد الآن في نموذج التسجيل.",
+            "activateTitle": "تفعيل المنطقة",
+            "activateDesc": "هل أنت متأكد من تفعيل هذه المنطقة؟ ستظهر مرة أخرى في نموذج التسجيل.",
+            "deactivateTitle": "إلغاء تفعيل المنطقة",
+            "deactivateDesc": "هل أنت متأكد من إلغاء تفعيل هذه المنطقة؟ سيتم إخفاؤها من نموذج التسجيل.",
+            "confirmTitle": "تأكيد الإجراء",
+            "confirmDesc": "هل أنت متأكد؟"
+          },
+          "toasts": {
+            "areaUpdated": "تم تحديث المنطقة",
+            "updatedSuccessfully": "تم التحديث بنجاح",
+            "areaCreated": "تم إنشاء المنطقة",
+            "createdSuccessfully": "تم الإنشاء بنجاح",
+            "areaDeleted": "تم حذف المنطقة بنجاح",
+            "areaActivated": "تم تفعيل المنطقة بنجاح",
+            "areaDeactivated": "تم إلغاء تفعيل المنطقة بنجاح",
+            "successTitle": "نجاح"
+          }
+        },
       "trips": {
         "title": "الرحلات",
         "newTrip": "رحلة جديدة",
@@ -1133,6 +1206,7 @@
         "studentId": "معرف الطالب",
         "academicNumber": "الرقم الأكاديمي",
         "department": "القسم",
+        "preferredArea": "المنطقة المفضلة",
         "yearOfStudy": "السنة الدراسية",
         "yearShort": "سنة",
         "academicStatus": "الحالة الأكاديمية",
@@ -1152,6 +1226,7 @@
         "phone": "رقم الهاتف",
         "phonePlaceholder": "أدخل رقم هاتفك",
         "selectDepartment": "اختر القسم",
+        "selectPreferredArea": "اختر المنطقة المفضلة",
         "yearPlaceholder": "أدخل السنة الدراسية (1-8)",
         "footerTitle": "حساب الطالب",
         "footerDesc": "يمكنك عرض وحجز رحلات الحافلات وإدارة ملفك الشخصي وتتبع سجل رحلاتك. حافظ على تحديث بياناتك لتحسين الخدمة.",
@@ -1162,6 +1237,7 @@
           "invalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
           "yearRange": "يجب أن تكون السنة الدراسية بين 1 و8.",
           "invalidDepartment": "يرجى اختيار قسم صالح.",
+          "invalidPreferredArea": "يرجى اختيار منطقة مفضلة صالحة.",
           "emergencyContactLength": "يجب ألا يتجاوز اسم جهة الاتصال للطوارئ 100 حرف.",
           "emergencyPhoneLength": "يجب ألا يتجاوز رقم هاتف الطوارئ 20 حرفًا.",
           "updateSuccess": "تم تحديث الملف الشخصي للطالب بنجاح!",

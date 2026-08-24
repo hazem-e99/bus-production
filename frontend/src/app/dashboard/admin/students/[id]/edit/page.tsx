@@ -8,19 +8,19 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { 
-  User, 
-  Save, 
+import {
+  User,
+  Save,
   ArrowLeft,
   GraduationCap,
-  
+  MapPin,
   Activity,
   Clock
 } from 'lucide-react';
-import { studentAPI } from '@/lib/api';
+import { studentAPI, preferredAreasAPI } from '@/lib/api';
 import { StudentViewModel } from '@/types/user';
 import { validateStudentEdit } from '@/utils/validateStudentRegistration';
-import { getDepartmentOptions, getYearOfStudyOptions } from '@/lib/constants';
+import { getDepartmentOptions, getYearOfStudyOptions, mergeWithCurrentValue } from '@/lib/constants';
 
 interface StudentEditData {
   firstName: string;
@@ -30,6 +30,7 @@ interface StudentEditData {
   phoneNumber: string;
   studentAcademicNumber: string;
   department: string;
+  preferredArea: string;
   yearOfStudy: string;
 }
 
@@ -46,16 +47,27 @@ export default function EditStudentPage() {
     phoneNumber: '',
     studentAcademicNumber: '',
     department: '',
+    preferredArea: '',
     yearOfStudy: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [areaNames, setAreaNames] = useState<string[]>([]);
   const { showToast } = useToast();
 
   // Department options (single source of truth: src/lib/constants.ts). Includes
   // the student's currently-saved value even if it predates this list.
   const departments = getDepartmentOptions(student?.department);
+
+  // Preferred Area is admin-managed — fetch the live list once on mount, then
+  // merge in the student's current value in case it was since renamed/removed.
+  useEffect(() => {
+    preferredAreasAPI.getActive()
+      .then(list => setAreaNames(list.map(a => a.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
+  const preferredAreaOptions = mergeWithCurrentValue(areaNames, student?.preferredArea);
 
   // Academic year options (single source of truth: src/lib/constants.ts).
   // Includes the student's currently-saved value even if it predates this list.
@@ -89,6 +101,7 @@ export default function EditStudentPage() {
           phoneNumber: studentData.phoneNumber || '',
           studentAcademicNumber: studentData.studentAcademicNumber || '',
           department: studentData.department || '',
+          preferredArea: studentData.preferredArea || '',
           yearOfStudy: studentData.yearOfStudy || ''
         });
       } catch (error) {
@@ -207,7 +220,7 @@ export default function EditStudentPage() {
             </div>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="rounded-xl border bg-white/70 backdrop-blur p-4 flex items-center gap-3">
             <Activity className="w-5 h-5 text-indigo-600" />
             <div>
@@ -220,6 +233,13 @@ export default function EditStudentPage() {
             <div>
               <p className="text-sm text-text-secondary">Department</p>
               <p className="font-semibold">{student.department || '—'}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border bg-white/70 backdrop-blur p-4 flex items-center gap-3">
+            <MapPin className="w-5 h-5 text-rose-600" />
+            <div>
+              <p className="text-sm text-text-secondary">Preferred Area</p>
+              <p className="font-semibold">{student.preferredArea || '—'}</p>
             </div>
           </div>
           <div className="rounded-xl border bg-white/70 backdrop-blur p-4 flex items-center gap-3">
@@ -370,8 +390,8 @@ export default function EditStudentPage() {
               
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1">Department *</label>
-                  <Select 
-                    value={formData.department} 
+                  <Select
+                    value={formData.department}
                     onChange={(e) => handleInputChange('department', e.target.value)}
                     required
                   >
@@ -381,7 +401,21 @@ export default function EditStudentPage() {
                     ))}
                   </Select>
                 </div>
-                
+
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">Preferred Area *</label>
+                  <Select
+                    value={formData.preferredArea}
+                    onChange={(e) => handleInputChange('preferredArea', e.target.value)}
+                    required
+                  >
+                    <option value="">Select Preferred Area</option>
+                    {preferredAreaOptions.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </Select>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1">Year of Study *</label>
                   <Select 

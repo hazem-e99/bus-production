@@ -126,6 +126,7 @@ export class AuthenticationService {
       phoneNumber: dto.phoneNumber,
       studentAcademicNumber: dto.studentAcademicNumber,
       department: dto.department,
+      preferredArea: dto.preferredArea,
       yearOfStudy: dto.yearOfStudy,
       password: hashedPassword,
       role: 'Student',

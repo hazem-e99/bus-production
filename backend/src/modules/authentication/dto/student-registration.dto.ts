@@ -30,6 +30,9 @@ export class StudentRegistrationDTO {
   @IsString({ message: 'Department is required.' })
   department: string;
 
+  @IsString({ message: 'Preferred area is required.' })
+  preferredArea: string;
+
   @IsString({ message: 'Year of study is required.' })
   yearOfStudy: string;
 

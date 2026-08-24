@@ -184,7 +184,7 @@ export class StudentSubscriptionService {
       { $set: { isActive: false, status: 'Cancelled', suspendReason: 'Reset by admin' } },
     ).exec();
 
-    const paymentsResult = await this.paymentModel.updateMany(
+    const pendingResult = await this.paymentModel.updateMany(
       { studentId, status: 'Pending' },
       {
         $set: {
@@ -196,10 +196,31 @@ export class StudentSubscriptionService {
       },
     ).exec();
 
+    // Also downgrade any still-Accepted payment(s) that funded the subscription
+    // just reset above. Leaving them Accepted would orphan them from reality on
+    // two fronts: the student-facing subscription page treats an Accepted
+    // payment as proof of an active plan (it has no other way to know the
+    // subscription was reset out from under it), and the admin revenue report
+    // sums Accepted payments as gross revenue — both would stay wrong forever
+    // for a subscription that no longer exists. 'Cancelled' (not 'Refunded'):
+    // this is an administrative data fix, not a financial transaction, so no
+    // refund fields are set.
+    const acceptedResult = await this.paymentModel.updateMany(
+      { studentId, status: 'Accepted' },
+      {
+        $set: {
+          status: 'Cancelled',
+          reviewNotes: 'Reset by admin: associated subscription was cancelled',
+          adminReviewedById: adminId,
+          reviewedAt: new Date(),
+        },
+      },
+    ).exec();
+
     return createApiResponse(
       {
         subscriptionsReset: subsResult.modifiedCount ?? 0,
-        paymentsReset: paymentsResult.modifiedCount ?? 0,
+        paymentsReset: (pendingResult.modifiedCount ?? 0) + (acceptedResult.modifiedCount ?? 0),
       },
       'Subscription reset successfully. The student can select a plan again.',
     );

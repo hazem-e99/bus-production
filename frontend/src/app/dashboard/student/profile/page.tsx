@@ -27,10 +27,10 @@ import {
   BookOpen,
   Calendar
 } from 'lucide-react';
-import { userAPI } from '@/lib/api';
+import { userAPI, preferredAreasAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
 import { toBackendAssetUrl } from '@/lib/backend-url';
-import { getDepartmentOptions, getYearOfStudyOptions } from '@/lib/constants';
+import { getDepartmentOptions, getYearOfStudyOptions, mergeWithCurrentValue } from '@/lib/constants';
 
 interface StudentProfile {
   id: number;
@@ -45,6 +45,7 @@ interface StudentProfile {
   studentProfileId?: number;
   studentAcademicNumber?: string;
   department?: string;
+  preferredArea?: string;
   yearOfStudy?: string;
   emergencyContact?: string;
   emergencyPhone?: string;
@@ -61,6 +62,7 @@ export default function StudentProfilePage() {
   const [showSensitiveData, setShowSensitiveData] = useState(false);
   const [imageError, setImageError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [areaNames, setAreaNames] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -69,10 +71,18 @@ export default function StudentProfilePage() {
     email: '',
     phoneNumber: '',
     department: '',
+    preferredArea: '',
     yearOfStudy: '',
     emergencyContact: '',
     emergencyPhone: ''
   });
+
+  // Preferred Area is admin-managed — fetch the live list once on mount.
+  useEffect(() => {
+    preferredAreasAPI.getActive()
+      .then(list => setAreaNames(list.map(a => a.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
 
   // Fetch profile data from /api/Users/profile
   const fetchProfile = async () => {
@@ -97,11 +107,12 @@ export default function StudentProfilePage() {
           studentProfileId: parseInt(response.id) || 0, // Use user ID as studentUserId
           studentAcademicNumber: '', // Will be filled when user updates
           department: '', // Will be filled when user updates
+          preferredArea: response.preferredArea || '',
           yearOfStudy: response.academicYear || String(response.yearOfStudy || ''),
           emergencyContact: '', // Will be filled when user updates
           emergencyPhone: '' // Will be filled when user updates
         };
-        
+
         setProfile(profileData);
         setFormData({
           firstName: profileData.firstName,
@@ -109,6 +120,7 @@ export default function StudentProfilePage() {
           email: profileData.email,
           phoneNumber: profileData.phoneNumber,
           department: profileData.department || '',
+          preferredArea: profileData.preferredArea || '',
           yearOfStudy: String(profileData.yearOfStudy || ''),
           emergencyContact: profileData.emergencyContact || '',
           emergencyPhone: profileData.emergencyPhone || ''
@@ -160,6 +172,9 @@ export default function StudentProfilePage() {
       if (formData.department.trim()) {
         apiData.department = formData.department.trim();
       }
+      if (formData.preferredArea.trim()) {
+        apiData.preferredArea = formData.preferredArea.trim();
+      }
       if (formData.yearOfStudy && formData.yearOfStudy.trim()) {
         // Sent as the raw key (e.g. 'FirstYear'), same as the registration
         // page — the backend stores yearOfStudy as a free-form string, no
@@ -207,6 +222,13 @@ export default function StudentProfilePage() {
       // it predates the current department list and hasn't been changed here)
       if (apiData.department && !getDepartmentOptions(profile?.department).includes(apiData.department)) {
         alert(t('pages.student.profile.alerts.invalidDepartment', 'Please select a valid department.'));
+        return;
+      }
+
+      // Validate preferred area (allow the student's pre-existing value too, in
+      // case an admin has since renamed/removed it from the active list)
+      if (apiData.preferredArea && !mergeWithCurrentValue(areaNames, profile?.preferredArea).includes(apiData.preferredArea)) {
+        alert(t('pages.student.profile.alerts.invalidPreferredArea', 'Please select a valid preferred area.'));
         return;
       }
 
@@ -265,6 +287,7 @@ export default function StudentProfilePage() {
         email: profile.email,
         phoneNumber: profile.phoneNumber,
         department: profile.department || '',
+        preferredArea: profile.preferredArea || '',
         yearOfStudy: String(profile.yearOfStudy || 1),
         emergencyContact: profile.emergencyContact || '',
         emergencyPhone: profile.emergencyPhone || ''
@@ -526,6 +549,13 @@ export default function StudentProfilePage() {
                       <span className="text-sm font-bold text-gray-900">{profile.department}</span>
                     </div>
                   )}
+
+                  {profile.preferredArea && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <span className="text-sm font-medium text-gray-600">{t('pages.student.profile.preferredArea', 'Preferred Area')}</span>
+                      <span className="text-sm font-bold text-gray-900">{profile.preferredArea}</span>
+                    </div>
+                  )}
                   
                   {profile.yearOfStudy && (
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
@@ -742,6 +772,36 @@ export default function StudentProfilePage() {
                         <option value="">{t('pages.student.profile.selectDepartment', 'Select Department')}</option>
                         {getDepartmentOptions(profile?.department).map(dept => (
                           <option key={dept} value={dept}>{dept}</option>
+                        ))}
+                      </Select>
+                      {isEditing && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <BookOpen className="w-4 h-4 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Preferred Area (منطقتك المفضلة) — admin-managed list */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      {t('pages.student.profile.preferredArea', 'Preferred Area')}
+                    </label>
+                    <div className="relative">
+                      <Select
+                        name="preferredArea"
+                        value={formData.preferredArea}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className={`transition-all duration-200 ${
+                          isEditing
+                            ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                            : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <option value="">{t('pages.student.profile.selectPreferredArea', 'Select Preferred Area')}</option>
+                        {mergeWithCurrentValue(areaNames, profile?.preferredArea).map(name => (
+                          <option key={name} value={name}>{name}</option>
                         ))}
                       </Select>
                       {isEditing && (

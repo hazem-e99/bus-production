@@ -165,11 +165,16 @@ export default function StudentSubscriptionPage() {
     console.log('🔍 Looking for plan with ID:', activeSubscription?.subscriptionPlanId || lastSubscriptionPayment?.subscriptionPlanId);
     console.log('📋 Available plans:', plans);
     
-    // A Rejected/Cancelled/Expired/Refunded payment must NOT be treated as the
-    // student's current plan, otherwise the plans grid below stays locked to it
-    // and they can never re-subscribe after a cancellation or rejection.
-    const deadPaymentStatuses = ['Rejected', 'Cancelled', 'Expired', 'Refunded'];
-    const livePayment = lastSubscriptionPayment && !deadPaymentStatuses.includes(String(lastSubscriptionPayment.status))
+    // Only a Pending payment (awaiting admin review) is trustworthy as a stand-in
+    // for "current plan" here. An Accepted payment is NOT enough on its own —
+    // activeSubscription is the authoritative signal for that, populated by the
+    // same review() call that marks the payment Accepted. Trusting a lone Accepted
+    // payment breaks the moment those two get out of sync — e.g. an admin using
+    // the separate "Reset Subscription" action cancels the subscription without
+    // touching the payment, leaving an orphaned Accepted payment that would
+    // otherwise wrongly lock the plans grid to a plan the student no longer has.
+    // Rejected/Cancelled/Expired/Refunded were never trustworthy either.
+    const livePayment = lastSubscriptionPayment?.status === PaymentStatus.Pending
       ? lastSubscriptionPayment
       : null;
     const planId = activeSubscription?.subscriptionPlanId || livePayment?.subscriptionPlanId;
@@ -181,18 +186,22 @@ export default function StudentSubscriptionPage() {
     return null;
   }, [activeSubscription, lastSubscriptionPayment, plans]);
 
-  // Only an active subscription, or a payment still alive (Pending awaiting review /
-  // Accepted), may block re-selecting a plan. Anything else must leave the full
-  // plan grid open.
+  // Only an active subscription, or a payment still awaiting admin review, may
+  // block re-selecting a plan. A lone Accepted payment does NOT block — see the
+  // comment on livePayment above for why that signal isn't trustworthy by itself.
   const hasBlockingSubscription = !!activeSubscription
-    || lastSubscriptionPayment?.status === PaymentStatus.Pending
-    || lastSubscriptionPayment?.status === PaymentStatus.Accepted;
+    || lastSubscriptionPayment?.status === PaymentStatus.Pending;
 
   const currentPlan = hasBlockingSubscription
     ? (activeSubscription?.subscriptionPlanName || currentPlanDetails?.name || lastSubscriptionPayment?.subscriptionPlanName || profile?.subscriptionPlan || null)
     : null;
   const currentMethod = activeSubscription?.paymentMethod || lastSubscriptionPayment?.paymentMethod || null;
-  const currentStatus = activeSubscription?.status || lastSubscriptionPayment?.status || profile?.subscriptionStatus || 'inactive';
+  // Same rule as above: an Accepted payment alone must not resurrect an "active"
+  // status once activeSubscription says otherwise.
+  const currentStatus = activeSubscription?.status
+    || (lastSubscriptionPayment?.status !== PaymentStatus.Accepted ? lastSubscriptionPayment?.status : undefined)
+    || profile?.subscriptionStatus
+    || 'inactive';
   
   // Map subscription status to display status
   const status = useMemo(() => {
