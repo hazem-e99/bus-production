@@ -36,6 +36,11 @@ import {
   CreatePaymentDTO,
   ReviewPaymentDTO,
   PaymentStatisticsViewModel,
+  RequestCancellationDTO,
+  ReviewCancellationDTO,
+  CancellationRequestViewModel,
+  SubscriptionReportViewModel,
+  SubscriptionReportApiResponse,
 } from "@/types/subscription";
 import {
   TripBookingViewModel,
@@ -986,6 +991,11 @@ export const paymentAPI = {
     const resp = await apiRequest<PaymentViewModelApiResponse>("/Payment/statistics");
     return (resp?.data ?? null) as unknown as PaymentStatisticsViewModel | null;
   },
+  // GET /api/Payment/subscription-report - Admin-only aggregated revenue report
+  getSubscriptionReport: async (): Promise<SubscriptionReportViewModel | null> => {
+    const resp = await apiRequest<SubscriptionReportApiResponse>("/Payment/subscription-report");
+    return resp?.data ?? null;
+  },
 };
 
 // Notification-related API calls - use global endpoints
@@ -1436,6 +1446,33 @@ export const studentSubscriptionAPI = {
       `/StudentSubscription/by-student/${studentId}/reset`,
       { method: "PUT" }
     ),
+
+  // POST /api/StudentSubscription/request-cancellation - student asks to cancel
+  // their own active subscription. Reason is required; nothing is cancelled
+  // until an admin approves.
+  requestCancellation: (dto: RequestCancellationDTO): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>("/StudentSubscription/request-cancellation", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    }),
+
+  // GET /api/StudentSubscription/cancellation-requests - Admin-only queue
+  getCancellationRequests: async (status = "Pending"): Promise<CancellationRequestViewModel[]> => {
+    const resp = await apiRequest<{ data: CancellationRequestViewModel[] | null; success: boolean }>(
+      `/StudentSubscription/cancellation-requests?status=${encodeURIComponent(status)}`
+    );
+    return resp?.data ?? [];
+  },
+
+  // PUT /api/StudentSubscription/{id}/cancellation-review - Admin approves/rejects
+  reviewCancellation: (
+    id: number | string,
+    dto: ReviewCancellationDTO
+  ): Promise<{ success: boolean; message: string | null; data: { refunded: boolean; refundAmount: number; paymentId: number | null } | null }> =>
+    apiRequest(`/StudentSubscription/${id}/cancellation-review`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    }),
 };
 
 // ==================== Voting / Surveys ====================

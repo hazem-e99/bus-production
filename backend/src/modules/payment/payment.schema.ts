@@ -20,10 +20,19 @@ export class Payment {
   @Prop({ required: true, enum: ['Offline', 'Online'] })
   paymentMethod: string;
 
+  /**
+   * The specific channel the student paid through. Deliberately has NO default:
+   * an absent field marks a legacy payment created before this was captured, and
+   * those are reported under an "unknown" bucket rather than being mis-attributed.
+   * 'instapay'/'vodafone' pair with paymentMethod 'Online'; 'cash'/'visa' with 'Offline'.
+   */
+  @Prop({ enum: ['instapay', 'vodafone', 'cash', 'visa'], index: true })
+  paymentChannel: string;
+
   @Prop()
   paymentReferenceCode: string;
 
-  @Prop({ default: 'Pending', enum: ['Pending', 'Accepted', 'Rejected', 'Cancelled', 'Expired'] })
+  @Prop({ default: 'Pending', enum: ['Pending', 'Accepted', 'Rejected', 'Cancelled', 'Expired', 'Refunded'] })
   status: string;
 
   @Prop()
@@ -34,6 +43,19 @@ export class Payment {
 
   @Prop()
   reviewNotes: string;
+
+  // Set when an admin approves a subscription-cancellation request.
+  @Prop()
+  refundAmount: number;
+
+  @Prop()
+  refundedAt: Date;
+
+  @Prop()
+  refundedBy: number;
+
+  @Prop()
+  refundReason: string;
 
   @Prop({ unique: true, index: true })
   numericId: number;

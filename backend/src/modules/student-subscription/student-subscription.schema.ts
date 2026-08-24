@@ -32,6 +32,34 @@ export class StudentSubscription {
   @Prop()
   suspendReason: string;
 
+  /**
+   * Student-initiated cancellation request state. Legacy documents predate these
+   * fields and read as undefined — always compare with `?? 'None'`.
+   * Flow: student requests -> 'Pending' -> admin approves ('Approved', subscription
+   * cancelled + payment refunded) or rejects ('Rejected', subscription stays active).
+   */
+  @Prop({ default: 'None', enum: ['None', 'Pending', 'Approved', 'Rejected'], index: true })
+  cancellationStatus: string;
+
+  @Prop()
+  cancellationReason: string;
+
+  @Prop()
+  cancellationRequestedAt: Date;
+
+  @Prop()
+  cancellationReviewedById: number;
+
+  @Prop()
+  cancellationReviewedAt: Date;
+
+  @Prop()
+  cancellationReviewNotes: string;
+
+  /** numericId of the Payment that was refunded when the cancellation was approved. */
+  @Prop()
+  cancelledPaymentId: number;
+
   @Prop({ unique: true, index: true })
   numericId: number;
 }

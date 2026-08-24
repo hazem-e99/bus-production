@@ -254,12 +254,6 @@ export default function WelcomePage() {
         />
       </motion.div>
 
-      {/* Footer developer credits near the bottom of the road */}
-      <div className="absolute bottom-2 left-0 right-0 z-[8] flex flex-col items-center text-center">
-        <p className="text-xs md:text-sm text-gray-300/90">Developed by: Hazem Essam & Youssry Essam</p>
-        <p className="text-xs md:text-sm text-gray-400/90">📞 01094575914 & 01289529751</p>
-      </div>
-
       {/* Main Content */}
       <div ref={containerRef} className="relative z-10 min-h-screen flex flex-col items-center justify-start pt-4 md:pt-6 px-4">
         

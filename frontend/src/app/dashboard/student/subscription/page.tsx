@@ -10,9 +10,10 @@ import { Modal } from '@/components/ui/Modal';
 // import { Select } from '@/components/ui/Select';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
+import { getApiErrorMessage } from '@/lib/apiError';
 import { paymentAPI, subscriptionPlansAPI, studentSubscriptionAPI } from '@/lib/api';
-import { PaymentMethod, PaymentStatus, CreatePaymentDTO, StudentSubscriptionViewModel, SubscriptionStatus } from '@/types/subscription';
-import { CheckCircle, CreditCard, Crown, Shield, Bell, Smartphone, Wallet } from 'lucide-react';
+import { PaymentMethod, PaymentStatus, PaymentChannel, CreatePaymentDTO, StudentSubscriptionViewModel, SubscriptionStatus } from '@/types/subscription';
+import { CheckCircle, CreditCard, Crown, Shield, Bell, Smartphone, Wallet, XCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Define proper types for the data
@@ -90,6 +91,10 @@ export default function StudentSubscriptionPage() {
   const [onlineChannel, setOnlineChannel] = useState<'instapay' | 'vodafone'>('instapay');
   // Distinguish between offline channels: 'offline' (cash/manual) or 'visa'
   const [offlineChannel, setOfflineChannel] = useState<'offline' | 'visa'>('offline');
+  // Cancellation request (student -> admin approval)
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelSubmitting, setCancelSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +105,7 @@ export default function StudentSubscriptionPage() {
         console.log('🔍 Fetching data for user:', user.id);
         
         const [paymentsRes, plansRes, activeSubscriptionRes] = await Promise.all([
-          paymentAPI.getByStudent(user.id.toString()),
+          paymentAPI.getMyPayments(),
           subscriptionPlansAPI.getActive().catch(() => []),
           studentSubscriptionAPI.getMyActiveSubscription().catch(() => null)
         ]);
@@ -160,7 +165,14 @@ export default function StudentSubscriptionPage() {
     console.log('🔍 Looking for plan with ID:', activeSubscription?.subscriptionPlanId || lastSubscriptionPayment?.subscriptionPlanId);
     console.log('📋 Available plans:', plans);
     
-    const planId = activeSubscription?.subscriptionPlanId || lastSubscriptionPayment?.subscriptionPlanId;
+    // A Rejected/Cancelled/Expired/Refunded payment must NOT be treated as the
+    // student's current plan, otherwise the plans grid below stays locked to it
+    // and they can never re-subscribe after a cancellation or rejection.
+    const deadPaymentStatuses = ['Rejected', 'Cancelled', 'Expired', 'Refunded'];
+    const livePayment = lastSubscriptionPayment && !deadPaymentStatuses.includes(String(lastSubscriptionPayment.status))
+      ? lastSubscriptionPayment
+      : null;
+    const planId = activeSubscription?.subscriptionPlanId || livePayment?.subscriptionPlanId;
     if (planId) {
       const found = plans.find(plan => plan.id === planId);
       console.log('✅ Found plan:', found);
@@ -169,7 +181,16 @@ export default function StudentSubscriptionPage() {
     return null;
   }, [activeSubscription, lastSubscriptionPayment, plans]);
 
-  const currentPlan = activeSubscription?.subscriptionPlanName || currentPlanDetails?.name || lastSubscriptionPayment?.subscriptionPlanName || profile?.subscriptionPlan || null;
+  // Only an active subscription, or a payment still alive (Pending awaiting review /
+  // Accepted), may block re-selecting a plan. Anything else must leave the full
+  // plan grid open.
+  const hasBlockingSubscription = !!activeSubscription
+    || lastSubscriptionPayment?.status === PaymentStatus.Pending
+    || lastSubscriptionPayment?.status === PaymentStatus.Accepted;
+
+  const currentPlan = hasBlockingSubscription
+    ? (activeSubscription?.subscriptionPlanName || currentPlanDetails?.name || lastSubscriptionPayment?.subscriptionPlanName || profile?.subscriptionPlan || null)
+    : null;
   const currentMethod = activeSubscription?.paymentMethod || lastSubscriptionPayment?.paymentMethod || null;
   const currentStatus = activeSubscription?.status || lastSubscriptionPayment?.status || profile?.subscriptionStatus || 'inactive';
   
@@ -249,6 +270,54 @@ export default function StudentSubscriptionPage() {
     setMethodModalOpen(true);
   };
 
+  const cancellationStatus = String(activeSubscription?.cancellationStatus ?? 'None');
+
+  const handleRequestCancellation = async () => {
+    const reason = cancelReason.trim();
+    // Mirrors the server rule (@MinLength(3)) so the user gets instant feedback.
+    if (!reason) {
+      showToast({
+        type: 'error',
+        title: t('pages.student.subscription.validationError', 'Validation Error'),
+        message: t('pages.student.subscription.cancel.reasonRequired', 'Please tell us why you want to cancel.')
+      });
+      return;
+    }
+    if (reason.length < 3) {
+      showToast({
+        type: 'error',
+        title: t('pages.student.subscription.validationError', 'Validation Error'),
+        message: t('pages.student.subscription.cancel.reasonMin', 'The reason must be at least 3 characters long.')
+      });
+      return;
+    }
+
+    try {
+      setCancelSubmitting(true);
+      const res = await studentSubscriptionAPI.requestCancellation({ reason });
+      if (!res?.success) throw new Error(res?.message || 'Request failed');
+
+      showToast({
+        type: 'success',
+        title: t('pages.student.subscription.cancel.successTitle', 'Request submitted'),
+        message: t('pages.student.subscription.cancel.successMessage', 'An administrator will review your cancellation request.')
+      });
+      setCancelModalOpen(false);
+      setCancelReason('');
+
+      const refreshed = await studentSubscriptionAPI.getMyActiveSubscription().catch(() => null);
+      setActiveSubscription(refreshed);
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: t('pages.student.subscription.cancel.errorTitle', 'Could not submit request'),
+        message: getApiErrorMessage(error)
+      });
+    } finally {
+      setCancelSubmitting(false);
+    }
+  };
+
   const handleSubscribe = async () => {
     if (!user || !selectedPlan) {
       console.error('❌ Missing user or selected plan:', { user: !!user, selectedPlan });
@@ -287,9 +356,16 @@ export default function StudentSubscriptionPage() {
       setSubmitting(true);
       
       // Create payment using the new API
+      // Persist which channel the student actually used — the backend stores this
+      // so the admin report can break payments down beyond Online/Offline.
+      const resolvedChannel: PaymentChannel = paymentMethod === PaymentMethod.Online
+        ? (onlineChannel === 'vodafone' ? PaymentChannel.Vodafone : PaymentChannel.InstaPay)
+        : (offlineChannel === 'visa' ? PaymentChannel.Visa : PaymentChannel.Cash);
+
       const paymentData: CreatePaymentDTO = {
         subscriptionPlanId: selectedPlan.id,
         paymentMethod: paymentMethod,
+        paymentChannel: resolvedChannel,
         paymentReferenceCode: (paymentMethod === PaymentMethod.Online && onlineChannel === 'instapay') ? paymentReferenceCode.trim() : null
       };
 
@@ -316,7 +392,7 @@ export default function StudentSubscriptionPage() {
         
         // Refresh data
         const [paymentsRes, activeSubscriptionRes] = await Promise.all([
-          paymentAPI.getByStudent(user.id.toString()),
+          paymentAPI.getMyPayments(),
           studentSubscriptionAPI.getMyActiveSubscription().catch(() => null)
         ]);
 
@@ -592,6 +668,85 @@ export default function StudentSubscriptionPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Cancellation request: pending / rejected state, or the request button */}
+                {activeSubscription && cancellationStatus === 'Pending' && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-amber-900">
+                          {t('pages.student.subscription.cancel.pendingTitle', 'Cancellation request pending')}
+                        </h3>
+                        <p className="text-sm text-amber-800 mt-1">
+                          {t('pages.student.subscription.cancel.pendingMessage', 'An administrator is reviewing your request. Your subscription stays active until it is approved.')}
+                        </p>
+                        {activeSubscription.cancellationReason && (
+                          <p className="text-sm text-amber-900 mt-2 break-words">
+                            <span className="font-medium">{t('pages.student.subscription.cancel.reasonLabel', 'Reason')}:</span>{' '}
+                            {activeSubscription.cancellationReason}
+                          </p>
+                        )}
+                        {activeSubscription.cancellationRequestedAt && (
+                          <p className="text-xs text-amber-700 mt-1">
+                            {t('pages.student.subscription.cancel.requestedOn', 'Requested on')}: {formatDate(lang, activeSubscription.cancellationRequestedAt)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeSubscription && cancellationStatus === 'Rejected' && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-red-900">
+                            {t('pages.student.subscription.cancel.rejectedTitle', 'Cancellation request rejected')}
+                          </h3>
+                          <p className="text-sm text-red-800 mt-1">
+                            {t('pages.student.subscription.cancel.rejectedMessage', 'Your subscription remains active.')}
+                          </p>
+                          {activeSubscription.cancellationReviewNotes && (
+                            <p className="text-sm text-red-900 mt-2 break-words">
+                              <span className="font-medium">{t('pages.student.subscription.cancel.adminNotes', 'Admin notes')}:</span>{' '}
+                              {activeSubscription.cancellationReviewNotes}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="border-red-300 text-red-700 hover:bg-red-50 w-full sm:w-auto shrink-0"
+                        onClick={() => { setCancelReason(''); setCancelModalOpen(true); }}
+                      >
+                        {t('pages.student.subscription.cancel.requestAgain', 'Request again')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {activeSubscription && cancellationStatus !== 'Pending' && cancellationStatus !== 'Rejected' && (
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white/70 backdrop-blur-sm rounded-xl p-5 border border-white/50">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-900">
+                        {t('pages.student.subscription.cancel.sectionTitle', 'Chose the wrong plan?')}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {t('pages.student.subscription.cancel.sectionDescription', 'Request a cancellation and an administrator will review it. Once approved you can pick a different plan.')}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="border-red-300 text-red-700 hover:bg-red-50 w-full sm:w-auto shrink-0"
+                      onClick={() => { setCancelReason(''); setCancelModalOpen(true); }}
+                    >
+                      {t('pages.student.subscription.cancel.button', 'Request Cancellation')}
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               /* No Active Subscription Layout */
@@ -666,7 +821,7 @@ export default function StudentSubscriptionPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {(((currentPlan && status) ? (plans || []).filter((p: Plan) => {
+          {(((hasBlockingSubscription && currentPlan) ? (plans || []).filter((p: Plan) => {
               const t = String(p.type || p.name || '').toLowerCase();
               const c = String(currentPlan).toLowerCase();
               return t === c;
@@ -1073,6 +1228,73 @@ export default function StudentSubscriptionPage() {
             </Button>
             <Button onClick={() => window.location.reload()}>
               {t('pages.student.subscription.refreshStatus', 'Refresh Status')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Cancellation Request Modal */}
+      <Modal
+        isOpen={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        title={t('pages.student.subscription.cancel.modalTitle', 'Request Subscription Cancellation')}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+            {t('pages.student.subscription.cancel.modalDescription', 'Your subscription will stay active until an administrator approves this request. Once approved, you will be able to choose a different plan.')}
+          </div>
+
+          {activeSubscription && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">{t('pages.student.subscription.planName', 'Plan Name')}</span>
+                <span className="font-semibold text-gray-900">{activeSubscription.subscriptionPlanName || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-gray-600">{t('pages.student.subscription.price', 'Price')}</span>
+                <span className="font-semibold text-gray-900">{formatCurrency(lang, activeSubscription.subscriptionPlanPrice)}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              {t('pages.student.subscription.cancel.reasonLabel', 'Reason')} <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder={t('pages.student.subscription.cancel.reasonPlaceholder', 'e.g. I selected the wrong plan by mistake')}
+              rows={4}
+              maxLength={500}
+              required
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y ${
+                !cancelReason.trim() ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
+              }`}
+            />
+            <div className="flex items-center justify-between">
+              {!cancelReason.trim() ? (
+                <p className="text-xs text-red-500">
+                  {t('pages.student.subscription.cancel.reasonRequired', 'Please tell us why you want to cancel.')}
+                </p>
+              ) : <span />}
+              <span className="text-xs text-gray-400">{cancelReason.length}/500</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setCancelModalOpen(false)} disabled={cancelSubmitting}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button
+              onClick={handleRequestCancellation}
+              disabled={cancelSubmitting || cancelReason.trim().length < 3}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {cancelSubmitting
+                ? t('pages.student.subscription.cancel.submitting', 'Submitting...')
+                : t('pages.student.subscription.cancel.submit', 'Submit Request')}
             </Button>
           </div>
         </div>

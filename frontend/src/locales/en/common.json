@@ -81,6 +81,7 @@
     "settings": "Settings",
     "analytics": "Analytics",
     "voting": "Voting",
+    "reports": "Reports",
     "badges": {
       "manage": "Manage",
       "fleet": "Fleet",
@@ -92,7 +93,8 @@
       "new": "New",
       "plan": "Plan",
       "surveys": "Surveys",
-      "forms": "Forms"
+      "forms": "Forms",
+      "data": "Data"
     }
   },
   "pages": {
@@ -655,6 +657,79 @@
           "successTitle": "Success"
         }
       },
+      "reports": {
+        "title": "Subscription Reports",
+        "subtitle": "Subscribed students, payment channels and revenue",
+        "loading": "Loading report...",
+        "generatedAt": "Generated",
+        "refresh": "Refresh",
+        "export": "Export to Excel",
+        "exporting": "Exporting...",
+        "exportSuccess": "Export ready",
+        "exportSuccessMessage": "The Excel file has been downloaded.",
+        "exportError": "Export failed",
+        "empty": "No report data available.",
+        "stats": {
+          "subscribedStudents": "Subscribed students",
+          "totalStudents": "Total students",
+          "accepted": "Accepted payments",
+          "pending": "Pending payments",
+          "rejected": "Rejected payments",
+          "refunded": "Refunded payments",
+          "gross": "Gross amount",
+          "refunds": "Refunds",
+          "net": "Net amount"
+        },
+        "channels": {
+          "title": "Payments by channel",
+          "description": "Accepted payments grouped by how the student paid",
+          "channel": "Channel",
+          "students": "Students",
+          "payments": "Payments",
+          "gross": "Gross",
+          "net": "Net",
+          "total": "Total",
+          "instapay": "InstaPay",
+          "vodafone": "Vodafone Cash",
+          "cash": "Cash at office",
+          "visa": "Visa",
+          "unknown": "Unknown"
+        },
+        "charts": {
+          "countsTitle": "Payments per channel",
+          "amountsTitle": "Net amount per channel"
+        },
+        "details": {
+          "title": "Payment details",
+          "rows": "record(s)",
+          "index": "#",
+          "student": "Student",
+          "email": "Email",
+          "academicNumber": "Academic No.",
+          "department": "Department",
+          "plan": "Plan",
+          "amount": "Amount",
+          "method": "Method",
+          "status": "Status",
+          "reference": "Reference",
+          "createdAt": "Created",
+          "reviewedAt": "Reviewed",
+          "refundAmount": "Refund",
+          "searchPlaceholder": "Search students, plans...",
+          "allChannels": "All channels",
+          "allStatuses": "All statuses",
+          "empty": "No matching records."
+        },
+        "excel": {
+          "reportTitle": "El Renad — Subscriptions Report",
+          "generatedAt": "Generated at",
+          "summarySheet": "Summary",
+          "detailsSheet": "Details"
+        },
+        "errors": {
+          "loadFailed": "Failed to load report"
+        }
+      },
       "studentSubscriptions": {
         "loading": "Loading...",
         "title": "Student Subscriptions Management",
@@ -664,7 +739,8 @@
           "totalStudents": "Total Students",
           "activeSubscriptions": "Active Subscriptions",
           "pendingReviews": "Pending Reviews",
-          "totalPayments": "Total Payments"
+          "totalPayments": "Total Payments",
+          "cancellationRequests": "Cancellation Requests"
         },
         "filters": {
           "title": "Advanced Filters",
@@ -696,11 +772,45 @@
           "rejected": "Rejected",
           "pending": "Pending",
           "cancelled": "Cancelled",
-          "expired": "Expired"
+          "expired": "Expired",
+          "refunded": "Refunded"
         },
         "paymentMethod": {
           "online": "InstaPay",
           "offline": "Offline"
+        },
+        "paymentChannel": {
+          "instapay": "InstaPay",
+          "vodafone": "Vodafone Cash",
+          "cash": "Cash at office",
+          "visa": "Visa",
+          "unknown": "Unknown"
+        },
+        "cancellations": {
+          "title": "Cancellation Requests",
+          "subtitle": "Students asking to cancel their subscription so they can pick a different plan",
+          "student": "Student",
+          "plan": "Plan",
+          "requestedAt": "Requested",
+          "reason": "Reason",
+          "paidAmount": "Paid",
+          "actions": "Actions",
+          "approve": "Approve",
+          "reject": "Reject",
+          "approveTitle": "Approve cancellation",
+          "approveDescription": "The subscription will be cancelled and the payment marked as refunded. The student will be able to choose a new plan. Records are kept.",
+          "rejectTitle": "Reject cancellation",
+          "rejectDescription": "The subscription stays active. The student will see your note.",
+          "refundAmountLabel": "Refund amount",
+          "refundAmountHint": "Defaults to the full amount paid. Adjust for a partial refund.",
+          "notesLabel": "Notes to the student",
+          "notesPlaceholder": "Optional note explaining your decision",
+          "submitting": "Processing...",
+          "successApprovedTitle": "Cancellation approved",
+          "successApprovedMessage": "The student can now choose a new plan.",
+          "successRejectedTitle": "Cancellation rejected",
+          "successRejectedMessage": "The subscription remains active.",
+          "errorTitle": "Could not complete the review"
         },
         "table": {
           "title": "Subscription Payments",
@@ -1162,6 +1272,29 @@
         "used": "Used",
         "noUpgradeTitle": "No Upgrade Options Available",
         "noUpgradeDesc": "You're already on the highest plan available, or no upgrade options are currently available.",
+        "cancel": {
+          "sectionTitle": "Chose the wrong plan?",
+          "sectionDescription": "Request a cancellation and an administrator will review it. Once approved you can pick a different plan.",
+          "button": "Request Cancellation",
+          "modalTitle": "Request Subscription Cancellation",
+          "modalDescription": "Your subscription will stay active until an administrator approves this request. Once approved, you will be able to choose a different plan.",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "e.g. I selected the wrong plan by mistake",
+          "reasonRequired": "Please tell us why you want to cancel.",
+          "reasonMin": "The reason must be at least 3 characters long.",
+          "submit": "Submit Request",
+          "submitting": "Submitting...",
+          "pendingTitle": "Cancellation request pending",
+          "pendingMessage": "An administrator is reviewing your request. Your subscription stays active until it is approved.",
+          "requestedOn": "Requested on",
+          "rejectedTitle": "Cancellation request rejected",
+          "rejectedMessage": "Your subscription remains active.",
+          "adminNotes": "Admin notes",
+          "requestAgain": "Request again",
+          "successTitle": "Request submitted",
+          "successMessage": "An administrator will review your cancellation request.",
+          "errorTitle": "Could not submit request"
+        },
         "upgradeFrom": "Upgrade from"
       },
       "bookTrip": {

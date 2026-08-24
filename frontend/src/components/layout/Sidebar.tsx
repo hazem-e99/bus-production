@@ -25,6 +25,7 @@ import {
   Satellite,
   ClipboardCheck,
   Settings,
+  BarChart3,
 } from 'lucide-react';
 import { UserRole } from '@/types/user';
 import { notificationAPI } from '@/lib/api';
@@ -50,6 +51,7 @@ const navigationItems = {
     { name: 'Trips', href: '/trips', icon: Calendar, badge: 'Schedule' },
     { name: 'Plans', href: '/dashboard/admin/plans', icon: CreditCard, badge: 'Pricing' },
     { name: 'Student Subscriptions', href: '/dashboard/admin/student-subscriptions', icon: LayoutDashboard, badge: 'Subs' },
+    { name: 'Reports', href: '/dashboard/admin/reports', icon: BarChart3, badge: 'Data' },
     { name: 'Voting', href: '/dashboard/admin/voting', icon: ClipboardCheck, badge: 'Surveys' },
     { name: 'Notifications', href: '/dashboard/admin/notifications', icon: Bell },
     { name: 'Settings', href: '/dashboard/admin/settings', icon: Settings },

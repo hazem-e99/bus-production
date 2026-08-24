@@ -4,15 +4,18 @@ import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useI18n } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/Toast';
 import { studentAPI, paymentAPI, subscriptionPlansAPI, studentSubscriptionAPI } from '@/lib/api';
-import { PaymentMethod, PaymentStatus, ReviewPaymentDTO } from '@/types/subscription';
+import { PaymentMethod, PaymentStatus, ReviewPaymentDTO, CancellationRequestViewModel } from '@/types/subscription';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { CheckCircle, XCircle, Clock, AlertCircle, Users, CreditCard, Search, Activity, Filter, X, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, Users, CreditCard, Search, Activity, Filter, X, RotateCcw, Undo2, Ban } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
+import { Modal } from '@/components/ui/Modal';
+import { formatCurrency } from '@/lib/format';
+import { getApiErrorMessage } from '@/lib/apiError';
 
 // Updated interfaces based on Swagger schemas
 interface Student {
@@ -43,6 +46,7 @@ interface Payment {
   subscriptionCode?: string;
   paymentMethod: PaymentMethod;
   paymentMethodText?: string;
+  paymentChannel?: string | null;
   paymentReferenceCode?: string;
   status: PaymentStatus;
   statusText?: string;
@@ -65,7 +69,7 @@ interface SubscriptionPlan {
 }
 
 export default function StudentSubscriptionsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n() as { t: (k: string, f?: string) => string; lang: string };
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -79,6 +83,11 @@ export default function StudentSubscriptionsPage() {
   const [customDateTo, setCustomDateTo] = useState('');
   const [amountFilter, setAmountFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [cancellationRequests, setCancellationRequests] = useState<CancellationRequestViewModel[]>([]);
+  const [cancelTarget, setCancelTarget] = useState<{ request: CancellationRequestViewModel; mode: 'Approved' | 'Rejected' } | null>(null);
+  const [cancelNotes, setCancelNotes] = useState('');
+  const [cancelRefundAmount, setCancelRefundAmount] = useState('');
+  const [cancelSubmitting, setCancelSubmitting] = useState(false);
   const [resetTarget, setResetTarget] = useState<{ studentId: number; studentName: string } | null>(null);
   const [resetting, setResetting] = useState(false);
   const { showToast } = useToast();
@@ -91,7 +100,7 @@ export default function StudentSubscriptionsPage() {
       setLoading(true);
       console.log('🔍 Loading admin student subscriptions data...');
       
-      const [studentsData, paymentsData, plansData] = await Promise.all([
+      const [studentsData, paymentsData, plansData, cancellationData] = await Promise.all([
         studentAPI.getAll().catch((error) => {
           console.error('❌ Students API Error:', error);
           return [];
@@ -103,6 +112,10 @@ export default function StudentSubscriptionsPage() {
         subscriptionPlansAPI.getAll().catch((error) => {
           console.error('❌ Plans API Error:', error);
           return [];
+        }),
+        studentSubscriptionAPI.getCancellationRequests().catch((error) => {
+          console.error('❌ Cancellation requests API Error:', error);
+          return [];
         })
       ]);
 
@@ -113,6 +126,7 @@ export default function StudentSubscriptionsPage() {
       setStudents(studentsData || []);
       setPayments(paymentsData || []);
       setPlans(plansData || []);
+      setCancellationRequests(cancellationData || []);
 
     // Show success message if data loaded successfully
       if (paymentsData && paymentsData.length > 0) {
@@ -227,6 +241,7 @@ export default function StudentSubscriptionsPage() {
         planDuration: planDetails?.durationInDays || 0,
         paymentMethod: payment.paymentMethod,
         paymentMethodText: payment.paymentMethodText || '',
+        paymentChannel: payment.paymentChannel || null,
         paymentReferenceCode: payment.paymentReferenceCode || '',
         status: payment.status,
         amount: payment.amount,
@@ -326,6 +341,52 @@ export default function StudentSubscriptionsPage() {
     }
   };
 
+  const openCancelModal = (request: CancellationRequestViewModel, mode: 'Approved' | 'Rejected') => {
+    setCancelTarget({ request, mode });
+    setCancelNotes('');
+    // Default the refund to the full amount the student actually paid.
+    setCancelRefundAmount(mode === 'Approved' ? String(request.paidAmount ?? 0) : '');
+  };
+
+  const submitCancellationReview = async () => {
+    if (!cancelTarget) return;
+    const { request, mode } = cancelTarget;
+    try {
+      setCancelSubmitting(true);
+      const result = await studentSubscriptionAPI.reviewCancellation(request.id, {
+        status: mode,
+        reviewNotes: cancelNotes.trim() || null,
+        refundAmount: mode === 'Approved' && cancelRefundAmount !== '' ? Number(cancelRefundAmount) : null,
+      });
+      if (!result?.success) throw new Error(result?.message || 'Review failed');
+
+      showToast({
+        type: 'success',
+        title: mode === 'Approved'
+          ? t('pages.admin.studentSubscriptions.cancellations.successApprovedTitle', 'Cancellation approved')
+          : t('pages.admin.studentSubscriptions.cancellations.successRejectedTitle', 'Cancellation rejected'),
+        message: mode === 'Approved'
+          ? t('pages.admin.studentSubscriptions.cancellations.successApprovedMessage', 'The student can now choose a new plan.')
+          : t('pages.admin.studentSubscriptions.cancellations.successRejectedMessage', 'The subscription remains active.'),
+      });
+      setCancelTarget(null);
+      await load();
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: t('pages.admin.studentSubscriptions.cancellations.errorTitle', 'Could not complete the review'),
+        message: getApiErrorMessage(error),
+      });
+    } finally {
+      setCancelSubmitting(false);
+    }
+  };
+
+  const getChannelLabel = (channel?: string | null) => {
+    const key = channel || 'unknown';
+    return t(`pages.admin.studentSubscriptions.paymentChannel.${key}`, key);
+  };
+
   const getStatusBadge = (status: PaymentStatus) => {
     switch (status) {
       case 'Accepted':
@@ -338,6 +399,8 @@ export default function StudentSubscriptionsPage() {
         return <Badge className="bg-gray-100 text-gray-800"><XCircle className="w-3 h-3 mr-1" />{t('pages.admin.studentSubscriptions.status.cancelled', 'Cancelled')}</Badge>;
       case 'Expired':
         return <Badge className="bg-orange-100 text-orange-800"><AlertCircle className="w-3 h-3 mr-1" />{t('pages.admin.studentSubscriptions.status.expired', 'Expired')}</Badge>;
+      case 'Refunded':
+        return <Badge className="bg-indigo-100 text-indigo-800"><Undo2 className="w-3 h-3 mr-1" />{t('pages.admin.studentSubscriptions.status.refunded', 'Refunded')}</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
     }
@@ -366,6 +429,8 @@ export default function StudentSubscriptionsPage() {
         return 'bg-gray-50/60';
       case 'Expired':
         return 'bg-orange-50/60';
+      case 'Refunded':
+        return 'bg-indigo-50/60';
       default:
         return 'bg-white';
     }
@@ -410,7 +475,7 @@ export default function StudentSubscriptionsPage() {
             </div>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="rounded-xl border bg-white/70 backdrop-blur p-4 flex items-center gap-3">
             <Users className="w-5 h-5 text-blue-600" />
             <div>
@@ -439,8 +504,90 @@ export default function StudentSubscriptionsPage() {
               <p className="font-semibold">{subscriptionPayments.length}</p>
             </div>
           </div>
+          <div className="rounded-xl border bg-white/70 backdrop-blur p-4 flex items-center gap-3">
+            <Ban className="w-5 h-5 text-amber-600" />
+            <div>
+              <p className="text-sm text-text-secondary">{t('pages.admin.studentSubscriptions.stats.cancellationRequests', 'Cancellation Requests')}</p>
+              <p className="font-semibold">{cancellationRequests.length}</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Student cancellation requests awaiting review */}
+      {cancellationRequests.length > 0 && (
+        <Card className="rounded-xl border-2 border-amber-200 bg-amber-50/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ban className="w-5 h-5 text-amber-600" />
+              {t('pages.admin.studentSubscriptions.cancellations.title', 'Cancellation Requests')}
+              <Badge className="bg-amber-100 text-amber-800 ml-2">{cancellationRequests.length}</Badge>
+            </CardTitle>
+            <CardDescription>
+              {t('pages.admin.studentSubscriptions.cancellations.subtitle', 'Students asking to cancel their subscription so they can pick a different plan')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full overflow-x-auto">
+              <Table className="min-w-[900px] sm:min-w-0">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.student', 'Student')}</TableHead>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.plan', 'Plan')}</TableHead>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.requestedAt', 'Requested')}</TableHead>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.reason', 'Reason')}</TableHead>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.paidAmount', 'Paid')}</TableHead>
+                    <TableHead>{t('pages.admin.studentSubscriptions.cancellations.actions', 'Actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cancellationRequests.map((req) => (
+                    <TableRow key={req.id} className="bg-white/70">
+                      <TableCell>
+                        <div className="font-medium">{req.studentName || '—'}</div>
+                        <div className="text-sm text-gray-500">{req.studentEmail || ''}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{req.subscriptionPlanName || '—'}</div>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {req.cancellationRequestedAt ? new Date(req.cancellationRequestedAt).toLocaleDateString() : '—'}
+                      </TableCell>
+                      <TableCell className="max-w-[280px]">
+                        <div className="text-sm text-gray-800 whitespace-pre-wrap break-words">
+                          {req.cancellationReason || '—'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-green-700">
+                        {req.paidAmount != null ? formatCurrency(lang, req.paidAmount) : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => openCancelModal(req, 'Approved')}
+                          >
+                            {t('pages.admin.studentSubscriptions.cancellations.approve', 'Approve')}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                            onClick={() => openCancelModal(req, 'Rejected')}
+                          >
+                            {t('pages.admin.studentSubscriptions.cancellations.reject', 'Reject')}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Advanced Filters */}
       <Card className="rounded-xl border bg-white">
@@ -644,12 +791,13 @@ export default function StudentSubscriptionsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="font-medium text-green-600">
-                        ${row.amount?.toFixed(2) || '0.00'}
+                        {formatCurrency(lang, row.amount)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
                         <div className="font-medium">{getPaymentMethodDisplay(row.paymentMethod)}</div>
+                        <div className="text-xs text-gray-500">{getChannelLabel(row.paymentChannel)}</div>
                         {row.paymentReferenceCode && (
                           <div className="text-sm text-gray-500">
                             {t('pages.admin.studentSubscriptions.labels.ref', 'Ref:')} {row.paymentReferenceCode}
@@ -722,6 +870,102 @@ export default function StudentSubscriptionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Approve / reject a cancellation request */}
+      <Modal
+        isOpen={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        title={cancelTarget?.mode === 'Approved'
+          ? t('pages.admin.studentSubscriptions.cancellations.approveTitle', 'Approve cancellation')
+          : t('pages.admin.studentSubscriptions.cancellations.rejectTitle', 'Reject cancellation')}
+        size="md"
+      >
+        {cancelTarget && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">{t('pages.admin.studentSubscriptions.cancellations.student', 'Student')}</span>
+                <span className="font-semibold">{cancelTarget.request.studentName || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">{t('pages.admin.studentSubscriptions.cancellations.plan', 'Plan')}</span>
+                <span className="font-semibold">{cancelTarget.request.subscriptionPlanName || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">{t('pages.admin.studentSubscriptions.cancellations.paidAmount', 'Paid')}</span>
+                <span className="font-semibold">
+                  {cancelTarget.request.paidAmount != null ? formatCurrency(lang, cancelTarget.request.paidAmount) : '—'}
+                </span>
+              </div>
+              {cancelTarget.request.cancellationReason && (
+                <div className="pt-2 border-t mt-2">
+                  <div className="text-gray-600">{t('pages.admin.studentSubscriptions.cancellations.reason', 'Reason')}</div>
+                  <div className="text-gray-900 whitespace-pre-wrap break-words">{cancelTarget.request.cancellationReason}</div>
+                </div>
+              )}
+            </div>
+
+            {cancelTarget.mode === 'Approved' ? (
+              <>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+                  {t('pages.admin.studentSubscriptions.cancellations.approveDescription', 'The subscription will be cancelled and the payment marked as refunded. The student will be able to choose a new plan. Records are kept.')}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t('pages.admin.studentSubscriptions.cancellations.refundAmountLabel', 'Refund amount')}
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={cancelRefundAmount}
+                    onChange={(e) => setCancelRefundAmount(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    {t('pages.admin.studentSubscriptions.cancellations.refundAmountHint', 'Defaults to the full amount paid. Adjust for a partial refund.')}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-800">
+                {t('pages.admin.studentSubscriptions.cancellations.rejectDescription', 'The subscription stays active. The student will see your note.')}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {t('pages.admin.studentSubscriptions.cancellations.notesLabel', 'Notes to the student')}
+                {cancelTarget.mode === 'Rejected' && <span className="text-red-500"> *</span>}
+              </label>
+              <textarea
+                value={cancelNotes}
+                onChange={(e) => setCancelNotes(e.target.value)}
+                rows={3}
+                maxLength={500}
+                placeholder={t('pages.admin.studentSubscriptions.cancellations.notesPlaceholder', 'Optional note explaining your decision')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setCancelTarget(null)} disabled={cancelSubmitting}>
+                {t('common.cancel', 'Cancel')}
+              </Button>
+              <Button
+                onClick={submitCancellationReview}
+                disabled={cancelSubmitting || (cancelTarget.mode === 'Rejected' && !cancelNotes.trim())}
+                className={cancelTarget.mode === 'Approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700 text-white'}
+              >
+                {cancelSubmitting
+                  ? t('pages.admin.studentSubscriptions.cancellations.submitting', 'Processing...')
+                  : cancelTarget.mode === 'Approved'
+                    ? t('pages.admin.studentSubscriptions.cancellations.approve', 'Approve')
+                    : t('pages.admin.studentSubscriptions.cancellations.reject', 'Reject')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <ConfirmDialog
         open={!!resetTarget}

@@ -81,6 +81,7 @@
     "settings": "الإعدادات",
     "analytics": "التحليلات",
     "voting": "التصويت",
+    "reports": "التقارير",
     "badges": {
       "manage": "إدارة",
       "fleet": "الأسطول",
@@ -92,7 +93,8 @@
       "new": "جديد",
       "plan": "باقة",
       "surveys": "استبيانات",
-      "forms": "نماذج"
+      "forms": "نماذج",
+      "data": "بيانات"
     }
   },
   "pages": {
@@ -495,6 +497,79 @@
           "loadFailedMsg": "يرجى التحقق من الاتصال والمحاولة مرة أخرى."
         }
       },
+      "reports": {
+        "title": "تقارير الاشتراكات",
+        "subtitle": "الطلاب المشتركون وطرق الدفع والإيرادات",
+        "loading": "جارٍ تحميل التقرير...",
+        "generatedAt": "تم الإنشاء",
+        "refresh": "تحديث",
+        "export": "تصدير إلى إكسيل",
+        "exporting": "جارٍ التصدير...",
+        "exportSuccess": "تم التصدير",
+        "exportSuccessMessage": "تم تنزيل ملف الإكسيل.",
+        "exportError": "فشل التصدير",
+        "empty": "لا توجد بيانات للتقرير.",
+        "stats": {
+          "subscribedStudents": "الطلاب المشتركون",
+          "totalStudents": "إجمالي الطلاب",
+          "accepted": "المدفوعات المقبولة",
+          "pending": "المدفوعات المعلقة",
+          "rejected": "المدفوعات المرفوضة",
+          "refunded": "المدفوعات المستردة",
+          "gross": "إجمالي المبلغ",
+          "refunds": "المستردات",
+          "net": "الصافي"
+        },
+        "channels": {
+          "title": "المدفوعات حسب طريقة الدفع",
+          "description": "المدفوعات المقبولة مُجمّعة حسب طريقة دفع الطالب",
+          "channel": "طريقة الدفع",
+          "students": "الطلاب",
+          "payments": "المدفوعات",
+          "gross": "الإجمالي",
+          "net": "الصافي",
+          "total": "الإجمالي الكلي",
+          "instapay": "إنستا باي",
+          "vodafone": "فودافون كاش",
+          "cash": "كاش في المقر",
+          "visa": "فيزا",
+          "unknown": "غير محدد"
+        },
+        "charts": {
+          "countsTitle": "عدد المدفوعات لكل طريقة",
+          "amountsTitle": "صافي المبلغ لكل طريقة"
+        },
+        "details": {
+          "title": "تفاصيل المدفوعات",
+          "rows": "سجل",
+          "index": "#",
+          "student": "الطالب",
+          "email": "البريد الإلكتروني",
+          "academicNumber": "الرقم الأكاديمي",
+          "department": "القسم",
+          "plan": "الباقة",
+          "amount": "المبلغ",
+          "method": "الطريقة",
+          "status": "الحالة",
+          "reference": "المرجع",
+          "createdAt": "تاريخ الإنشاء",
+          "reviewedAt": "تاريخ المراجعة",
+          "refundAmount": "الاسترداد",
+          "searchPlaceholder": "ابحث عن الطلاب أو الباقات...",
+          "allChannels": "كل الطرق",
+          "allStatuses": "كل الحالات",
+          "empty": "لا توجد سجلات مطابقة."
+        },
+        "excel": {
+          "reportTitle": "الريناد — تقرير الاشتراكات",
+          "generatedAt": "تم الإنشاء في",
+          "summarySheet": "ملخص",
+          "detailsSheet": "التفاصيل"
+        },
+        "errors": {
+          "loadFailed": "فشل تحميل التقرير"
+        }
+      },
       "studentSubscriptions": {
         "loading": "جاري التحميل...",
         "title": "إدارة اشتراكات الطلاب",
@@ -504,7 +579,8 @@
           "totalStudents": "إجمالي الطلاب",
           "activeSubscriptions": "الاشتراكات النشطة",
           "pendingReviews": "المراجعات المعلقة",
-          "totalPayments": "إجمالي المدفوعات"
+          "totalPayments": "إجمالي المدفوعات",
+          "cancellationRequests": "طلبات الإلغاء"
         },
         "filters": {
           "title": "مرشحات متقدمة",
@@ -536,11 +612,45 @@
           "rejected": "مرفوض",
           "pending": "قيد الانتظار",
           "cancelled": "ملغي",
-          "expired": "منتهي الصلاحية"
+          "expired": "منتهي الصلاحية",
+          "refunded": "تم الاسترداد"
         },
         "paymentMethod": {
           "online": "إنستا باي",
           "offline": "يدوي"
+        },
+        "paymentChannel": {
+          "instapay": "إنستا باي",
+          "vodafone": "فودافون كاش",
+          "cash": "كاش في المقر",
+          "visa": "فيزا",
+          "unknown": "غير محدد"
+        },
+        "cancellations": {
+          "title": "طلبات إلغاء الاشتراك",
+          "subtitle": "طلاب يطلبون إلغاء اشتراكهم لاختيار باقة أخرى",
+          "student": "الطالب",
+          "plan": "الباقة",
+          "requestedAt": "تاريخ الطلب",
+          "reason": "السبب",
+          "paidAmount": "المدفوع",
+          "actions": "الإجراءات",
+          "approve": "موافقة",
+          "reject": "رفض",
+          "approveTitle": "الموافقة على الإلغاء",
+          "approveDescription": "سيتم إلغاء الاشتراك وتسجيل الدفعة كمستردة. سيتمكن الطالب من اختيار باقة جديدة. يتم الاحتفاظ بالسجلات.",
+          "rejectTitle": "رفض الإلغاء",
+          "rejectDescription": "يظل الاشتراك نشطًا. سيرى الطالب ملاحظتك.",
+          "refundAmountLabel": "مبلغ الاسترداد",
+          "refundAmountHint": "الافتراضي هو المبلغ المدفوع بالكامل. عدّله للاسترداد الجزئي.",
+          "notesLabel": "ملاحظات للطالب",
+          "notesPlaceholder": "ملاحظة اختيارية توضح قرارك",
+          "submitting": "جارٍ المعالجة...",
+          "successApprovedTitle": "تمت الموافقة على الإلغاء",
+          "successApprovedMessage": "يمكن للطالب الآن اختيار باقة جديدة.",
+          "successRejectedTitle": "تم رفض الإلغاء",
+          "successRejectedMessage": "الاشتراك لا يزال نشطًا.",
+          "errorTitle": "تعذر إكمال المراجعة"
         },
         "table": {
           "title": "مدفوعات الاشتراك",
@@ -1162,6 +1272,29 @@
         "used": "تم الاستخدام",
         "noUpgradeTitle": "لا توجد خيارات ترقية متاحة",
         "noUpgradeDesc": "أنت بالفعل على أعلى باقة متاحة، أو لا توجد خيارات ترقية حاليًا.",
+        "cancel": {
+          "sectionTitle": "اخترت الباقة الخطأ؟",
+          "sectionDescription": "اطلب الإلغاء وسيقوم المسؤول بمراجعته. بعد الموافقة يمكنك اختيار باقة أخرى.",
+          "button": "طلب إلغاء الاشتراك",
+          "modalTitle": "طلب إلغاء الاشتراك",
+          "modalDescription": "سيظل اشتراكك نشطًا حتى يوافق المسؤول على هذا الطلب. بعد الموافقة ستتمكن من اختيار باقة أخرى.",
+          "reasonLabel": "السبب",
+          "reasonPlaceholder": "مثال: اخترت الباقة الخطأ بطريق الخطأ",
+          "reasonRequired": "من فضلك اذكر سبب رغبتك في الإلغاء.",
+          "reasonMin": "يجب ألا يقل السبب عن 3 أحرف.",
+          "submit": "إرسال الطلب",
+          "submitting": "جارٍ الإرسال...",
+          "pendingTitle": "طلب الإلغاء قيد المراجعة",
+          "pendingMessage": "يقوم المسؤول بمراجعة طلبك. يظل اشتراكك نشطًا حتى تتم الموافقة.",
+          "requestedOn": "تاريخ الطلب",
+          "rejectedTitle": "تم رفض طلب الإلغاء",
+          "rejectedMessage": "لا يزال اشتراكك نشطًا.",
+          "adminNotes": "ملاحظات المسؤول",
+          "requestAgain": "إرسال طلب جديد",
+          "successTitle": "تم إرسال الطلب",
+          "successMessage": "سيقوم المسؤول بمراجعة طلب الإلغاء.",
+          "errorTitle": "تعذر إرسال الطلب"
+        },
         "upgradeFrom": "ترقية من"
       },
       "bookTrip": {
