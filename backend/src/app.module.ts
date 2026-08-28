@@ -6,6 +6,7 @@ import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { DbMigrationService } from './common/services/db-migration.service';
+import { SeedDefaultsService } from './common/services/seed-defaults.service';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 import { AuthenticationModule } from './modules/authentication/authentication.module';
@@ -17,6 +18,8 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SubscriptionPlanModule } from './modules/subscription-plan/subscription-plan.module';
 import { PreferredAreaModule } from './modules/preferred-area/preferred-area.module';
+import { DepartmentModule } from './modules/department/department.module';
+import { YearOfStudyModule } from './modules/year-of-study/year-of-study.module';
 import { StudentSubscriptionModule } from './modules/student-subscription/student-subscription.module';
 import { RoutesModule } from './modules/routes/routes.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
@@ -49,6 +52,8 @@ import { AdminSystemModule } from './modules/admin-system/admin-system.module';
     NotificationsModule,
     SubscriptionPlanModule,
     PreferredAreaModule,
+    DepartmentModule,
+    YearOfStudyModule,
     StudentSubscriptionModule,
     RoutesModule,
     TripRoutesModule,
@@ -66,6 +71,7 @@ import { AdminSystemModule } from './modules/admin-system/admin-system.module';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     DbMigrationService,
+    SeedDefaultsService,
   ],
 })
 export class AppModule {}

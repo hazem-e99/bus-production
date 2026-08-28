@@ -22,6 +22,13 @@ export class StudentSubscriptionController {
     return this.subService.getMySubscriptions(userId);
   }
 
+  /** Admin: all subscriptions across all students. */
+  @Get('all')
+  @Roles('Admin')
+  async getAll() {
+    return this.subService.getAll();
+  }
+
   /** Admin queue of student-initiated cancellation requests. */
   @Get('cancellation-requests')
   @Roles('Admin')

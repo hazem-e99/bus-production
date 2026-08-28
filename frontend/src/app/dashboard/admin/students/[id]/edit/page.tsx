@@ -17,10 +17,10 @@ import {
   Activity,
   Clock
 } from 'lucide-react';
-import { studentAPI, preferredAreasAPI } from '@/lib/api';
+import { studentAPI, preferredAreasAPI, departmentsAPI, yearsOfStudyAPI } from '@/lib/api';
 import { StudentViewModel } from '@/types/user';
 import { validateStudentEdit } from '@/utils/validateStudentRegistration';
-import { getDepartmentOptions, getYearOfStudyOptions, mergeWithCurrentValue } from '@/lib/constants';
+import { mergeWithCurrentValue } from '@/lib/constants';
 
 interface StudentEditData {
   firstName: string;
@@ -54,14 +54,13 @@ export default function EditStudentPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [areaNames, setAreaNames] = useState<string[]>([]);
+  const [departmentNames, setDepartmentNames] = useState<string[]>([]);
+  const [yearNames, setYearNames] = useState<string[]>([]);
   const { showToast } = useToast();
 
-  // Department options (single source of truth: src/lib/constants.ts). Includes
-  // the student's currently-saved value even if it predates this list.
-  const departments = getDepartmentOptions(student?.department);
-
-  // Preferred Area is admin-managed — fetch the live list once on mount, then
-  // merge in the student's current value in case it was since renamed/removed.
+  // Department, Preferred Area, and Year of Study are all admin-managed —
+  // fetch each live list once on mount, then merge in the student's current
+  // value in case it was since renamed/removed from the active list.
   useEffect(() => {
     preferredAreasAPI.getActive()
       .then(list => setAreaNames(list.map(a => a.name ?? '').filter(Boolean)))
@@ -69,9 +68,19 @@ export default function EditStudentPage() {
   }, []);
   const preferredAreaOptions = mergeWithCurrentValue(areaNames, student?.preferredArea);
 
-  // Academic year options (single source of truth: src/lib/constants.ts).
-  // Includes the student's currently-saved value even if it predates this list.
-  const yearsOfStudy = getYearOfStudyOptions(student?.yearOfStudy);
+  useEffect(() => {
+    departmentsAPI.getActive()
+      .then(list => setDepartmentNames(list.map(d => d.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
+  const departments = mergeWithCurrentValue(departmentNames, student?.department);
+
+  useEffect(() => {
+    yearsOfStudyAPI.getActive()
+      .then(list => setYearNames(list.map(y => y.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
+  const yearsOfStudy = mergeWithCurrentValue(yearNames, student?.yearOfStudy);
 
   // Fetch student data
   useEffect(() => {

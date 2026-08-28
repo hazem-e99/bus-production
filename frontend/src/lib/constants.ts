@@ -1,79 +1,14 @@
 export const APP_NAME = 'El Renad';
 
-// Single source of truth for the student "Department" dropdown, used by the
-// registration page, the student profile page, and the admin student
-// create/edit pages. Values are the exact Arabic labels required by the
-// business — stored as-is on `User.department` (a free-form string on the
-// backend, not a schema enum), so no translation lookup is needed at render
-// time. If a student's stored department predates this list (an old English
-// key), the option is preserved as an extra entry so the field keeps
-// displaying and saving correctly instead of silently resetting — see
-// `getDepartmentOptions()`.
-export const DEPARTMENTS = [
-  'علاج طبيعي',
-  'طب اسنان',
-  'صيدلة',
-  'تمريض',
-  'ذكاء اصطناعي',
-  'حقوق',
-  'علوم صحية',
-  'علوم حيوية',
-  'لغات وترجمه',
-  'فنون تطبيقيه',
-  'الإدارة و العلوم المالية و الاقتصادية',
-] as const;
-
-/**
- * Returns DEPARTMENTS plus the given current value if it isn't already in the
- * list (e.g. a student record saved before this enum was updated). Keeps
- * legacy department values visible/selectable in edit forms instead of the
- * dropdown silently reverting to blank on load.
- */
-export function getDepartmentOptions(currentValue?: string | null): string[] {
-  if (currentValue && !(DEPARTMENTS as readonly string[]).includes(currentValue)) {
-    return [...DEPARTMENTS, currentValue];
-  }
-  return [...DEPARTMENTS];
-}
-
-// Single source of truth for the student "Year of Study" dropdown, used by
-// the registration page, the student profile page, and the admin student
-// create/edit pages. Limited to the first 5 undergraduate years — the
-// previous list also included Masters/PhD/Residency/Fellowship/Diploma/
-// Professional/Exchange/Repeat variants, which are no longer offered.
-// Values are the existing English keys (unchanged), stored as-is on
-// `User.yearOfStudy` (a free-form string on the backend, not a schema enum).
-export const YEARS_OF_STUDY = [
-  'FirstYear',
-  'SecondYear',
-  'ThirdYear',
-  'FourthYear',
-  'FifthYear',
-] as const;
-
-/**
- * Returns YEARS_OF_STUDY plus the given current value if it isn't already in
- * the list (e.g. a student record saved before this list was trimmed, such
- * as 'PreparatoryYear' or 'MastersFirstYear'). Keeps legacy values visible/
- * selectable in edit forms instead of the dropdown silently reverting to
- * blank on load.
- */
-export function getYearOfStudyOptions(currentValue?: string | null): string[] {
-  if (currentValue && !(YEARS_OF_STUDY as readonly string[]).includes(currentValue)) {
-    return [...YEARS_OF_STUDY, currentValue];
-  }
-  return [...YEARS_OF_STUDY];
-}
-
 /**
  * Merges a fetched, runtime (admin-managed) options list with a stray current
- * value not present in it — e.g. a student's saved preferredArea that an
- * admin later renamed or deleted from the Preferred Areas admin page. Keeps
- * the value visible/selectable in edit forms instead of the dropdown
- * silently reverting to blank. Same purpose as getDepartmentOptions()/
- * getYearOfStudyOptions() above, but for lists that come from the backend
- * (e.g. preferredAreasAPI.getActive()) rather than a static array, so it
- * takes the fetched list as a parameter instead of closing over a constant.
+ * value not present in it — e.g. a student's saved department/preferredArea/
+ * yearOfStudy that an admin later renamed or deleted from its admin CRUD page
+ * (Departments / Preferred Areas / Years of Study). Keeps the value visible/
+ * selectable in edit forms instead of the dropdown silently reverting to
+ * blank. Takes the fetched list as a parameter since these lists all come
+ * from the backend (e.g. departmentsAPI.getActive()) rather than a static
+ * array.
  */
 export function mergeWithCurrentValue(fetchedNames: string[], currentValue?: string | null): string[] {
   if (currentValue && !fetchedNames.includes(currentValue)) {

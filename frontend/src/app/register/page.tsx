@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { Bus, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { authAPI, preferredAreasAPI } from '@/lib/api';
+import { authAPI, preferredAreasAPI, departmentsAPI, yearsOfStudyAPI } from '@/lib/api';
 import { validateStudentRegistration } from '@/utils/validateStudentRegistration';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { useI18n } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { DEPARTMENTS, YEARS_OF_STUDY } from '@/lib/constants';
 import { PreferredAreaViewModel } from '@/types/preferredArea';
+import { DepartmentViewModel } from '@/types/department';
+import { YearOfStudyViewModel } from '@/types/yearOfStudy';
 
 export default function RegisterPage() {
 	const [firstName, setFirstName] = useState('');
@@ -24,10 +25,14 @@ export default function RegisterPage() {
 	const [email, setEmail] = useState('');
 	const [studentAcademicNumber, setStudentAcademicNumber] = useState('');
 	const [department, setDepartment] = useState('');
+	const [departments, setDepartments] = useState<DepartmentViewModel[]>([]);
+	const [departmentsLoading, setDepartmentsLoading] = useState(true);
 	const [preferredArea, setPreferredArea] = useState('');
 	const [areas, setAreas] = useState<PreferredAreaViewModel[]>([]);
 	const [areasLoading, setAreasLoading] = useState(true);
 	const [yearOfStudy, setYearOfStudy] = useState('');
+	const [yearsOfStudy, setYearsOfStudy] = useState<YearOfStudyViewModel[]>([]);
+	const [yearsOfStudyLoading, setYearsOfStudyLoading] = useState(true);
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
@@ -37,12 +42,9 @@ export default function RegisterPage() {
 	const router = useRouter();
 	const { t } = useI18n();
 
-	const departments = DEPARTMENTS;
-	const yearsOfStudy = YEARS_OF_STUDY;
-
-	// Preferred Area is admin-managed (unlike the static Department/Year-of-Study
-	// lists above), so it's fetched from the backend on mount rather than imported
-	// from constants.ts. GET /PreferredArea/active is @Public() — no auth required.
+	// Department, Preferred Area, and Year of Study are all admin-managed lists,
+	// fetched from the backend on mount. Each GET .../active endpoint is
+	// @Public() — no auth required, since registration happens pre-login.
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
@@ -53,6 +55,36 @@ export default function RegisterPage() {
 				// Fail open: leave areas empty rather than crashing the registration page.
 			} finally {
 				if (!cancelled) setAreasLoading(false);
+			}
+		})();
+		return () => { cancelled = true; };
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			try {
+				const data = await departmentsAPI.getActive();
+				if (!cancelled) setDepartments(data);
+			} catch {
+				// Fail open: leave departments empty rather than crashing the registration page.
+			} finally {
+				if (!cancelled) setDepartmentsLoading(false);
+			}
+		})();
+		return () => { cancelled = true; };
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			try {
+				const data = await yearsOfStudyAPI.getActive();
+				if (!cancelled) setYearsOfStudy(data);
+			} catch {
+				// Fail open: leave years empty rather than crashing the registration page.
+			} finally {
+				if (!cancelled) setYearsOfStudyLoading(false);
 			}
 		})();
 		return () => { cancelled = true; };
@@ -243,13 +275,23 @@ export default function RegisterPage() {
 											value={department}
 											onChange={(e) => setDepartment(e.target.value)}
 											required
+											disabled={departmentsLoading}
 											className="h-11 rounded-xl bg-background/70 transition-colors focus:ring-2 focus:ring-primary/40 focus:border-primary"
 										>
-											<option value="">{t('pages.auth.register.placeholders.selectDepartment', 'Select Department')}</option>
+											<option value="">
+												{departmentsLoading
+													? t('pages.auth.register.placeholders.loadingDepartments', 'Loading departments...')
+													: t('pages.auth.register.placeholders.selectDepartment', 'Select Department')}
+											</option>
 											{departments.map(dept => (
-												<option key={dept} value={dept}>{dept}</option>
+												<option key={dept.id} value={dept.name ?? ''}>{dept.name}</option>
 											))}
 										</Select>
+										{!departmentsLoading && departments.length === 0 && (
+											<p className="text-xs text-red-500 mt-1">
+												{t('pages.auth.register.hints.noDepartmentsAvailable', 'No departments are available yet. Please contact support.')}
+											</p>
+										)}
 									</div>
 									<div>
 										<label className="block text-sm font-medium text-text-primary mb-1">{t('pages.auth.register.fields.yearOfStudy', 'Year of Study')} *</label>
@@ -257,13 +299,23 @@ export default function RegisterPage() {
 											value={yearOfStudy}
 											onChange={(e) => setYearOfStudy(e.target.value)}
 											required
+											disabled={yearsOfStudyLoading}
 											className="h-11 rounded-xl bg-background/70 transition-colors focus:ring-2 focus:ring-primary/40 focus:border-primary"
 										>
-											<option value="">{t('pages.auth.register.placeholders.selectYearOfStudy', 'Select Year of Study')}</option>
+											<option value="">
+												{yearsOfStudyLoading
+													? t('pages.auth.register.placeholders.loadingYears', 'Loading years...')
+													: t('pages.auth.register.placeholders.selectYearOfStudy', 'Select Year of Study')}
+											</option>
 											{yearsOfStudy.map(year => (
-												<option key={year} value={year}>{year}</option>
+												<option key={year.id} value={year.name ?? ''}>{year.name}</option>
 											))}
 										</Select>
+										{!yearsOfStudyLoading && yearsOfStudy.length === 0 && (
+											<p className="text-xs text-red-500 mt-1">
+												{t('pages.auth.register.hints.noYearsAvailable', 'No years of study are available yet. Please contact support.')}
+											</p>
+										)}
 									</div>
 								</div>
 

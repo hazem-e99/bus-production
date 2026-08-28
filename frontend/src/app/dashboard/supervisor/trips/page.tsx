@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { tripAPI, routeAPI, busAPI, userAPI, bookingAPI } from '@/lib/api';
+import { useI18n } from '@/contexts/LanguageContext';
 
 interface Trip {
   id: string;
@@ -80,6 +81,7 @@ interface Booking {
 
 export default function SupervisorTripsPage() {
   const { user } = useAuth();
+  const { t, isRTL } = useI18n();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [buses, setBuses] = useState<Bus[]>([]);
@@ -399,17 +401,26 @@ export default function SupervisorTripsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Trip</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Date</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Time</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Route</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Bus</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Driver</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Stops</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Students</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Status</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Details</th>
-                    <th className="text-left text-sm font-semibold text-slate-700 py-3 px-4">Attendance</th>
+                    {[
+                      t('pages.supervisor.trips.table.trip', 'Trip'),
+                      t('pages.supervisor.trips.table.date', 'Date'),
+                      t('pages.supervisor.trips.table.time', 'Time'),
+                      t('pages.supervisor.trips.table.route', 'Route'),
+                      t('pages.supervisor.trips.table.bus', 'Bus'),
+                      t('pages.supervisor.trips.table.driver', 'Driver'),
+                      t('pages.supervisor.trips.table.stops', 'Stops'),
+                      t('pages.supervisor.trips.table.students', 'Students'),
+                      t('pages.supervisor.trips.table.status', 'Status'),
+                      t('pages.supervisor.trips.table.details', 'Details'),
+                      t('pages.supervisor.trips.table.attendance', 'Attendance'),
+                    ].map((header) => (
+                      <th
+                        key={header}
+                        className={`${isRTL ? 'text-right' : 'text-left'} text-sm font-semibold text-slate-700 py-3 px-4`}
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>

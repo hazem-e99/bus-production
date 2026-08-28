@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -21,11 +22,17 @@ import {
   CheckCircle,
   ShieldAlert,
   Trash2,
-  Lock
+  Lock,
+  GraduationCap,
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import { settingsAPI, adminSystemAPI, PurgeDatabaseResponseData } from '@/lib/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ApiError, getApiErrorMessage } from '@/lib/apiError';
+import DepartmentsPanel from '@/components/admin/DepartmentsPanel';
+import YearsOfStudyPanel from '@/components/admin/YearsOfStudyPanel';
+import PreferredAreasPanel from '@/components/admin/PreferredAreasPanel';
 
 const PURGE_CONFIRMATION_PHRASE = 'DELETE ALL DATA';
 
@@ -56,8 +63,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
-  const { t, language: currentLanguage } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'general' | 'appearance' | 'maintenance' | 'danger'>('general');
+  const { t, language: currentLanguage, isRTL } = useLanguage();
+  const [activeTab, setActiveTab] = useState<'general' | 'appearance' | 'maintenance' | 'departments' | 'yearsOfStudy' | 'preferredAreas' | 'danger'>('general');
 
   // Danger Zone: purge-all-data state
   const [showPurgeModal, setShowPurgeModal] = useState(false);
@@ -325,18 +332,18 @@ export default function SettingsPage() {
             </div>
           )}
           <Button variant="outline" onClick={handleReset} disabled={saving}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} />
             Reset to Defaults
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
               <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                <RefreshCw className={cn('w-4 h-4 animate-spin', isRTL ? 'ml-2' : 'mr-2')} />
                 Saving...
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <Save className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} />
                 Save Changes
               </>
             )}
@@ -348,13 +355,22 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-2">
         <div className="flex flex-wrap gap-2">
           <Button variant={activeTab === 'general' ? 'default' : 'outline'} onClick={() => setActiveTab('general')} size="sm">
-            <Building2 className="w-4 h-4 mr-2" /> General
+            <Building2 className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> General
           </Button>
           <Button variant={activeTab === 'appearance' ? 'default' : 'outline'} onClick={() => setActiveTab('appearance')} size="sm">
-            <Palette className="w-4 h-4 mr-2" /> Appearance
+            <Palette className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> Appearance
           </Button>
           <Button variant={activeTab === 'maintenance' ? 'default' : 'outline'} onClick={() => setActiveTab('maintenance')} size="sm">
-            <Wrench className="w-4 h-4 mr-2" /> Maintenance
+            <Wrench className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> Maintenance
+          </Button>
+          <Button variant={activeTab === 'departments' ? 'default' : 'outline'} onClick={() => setActiveTab('departments')} size="sm">
+            <GraduationCap className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> Departments
+          </Button>
+          <Button variant={activeTab === 'yearsOfStudy' ? 'default' : 'outline'} onClick={() => setActiveTab('yearsOfStudy')} size="sm">
+            <Calendar className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> Years of Study
+          </Button>
+          <Button variant={activeTab === 'preferredAreas' ? 'default' : 'outline'} onClick={() => setActiveTab('preferredAreas')} size="sm">
+            <MapPin className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> Preferred Areas
           </Button>
           <Button
             variant={activeTab === 'danger' ? 'destructive' : 'outline'}
@@ -362,16 +378,26 @@ export default function SettingsPage() {
             size="sm"
             className={activeTab !== 'danger' ? 'text-error border-error/30 hover:bg-error/5 hover:border-error' : ''}
           >
-            <ShieldAlert className="w-4 h-4 mr-2" /> {t('dangerZone')}
+            <ShieldAlert className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} /> {t('dangerZone')}
           </Button>
         </div>
       </div>
 
+      {/* Module tabs — each of these panels already renders its own full
+          hero/card layout, so they render standalone instead of nested
+          inside the "Settings Content" card below (moved here from their
+          former standalone /dashboard/admin/... routes). */}
+      {activeTab === 'departments' && <DepartmentsPanel />}
+      {activeTab === 'yearsOfStudy' && <YearsOfStudyPanel />}
+      {activeTab === 'preferredAreas' && <PreferredAreasPanel />}
+
+      {activeTab !== 'departments' && activeTab !== 'yearsOfStudy' && activeTab !== 'preferredAreas' && (
+        <>
       {/* Settings Content */}
       <Card className="max-w-screen-2xl mx-auto">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
           <CardTitle className="flex items-center text-2xl">
-            <Settings className="w-6 h-6 mr-3 text-blue-600" />
+            <Settings className={cn('w-6 h-6 text-blue-600', isRTL ? 'ml-3' : 'mr-3')} />
             {t('systemSettings')}
           </CardTitle>
           <CardDescription className="text-gray-600">
@@ -385,7 +411,7 @@ export default function SettingsPage() {
                 {/* System Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                    <Building2 className="w-5 h-5 mr-2 text-blue-600" />
+                    <Building2 className={cn('w-5 h-5 text-blue-600', isRTL ? 'ml-2' : 'mr-2')} />
                     {t('systemInformation')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -406,7 +432,7 @@ export default function SettingsPage() {
                 {/* Logo Settings */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                    <Building2 className="w-5 h-5 mr-2 text-green-600" />
+                    <Building2 className={cn('w-5 h-5 text-green-600', isRTL ? 'ml-2' : 'mr-2')} />
                     {t('logo')} {t('settings')}
                   </h3>
                   <div className="space-y-4">
@@ -441,7 +467,7 @@ export default function SettingsPage() {
             {activeTab === 'appearance' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                  <Palette className="w-5 h-5 mr-2 text-purple-600" />
+                  <Palette className={cn('w-5 h-5 text-purple-600', isRTL ? 'ml-2' : 'mr-2')} />
                   {t('appearance')} {t('settings')}
                 </h3>
                 <div className="space-y-4">
@@ -496,7 +522,7 @@ export default function SettingsPage() {
             {activeTab === 'maintenance' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                  <Wrench className="w-5 h-5 mr-2 text-orange-600" />
+                  <Wrench className={cn('w-5 h-5 text-orange-600', isRTL ? 'ml-2' : 'mr-2')} />
                   {t('maintenanceMode')} {t('settings')}
                 </h3>
                 <div className="space-y-4">
@@ -530,7 +556,7 @@ export default function SettingsPage() {
             {activeTab === 'danger' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                  <ShieldAlert className="w-5 h-5 mr-2 text-error" />
+                  <ShieldAlert className={cn('w-5 h-5 text-error', isRTL ? 'ml-2' : 'mr-2')} />
                   {t('dangerZone')}
                 </h3>
                 <p className="text-sm text-gray-500">{t('dangerZoneDescription')}</p>
@@ -551,7 +577,7 @@ export default function SettingsPage() {
                       onClick={openPurgeModal}
                       className="w-full sm:w-auto flex-shrink-0"
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
+                      <Trash2 className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} />
                       {t('deleteAllDataButton')}
                     </Button>
                   </div>
@@ -574,7 +600,7 @@ export default function SettingsPage() {
       <Card className="max-w-screen-2xl mx-auto">
         <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
           <CardTitle className="flex items-center text-xl">
-            <Globe className="w-5 h-5 mr-2 text-gray-600" />
+            <Globe className={cn('w-5 h-5 text-gray-600', isRTL ? 'ml-2' : 'mr-2')} />
             Preview
           </CardTitle>
         </CardHeader>
@@ -609,6 +635,8 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
 
       {/* Danger Zone: Delete All Database Data confirmation modal */}
       <Modal
@@ -640,7 +668,7 @@ export default function SettingsPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('typeToConfirm').replace('{phrase}', '')}
-              <code className="ml-1 px-1.5 py-0.5 rounded bg-gray-100 text-error font-mono text-xs align-middle">
+              <code className={cn('px-1.5 py-0.5 rounded bg-gray-100 text-error font-mono text-xs align-middle', isRTL ? 'mr-1' : 'ml-1')}>
                 {PURGE_CONFIRMATION_PHRASE}
               </code>
             </label>
@@ -691,12 +719,12 @@ export default function SettingsPage() {
             >
               {isPurging ? (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  <RefreshCw className={cn('w-4 h-4 animate-spin', isRTL ? 'ml-2' : 'mr-2')} />
                   {t('deletingInProgress')}
                 </>
               ) : (
                 <>
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className={cn('w-4 h-4', isRTL ? 'ml-2' : 'mr-2')} />
                   {t('deleteAllDataButton')}
                 </>
               )}

@@ -9,6 +9,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useI18n } from '@/contexts/LanguageContext';
 import Image from 'next/image';
 import { toBackendAssetUrl } from '@/lib/backend-url';
+import { cn } from '@/lib/utils';
 
 interface Notification {
   id: number;
@@ -30,7 +31,7 @@ export const Topbar = () => {
   const [systemName, setSystemName] = useState('El Renad');
   const [userProfile, setUserProfile] = useState<unknown>(null);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
-  const { t } = useI18n();
+  const { t, isRTL } = useI18n();
   const notifRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [avatarSrc, setAvatarSrc] = useState<string>('/logo2.png');
@@ -506,9 +507,10 @@ export const Topbar = () => {
                     displayNotifications.map((notification: Notification) => (
                         <div
                         key={notification.id}
-                        className={`p-4 border-b border-gray-100/50 hover:bg-gray-50/80 cursor-pointer transition-all duration-300 ${
-                          !notification.isRead ? 'bg-orange-50/50 border-l-4 border-l-orange-500' : ''
-                        }`}
+                        className={cn(
+                          'p-4 border-b border-gray-100/50 hover:bg-gray-50/80 cursor-pointer transition-all duration-300',
+                          !notification.isRead && (isRTL ? 'bg-orange-50/50 border-r-4 border-r-orange-500' : 'bg-orange-50/50 border-l-4 border-l-orange-500')
+                        )}
                         onClick={() => handleNotificationClick(notification)}
                       >
                         <div className="flex items-start gap-4">
@@ -604,7 +606,7 @@ export const Topbar = () => {
                   onError={() => setAvatarSrc('/logo2.png')}
                 />
               </div>
-              <div className="hidden md:block text-left">
+              <div className={cn('hidden md:block', isRTL ? 'text-right' : 'text-left')}>
                 <p className="text-sm font-semibold text-gray-900">
                 {getUserDisplayName()}
                 </p>
@@ -644,7 +646,7 @@ export const Topbar = () => {
                 <div className="py-2">
                   <button
                     onClick={handleLogout}
-                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50/80 hover:text-red-700 flex items-center space-x-3 transition-all duration-300 rounded-lg mx-2"
+                      className={cn('w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50/80 hover:text-red-700 flex items-center space-x-3 transition-all duration-300 rounded-lg mx-2', isRTL ? 'text-right' : 'text-left')}
                   >
                     <LogOut className="h-4 w-4" />
                     <span>{t('common.logout', 'Logout')}</span>

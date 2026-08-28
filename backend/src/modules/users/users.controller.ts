@@ -43,6 +43,13 @@ export class UsersController {
     return this.usersService.getStudentDataById(id);
   }
 
+  /** Admin-only: one row per student joined with subscription + payment info. */
+  @Get('students-overview')
+  @Roles('Admin')
+  async getStudentsOverview() {
+    return this.usersService.getStudentsOverview();
+  }
+
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.usersService.getById(id);

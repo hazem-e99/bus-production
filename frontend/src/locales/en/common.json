@@ -83,6 +83,9 @@
     "voting": "Voting",
     "reports": "Reports",
     "preferred_areas": "Preferred Areas",
+    "departments": "Departments",
+    "years_of_study": "Years of Study",
+    "students_overview": "Students Overview",
     "badges": {
       "manage": "Manage",
       "fleet": "Fleet",
@@ -96,7 +99,9 @@
       "surveys": "Surveys",
       "forms": "Forms",
       "data": "Data",
-      "locations": "Locations"
+      "locations": "Locations",
+      "academics": "Academics",
+      "all": "All"
     }
   },
   "pages": {
@@ -229,6 +234,8 @@
           "selectDepartment": "Select Department",
           "selectPreferredArea": "Select your preferred area",
           "loadingAreas": "Loading areas...",
+          "loadingDepartments": "Loading departments...",
+          "loadingYears": "Loading years...",
           "selectYearOfStudy": "Select Year of Study",
           "password": "Enter password",
           "confirmPassword": "Confirm password"
@@ -236,7 +243,9 @@
         "hints": {
           "nationalIdTitle": "National ID must be exactly 14 digits",
           "passwordMin": "Minimum 6 characters",
-          "noAreasAvailable": "No preferred areas are available yet. Please contact support."
+          "noAreasAvailable": "No preferred areas are available yet. Please contact support.",
+          "noDepartmentsAvailable": "No departments are available yet. Please contact support.",
+          "noYearsAvailable": "No years of study are available yet. Please contact support."
         },
         "cta": {
           "creating": "Creating Account...",
@@ -730,6 +739,140 @@
           "successTitle": "Success"
         }
       },
+      "departments": {
+        "loading": "Loading...",
+        "title": "Departments",
+        "subtitle": "Manage the departments students can select at registration",
+        "addButton": "Add Department",
+        "listTitle": "Departments",
+        "listCountLabel": "department(s)",
+        "table": {
+          "id": "ID",
+          "name": "Name",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "editItem": "Edit Department",
+          "activateItem": "Activate Department",
+          "deactivateItem": "Deactivate Department",
+          "deleteItem": "Delete Department"
+        },
+        "modal": {
+          "editTitle": "Edit Department",
+          "addTitle": "Add Department"
+        },
+        "form": {
+          "name": "Name",
+          "nameHint": "2-100 characters.",
+          "namePlaceholder": "e.g. Computer Science",
+          "saveChanges": "Save Changes",
+          "createItem": "Create Department"
+        },
+        "errors": {
+          "loadFailedMsg": "Failed to load departments",
+          "loadFailedTitle": "Load Failed",
+          "error": "Error",
+          "loadDepartmentDetails": "Failed to load department details",
+          "updateFailed": "Update failed",
+          "creationFailed": "Creation failed",
+          "saveFailedMsg": "Failed to save department",
+          "saveFailedTitle": "Save Failed",
+          "actionFailed": "Action failed",
+          "actionFailedTitle": "Action Failed"
+        },
+        "confirms": {
+          "deleteTitle": "Delete Department",
+          "deleteDesc": "Are you sure you want to delete this department? Students who already selected it keep their saved value, but it will no longer appear on the registration form.",
+          "activateTitle": "Activate Department",
+          "activateDesc": "Are you sure you want to activate this department? It will appear on the registration form again.",
+          "deactivateTitle": "Deactivate Department",
+          "deactivateDesc": "Are you sure you want to deactivate this department? It will be hidden from the registration form.",
+          "confirmTitle": "Confirm Action",
+          "confirmDesc": "Are you sure?"
+        },
+        "toasts": {
+          "departmentUpdated": "Department Updated",
+          "updatedSuccessfully": "has been updated successfully",
+          "departmentCreated": "Department Created",
+          "createdSuccessfully": "has been created successfully",
+          "departmentDeleted": "Department deleted successfully",
+          "departmentActivated": "Department activated successfully",
+          "departmentDeactivated": "Department deactivated successfully",
+          "successTitle": "Success"
+        }
+      },
+      "yearsOfStudy": {
+        "loading": "Loading...",
+        "title": "Years of Study",
+        "subtitle": "Manage the years of study students can select at registration",
+        "addButton": "Add Year",
+        "listTitle": "Years of Study",
+        "listCountLabel": "year(s)",
+        "table": {
+          "id": "ID",
+          "name": "Name",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "editItem": "Edit Year",
+          "activateItem": "Activate Year",
+          "deactivateItem": "Deactivate Year",
+          "deleteItem": "Delete Year"
+        },
+        "modal": {
+          "editTitle": "Edit Year",
+          "addTitle": "Add Year"
+        },
+        "form": {
+          "name": "Name",
+          "nameHint": "2-100 characters, e.g. FirstYear.",
+          "namePlaceholder": "e.g. FirstYear",
+          "saveChanges": "Save Changes",
+          "createItem": "Create Year"
+        },
+        "errors": {
+          "loadFailedMsg": "Failed to load years of study",
+          "loadFailedTitle": "Load Failed",
+          "error": "Error",
+          "loadItemDetails": "Failed to load year details",
+          "updateFailed": "Update failed",
+          "creationFailed": "Creation failed",
+          "saveFailedMsg": "Failed to save year",
+          "saveFailedTitle": "Save Failed",
+          "actionFailed": "Action failed",
+          "actionFailedTitle": "Action Failed"
+        },
+        "confirms": {
+          "deleteTitle": "Delete Year",
+          "deleteDesc": "Are you sure you want to delete this year? Students who already selected it keep their saved value, but it will no longer appear on the registration form.",
+          "activateTitle": "Activate Year",
+          "activateDesc": "Are you sure you want to activate this year? It will appear on the registration form again.",
+          "deactivateTitle": "Deactivate Year",
+          "deactivateDesc": "Are you sure you want to deactivate this year? It will be hidden from the registration form.",
+          "confirmTitle": "Confirm Action",
+          "confirmDesc": "Are you sure?"
+        },
+        "toasts": {
+          "itemUpdated": "Year Updated",
+          "updatedSuccessfully": "has been updated successfully",
+          "itemCreated": "Year Created",
+          "createdSuccessfully": "has been created successfully",
+          "itemDeleted": "Year deleted successfully",
+          "itemActivated": "Year activated successfully",
+          "itemDeactivated": "Year deactivated successfully",
+          "successTitle": "Success"
+        }
+      },
       "reports": {
         "title": "Subscription Reports",
         "subtitle": "Subscribed students, payment channels and revenue",
@@ -801,6 +944,66 @@
         },
         "errors": {
           "loadFailed": "Failed to load report"
+        }
+      },
+      "studentsOverview": {
+        "title": "Students Overview",
+        "subtitle": "All registered students with their subscription and payment info",
+        "loading": "Loading students...",
+        "refresh": "Refresh",
+        "export": "Export to Excel",
+        "exporting": "Exporting...",
+        "exportSuccess": "Export ready",
+        "exportSuccessMessage": "The Excel file has been downloaded.",
+        "exportError": "Export failed",
+        "empty": "No students found.",
+        "noResults": "Try adjusting your filters.",
+        "searchPlaceholder": "Search students...",
+        "viewDetails": "View full details",
+        "stats": {
+          "totalStudents": "Total Students"
+        },
+        "filters": {
+          "allDepartments": "All Departments",
+          "allAccountStatuses": "All Account Statuses",
+          "allSubscriptionStatuses": "All Subscription Statuses",
+          "allPaymentStatuses": "All Payment Statuses",
+          "noneStatus": "None"
+        },
+        "columns": {
+          "student": "Student",
+          "phone": "Phone",
+          "nationalId": "National ID",
+          "department": "Department",
+          "preferredArea": "Preferred Area",
+          "yearOfStudy": "Year of Study",
+          "academicNumber": "Academic No.",
+          "accountStatus": "Account Status",
+          "plan": "Plan",
+          "subscriptionStatus": "Subscription Status",
+          "paymentMethod": "Payment Method",
+          "paymentChannel": "Payment Channel",
+          "amountPaid": "Amount Paid",
+          "paymentStatus": "Payment Status",
+          "registeredOn": "Registered On",
+          "paymentDate": "Subscription/Payment Date",
+          "actions": "Actions"
+        },
+        "paymentChannel": {
+          "instapay": "InstaPay",
+          "vodafone": "Vodafone Cash",
+          "cash": "Cash at office",
+          "visa": "Visa",
+          "unknown": "Unknown"
+        },
+        "excel": {
+          "reportTitle": "El Renad — Students Overview",
+          "generatedAt": "Generated at",
+          "sheetName": "Students",
+          "email": "Email"
+        },
+        "errors": {
+          "loadFailed": "Failed to load students"
         }
       },
       "studentSubscriptions": {
@@ -938,6 +1141,20 @@
         "errors": {
           "loadFailed": "Failed to load data",
           "tryAgain": "Please try again"
+        },
+        "export": "Export to Excel",
+        "exporting": "Exporting...",
+        "exportSuccess": "Export ready",
+        "exportSuccessMessage": "The Excel file has been downloaded.",
+        "exportError": "Export failed",
+        "excel": {
+          "reportTitle": "El Renad — Subscription Payments",
+          "generatedAt": "Generated at",
+          "sheetName": "Payments",
+          "email": "Email",
+          "channel": "Payment Channel",
+          "reference": "Reference Code",
+          "reviewedDate": "Reviewed Date"
         }
       },
       "buses": {
@@ -1730,6 +1947,30 @@
       "notifications": {
         "title": "Supervisor Notifications",
         "subtitle": "Review and manage notifications, send announcements to students"
+      },
+      "trips": {
+        "table": {
+          "trip": "Trip",
+          "date": "Date",
+          "time": "Time",
+          "route": "Route",
+          "bus": "Bus",
+          "driver": "Driver",
+          "stops": "Stops",
+          "students": "Students",
+          "status": "Status",
+          "details": "Details",
+          "attendance": "Attendance"
+        }
+      },
+      "attendance": {
+        "table": {
+          "student": "Student",
+          "details": "Details",
+          "payment": "Payment",
+          "attendance": "Attendance",
+          "actions": "Actions"
+        }
       }
     },
     "movementManager": {

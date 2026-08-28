@@ -10,6 +10,40 @@ interface LanguageContextType {
   isRTL: boolean;
 }
 
+/**
+ * Reads the same `lang` cookie/localStorage the app's real language context
+ * (LanguageContext.tsx) uses, so this hook's initial state — and the
+ * document.dir it sets on mount, below — starts in agreement with the rest
+ * of the app instead of hardcoding 'en' and briefly (or, if the async
+ * settingsAPI call below never resolves to 'ar', permanently) forcing the
+ * whole document back to LTR regardless of the user's actual UI language.
+ */
+function getInitialLanguage(): Language {
+  if (typeof document === 'undefined') return 'en';
+  const m = document.cookie.match(/(?:^|; )lang=([^;]+)/);
+  if (m) {
+    const v = decodeURIComponent(m[1]);
+    if (v === 'en' || v === 'ar') return v;
+  }
+  try {
+    const ls = localStorage.getItem('lang');
+    if (ls === 'en' || ls === 'ar') return ls;
+  } catch {}
+  return 'en';
+}
+
+/** True once the user has explicitly picked a language via the app's language switcher. */
+function hasExplicitLanguagePreference(): boolean {
+  if (typeof document === 'undefined') return false;
+  if (/(?:^|; )lang=(en|ar)(?:;|$)/.test(document.cookie)) return true;
+  try {
+    const ls = localStorage.getItem('lang');
+    return ls === 'en' || ls === 'ar';
+  } catch {
+    return false;
+  }
+}
+
 const translations = {
   en: {
     // Common
@@ -158,10 +192,16 @@ const translations = {
 };
 
 export function useLanguage(): LanguageContextType {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
 
   useEffect(() => {
-    // Load language from settings
+    // The user's own language toggle (cookie/localStorage, shared with the
+    // app's real LanguageContext) takes priority — only fall back to the
+    // site-wide default language setting when the user has never picked one,
+    // otherwise this would overwrite the user's active choice (and the
+    // document's dir/RTL state it drives) shortly after every mount.
+    if (hasExplicitLanguagePreference()) return;
+
     const loadLanguage = async () => {
       try {
         const settings = await settingsAPI.get();

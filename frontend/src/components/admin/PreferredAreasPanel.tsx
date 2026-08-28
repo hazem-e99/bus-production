@@ -13,7 +13,7 @@ import { useToast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PreferredAreaViewModel, CreatePreferredAreaDTO, UpdatePreferredAreaDTO } from '@/types/preferredArea';
 
-export default function PreferredAreasPage() {
+export default function PreferredAreasPanel() {
   const { t } = useI18n();
   const [areas, setAreas] = useState<PreferredAreaViewModel[]>([]);
   const [loading, setLoading] = useState(true);

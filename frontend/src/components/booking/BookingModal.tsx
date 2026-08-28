@@ -19,6 +19,8 @@ import { tripAPI, bookingAPI } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/utils/formatDate';
 import { getApiErrorMessage } from '@/lib/apiError';
+import { useI18n } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -49,6 +51,7 @@ interface TripWithStops {
 
 export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: BookingModalProps) => {
   const { user } = useAuth();
+  const { isRTL } = useI18n();
   const [step, setStep] = useState(1); // 1: Date, 2: Trip, 3: Stop, 4: Confirm
   const [formData, setFormData] = useState<BookingFormData>({ date: '' });
   const [tripsByDate, setTripsByDate] = useState<TripWithStops[]>([]);
@@ -287,7 +290,7 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
+                          <div className={isRTL ? 'text-left' : 'text-right'}>
                             <p className="text-sm text-text-muted">{t.startTime}</p>
                           </div>
                         </div>
@@ -383,7 +386,7 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
                           </div>
                         </div>
                         
-                        <div className="text-right">
+                        <div className={isRTL ? 'text-left' : 'text-right'}>
                           <p className="text-sm text-text-muted">
                             Capacity: {t.capacity ?? '-'}
                           </p>
@@ -471,11 +474,13 @@ export const BookingModal = ({ isOpen, onClose, onSuccess, preSelectedTrip }: Bo
                     <button
                       key={s.id}
                       onClick={() => setSelectedStopId(s.id)}
-                        className={`w-full p-4 border rounded-lg text-left transition-all duration-200 ${
-                          selectedStopId === s.id 
-                            ? 'border-primary bg-primary-light shadow-md' 
+                        className={cn(
+                          'w-full p-4 border rounded-lg transition-all duration-200',
+                          isRTL ? 'text-right' : 'text-left',
+                          selectedStopId === s.id
+                            ? 'border-primary bg-primary-light shadow-md'
                             : 'border-border hover:border-primary/50 hover:shadow-sm'
-                        }`}
+                        )}
                     >
                       <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">

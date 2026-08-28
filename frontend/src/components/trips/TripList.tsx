@@ -44,7 +44,7 @@ export default function TripList({
   onRetry,
   i18nBase = 'pages.admin.trips'
 }: TripListProps) {
-  const { t, lang } = useI18n();
+  const { t, lang, isRTL } = useI18n();
   const base = useMemo(() => i18nBase, [i18nBase]);
   const L = (suffix: string, fallback: string) => t(`${base}.${suffix}`, t(`pages.admin.trips.${suffix}`, fallback));
   const [sortField, setSortField] = useState<keyof TripResponse>('departureTimeOnly');
@@ -184,56 +184,56 @@ export default function TripList({
             <thead>
               <tr className="border-b border-gray-200">
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                   onClick={() => handleSort('id')}
                 >
                   {t(`${base}.table.id`, t('pages.admin.trips.table.id', 'ID'))}
                   {sortField === 'id' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className={isRTL ? 'mr-1' : 'ml-1'}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </th>
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                   onClick={() => handleSort('departureTimeOnly')}
                 >
                   {t(`${base}.table.dateTime`, t('pages.admin.trips.table.dateTime', 'Date & Time'))}
                   {sortField === 'departureTimeOnly' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className={isRTL ? 'mr-1' : 'ml-1'}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </th>
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                 >
                   {t(`${base}.table.route`, t('pages.admin.trips.table.route', 'Route'))}
                 </th>
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                   onClick={() => handleSort('driverId')}
                 >
                   {t(`${base}.table.driver`, t('pages.admin.trips.table.driver', 'Driver'))}
                   {sortField === 'driverId' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className={isRTL ? 'mr-1' : 'ml-1'}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </th>
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                   onClick={() => handleSort('busId')}
                 >
                   {t(`${base}.table.bus`, t('pages.admin.trips.table.bus', 'Bus'))}
                   {sortField === 'busId' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className={isRTL ? 'mr-1' : 'ml-1'}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </th>
                 <th 
-                  className="text-left p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+                  className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-50`}
                   onClick={() => handleSort('status')}
                 >
                   {t(`${base}.table.status`, t('pages.admin.trips.table.status', 'Status'))}
                   {sortField === 'status' && (
-                    <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    <span className={isRTL ? 'mr-1' : 'ml-1'}>{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </th>
-                <th className="text-left p-3 font-medium text-gray-700">{t(`${base}.table.actions`, t('pages.admin.trips.table.actions', 'Actions'))}</th>
+                <th className={`${isRTL ? 'text-right' : 'text-left'} p-3 font-medium text-gray-700`}>{t(`${base}.table.actions`, t('pages.admin.trips.table.actions', 'Actions'))}</th>
               </tr>
             </thead>
             <tbody>

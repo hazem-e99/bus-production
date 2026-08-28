@@ -93,6 +93,13 @@ export class StudentSubscriptionService {
     return createApiResponse(vms, null, true, vms.length);
   }
 
+  /** Admin: all subscriptions across all students (building block for cross-cutting admin views). */
+  async getAll(): Promise<ApiResponse<any[]>> {
+    const subs = await this.subModel.find().sort({ createdAt: -1 }).exec();
+    const vms = await Promise.all(subs.map((s) => this.toViewModel(s)));
+    return createApiResponse(vms, null, true, vms.length);
+  }
+
   async getById(id: number): Promise<ApiResponse<any>> {
     const sub = await this.findSubByNumericId(id);
     if (!sub) throw new NotFoundException('Subscription not found');

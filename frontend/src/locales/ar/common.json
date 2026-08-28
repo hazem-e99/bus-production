@@ -83,6 +83,9 @@
     "voting": "التصويت",
     "reports": "التقارير",
     "preferred_areas": "المناطق المفضلة",
+    "departments": "الأقسام",
+    "years_of_study": "السنوات الدراسية",
+    "students_overview": "نظرة عامة على الطلاب",
     "badges": {
       "manage": "إدارة",
       "fleet": "الأسطول",
@@ -96,7 +99,9 @@
       "surveys": "استبيانات",
       "forms": "نماذج",
       "data": "بيانات",
-      "locations": "مواقع"
+      "locations": "مواقع",
+      "academics": "أكاديمي",
+      "all": "الكل"
     }
   },
   "pages": {
@@ -229,6 +234,8 @@
           "selectDepartment": "اختر القسم",
           "selectPreferredArea": "اختر منطقتك المفضلة",
           "loadingAreas": "جاري تحميل المناطق...",
+          "loadingDepartments": "جاري تحميل الأقسام...",
+          "loadingYears": "جاري تحميل السنوات...",
           "selectYearOfStudy": "اختر السنة الدراسية",
           "password": "أدخل كلمة المرور",
           "confirmPassword": "أدخل تأكيد كلمة المرور"
@@ -236,7 +243,9 @@
         "hints": {
           "nationalIdTitle": "يجب أن يكون الرقم القومي 14 رقمًا بالضبط",
           "passwordMin": "الحد الأدنى 6 أحرف",
-          "noAreasAvailable": "لا توجد مناطق متاحة حاليًا. يرجى التواصل مع الدعم."
+          "noAreasAvailable": "لا توجد مناطق متاحة حاليًا. يرجى التواصل مع الدعم.",
+          "noDepartmentsAvailable": "لا توجد أقسام متاحة حاليًا. يرجى التواصل مع الدعم.",
+          "noYearsAvailable": "لا توجد سنوات دراسية متاحة حاليًا. يرجى التواصل مع الدعم."
         },
         "cta": {
           "creating": "جارٍ إنشاء الحساب...",
@@ -576,6 +585,66 @@
           "loadFailed": "فشل تحميل التقرير"
         }
       },
+      "studentsOverview": {
+        "title": "نظرة عامة على الطلاب",
+        "subtitle": "كل الطلاب المسجلين مع بيانات اشتراكهم ومدفوعاتهم",
+        "loading": "جارٍ تحميل الطلاب...",
+        "refresh": "تحديث",
+        "export": "تصدير إلى إكسيل",
+        "exporting": "جارٍ التصدير...",
+        "exportSuccess": "تم التصدير",
+        "exportSuccessMessage": "تم تنزيل ملف الإكسيل.",
+        "exportError": "فشل التصدير",
+        "empty": "لا يوجد طلاب.",
+        "noResults": "جرّب تعديل عوامل التصفية.",
+        "searchPlaceholder": "ابحث عن الطلاب...",
+        "viewDetails": "عرض التفاصيل الكاملة",
+        "stats": {
+          "totalStudents": "إجمالي الطلاب"
+        },
+        "filters": {
+          "allDepartments": "كل الأقسام",
+          "allAccountStatuses": "كل حالات الحساب",
+          "allSubscriptionStatuses": "كل حالات الاشتراك",
+          "allPaymentStatuses": "كل حالات الدفع",
+          "noneStatus": "لا يوجد"
+        },
+        "columns": {
+          "student": "الطالب",
+          "phone": "الهاتف",
+          "nationalId": "الرقم القومي",
+          "department": "القسم",
+          "preferredArea": "المنطقة المفضلة",
+          "yearOfStudy": "السنة الدراسية",
+          "academicNumber": "الرقم الأكاديمي",
+          "accountStatus": "حالة الحساب",
+          "plan": "الباقة",
+          "subscriptionStatus": "حالة الاشتراك",
+          "paymentMethod": "طريقة الدفع",
+          "paymentChannel": "قناة الدفع",
+          "amountPaid": "المبلغ المدفوع",
+          "paymentStatus": "حالة الدفع",
+          "registeredOn": "تاريخ التسجيل",
+          "paymentDate": "تاريخ الاشتراك/الدفع",
+          "actions": "الإجراءات"
+        },
+        "paymentChannel": {
+          "instapay": "إنستا باي",
+          "vodafone": "فودافون كاش",
+          "cash": "كاش في المقر",
+          "visa": "فيزا",
+          "unknown": "غير محدد"
+        },
+        "excel": {
+          "reportTitle": "الريناد — نظرة عامة على الطلاب",
+          "generatedAt": "تم الإنشاء في",
+          "sheetName": "الطلاب",
+          "email": "البريد الإلكتروني"
+        },
+        "errors": {
+          "loadFailed": "فشل تحميل بيانات الطلاب"
+        }
+      },
       "studentSubscriptions": {
         "loading": "جاري التحميل...",
         "title": "إدارة اشتراكات الطلاب",
@@ -711,6 +780,20 @@
         "errors": {
           "loadFailed": "فشل في تحميل البيانات",
           "tryAgain": "يرجى المحاولة مرة أخرى"
+        },
+        "export": "تصدير إلى إكسيل",
+        "exporting": "جارٍ التصدير...",
+        "exportSuccess": "تم التصدير",
+        "exportSuccessMessage": "تم تنزيل ملف الإكسيل.",
+        "exportError": "فشل التصدير",
+        "excel": {
+          "reportTitle": "الريناد — مدفوعات الاشتراك",
+          "generatedAt": "تم الإنشاء في",
+          "sheetName": "المدفوعات",
+          "email": "البريد الإلكتروني",
+          "channel": "قناة الدفع",
+          "reference": "رمز المرجع",
+          "reviewedDate": "تاريخ المراجعة"
         }
       },
         "plans": {
@@ -860,6 +943,140 @@
             "areaDeleted": "تم حذف المنطقة بنجاح",
             "areaActivated": "تم تفعيل المنطقة بنجاح",
             "areaDeactivated": "تم إلغاء تفعيل المنطقة بنجاح",
+            "successTitle": "نجاح"
+          }
+        },
+        "departments": {
+          "loading": "جاري التحميل...",
+          "title": "الأقسام",
+          "subtitle": "إدارة الأقسام التي يمكن للطلاب اختيارها عند التسجيل",
+          "addButton": "إضافة قسم",
+          "listTitle": "الأقسام",
+          "listCountLabel": "قسم",
+          "table": {
+            "id": "المعرف",
+            "name": "الاسم",
+            "status": "الحالة",
+            "actions": "الإجراءات"
+          },
+          "status": {
+            "active": "نشط",
+            "inactive": "غير نشط"
+          },
+          "actions": {
+            "editItem": "تعديل القسم",
+            "activateItem": "تفعيل القسم",
+            "deactivateItem": "إلغاء تفعيل القسم",
+            "deleteItem": "حذف القسم"
+          },
+          "modal": {
+            "editTitle": "تعديل القسم",
+            "addTitle": "إضافة قسم"
+          },
+          "form": {
+            "name": "الاسم",
+            "nameHint": "2-100 حرف.",
+            "namePlaceholder": "مثال: علوم حاسب",
+            "saveChanges": "حفظ التغييرات",
+            "createItem": "إنشاء قسم"
+          },
+          "errors": {
+            "loadFailedMsg": "فشل في تحميل الأقسام",
+            "loadFailedTitle": "فشل التحميل",
+            "error": "خطأ",
+            "loadDepartmentDetails": "فشل في تحميل تفاصيل القسم",
+            "updateFailed": "فشل التحديث",
+            "creationFailed": "فشل الإنشاء",
+            "saveFailedMsg": "فشل في حفظ القسم",
+            "saveFailedTitle": "فشل الحفظ",
+            "actionFailed": "فشل الإجراء",
+            "actionFailedTitle": "فشل الإجراء"
+          },
+          "confirms": {
+            "deleteTitle": "حذف القسم",
+            "deleteDesc": "هل أنت متأكد من حذف هذا القسم؟ الطلاب الذين اختاروه بالفعل يحتفظون بقيمتهم المحفوظة، لكنه لن يظهر بعد الآن في نموذج التسجيل.",
+            "activateTitle": "تفعيل القسم",
+            "activateDesc": "هل أنت متأكد من تفعيل هذا القسم؟ سيظهر مرة أخرى في نموذج التسجيل.",
+            "deactivateTitle": "إلغاء تفعيل القسم",
+            "deactivateDesc": "هل أنت متأكد من إلغاء تفعيل هذا القسم؟ سيتم إخفاؤه من نموذج التسجيل.",
+            "confirmTitle": "تأكيد الإجراء",
+            "confirmDesc": "هل أنت متأكد؟"
+          },
+          "toasts": {
+            "departmentUpdated": "تم تحديث القسم",
+            "updatedSuccessfully": "تم التحديث بنجاح",
+            "departmentCreated": "تم إنشاء القسم",
+            "createdSuccessfully": "تم الإنشاء بنجاح",
+            "departmentDeleted": "تم حذف القسم بنجاح",
+            "departmentActivated": "تم تفعيل القسم بنجاح",
+            "departmentDeactivated": "تم إلغاء تفعيل القسم بنجاح",
+            "successTitle": "نجاح"
+          }
+        },
+        "yearsOfStudy": {
+          "loading": "جاري التحميل...",
+          "title": "السنوات الدراسية",
+          "subtitle": "إدارة السنوات الدراسية التي يمكن للطلاب اختيارها عند التسجيل",
+          "addButton": "إضافة سنة",
+          "listTitle": "السنوات الدراسية",
+          "listCountLabel": "سنة",
+          "table": {
+            "id": "المعرف",
+            "name": "الاسم",
+            "status": "الحالة",
+            "actions": "الإجراءات"
+          },
+          "status": {
+            "active": "نشطة",
+            "inactive": "غير نشطة"
+          },
+          "actions": {
+            "editItem": "تعديل السنة",
+            "activateItem": "تفعيل السنة",
+            "deactivateItem": "إلغاء تفعيل السنة",
+            "deleteItem": "حذف السنة"
+          },
+          "modal": {
+            "editTitle": "تعديل السنة",
+            "addTitle": "إضافة سنة"
+          },
+          "form": {
+            "name": "الاسم",
+            "nameHint": "2-100 حرف، مثل FirstYear.",
+            "namePlaceholder": "مثال: FirstYear",
+            "saveChanges": "حفظ التغييرات",
+            "createItem": "إنشاء سنة"
+          },
+          "errors": {
+            "loadFailedMsg": "فشل في تحميل السنوات الدراسية",
+            "loadFailedTitle": "فشل التحميل",
+            "error": "خطأ",
+            "loadItemDetails": "فشل في تحميل تفاصيل السنة",
+            "updateFailed": "فشل التحديث",
+            "creationFailed": "فشل الإنشاء",
+            "saveFailedMsg": "فشل في حفظ السنة",
+            "saveFailedTitle": "فشل الحفظ",
+            "actionFailed": "فشل الإجراء",
+            "actionFailedTitle": "فشل الإجراء"
+          },
+          "confirms": {
+            "deleteTitle": "حذف السنة",
+            "deleteDesc": "هل أنت متأكد من حذف هذه السنة؟ الطلاب الذين اختاروها بالفعل يحتفظون بقيمتهم المحفوظة، لكنها لن تظهر بعد الآن في نموذج التسجيل.",
+            "activateTitle": "تفعيل السنة",
+            "activateDesc": "هل أنت متأكد من تفعيل هذه السنة؟ ستظهر مرة أخرى في نموذج التسجيل.",
+            "deactivateTitle": "إلغاء تفعيل السنة",
+            "deactivateDesc": "هل أنت متأكد من إلغاء تفعيل هذه السنة؟ سيتم إخفاؤها من نموذج التسجيل.",
+            "confirmTitle": "تأكيد الإجراء",
+            "confirmDesc": "هل أنت متأكد؟"
+          },
+          "toasts": {
+            "itemUpdated": "تم تحديث السنة",
+            "updatedSuccessfully": "تم التحديث بنجاح",
+            "itemCreated": "تم إنشاء السنة",
+            "createdSuccessfully": "تم الإنشاء بنجاح",
+            "itemDeleted": "تم حذف السنة بنجاح",
+            "itemActivated": "تم تفعيل السنة بنجاح",
+            "itemDeactivated": "تم إلغاء تفعيل السنة بنجاح",
             "successTitle": "نجاح"
           }
         },
@@ -1730,6 +1947,30 @@
       "notifications": {
         "title": "إشعارات المشرف",
         "subtitle": "راجع وأدر الإشعارات وأرسل الإعلانات للطلاب"
+      },
+      "trips": {
+        "table": {
+          "trip": "الرحلة",
+          "date": "التاريخ",
+          "time": "الوقت",
+          "route": "المسار",
+          "bus": "الباص",
+          "driver": "السائق",
+          "stops": "المحطات",
+          "students": "الطلاب",
+          "status": "الحالة",
+          "details": "التفاصيل",
+          "attendance": "الحضور"
+        }
+      },
+      "attendance": {
+        "table": {
+          "student": "الطالب",
+          "details": "التفاصيل",
+          "payment": "الدفع",
+          "attendance": "الحضور",
+          "actions": "الإجراءات"
+        }
       }
     },
     "movementManager": {

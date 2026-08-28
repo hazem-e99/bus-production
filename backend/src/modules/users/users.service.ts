@@ -3,13 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './user.schema';
+import { StudentSubscription, StudentSubscriptionDocument } from '../student-subscription/student-subscription.schema';
+import { Payment, PaymentDocument } from '../payment/payment.schema';
+import { SubscriptionPlan, SubscriptionPlanDocument } from '../subscription-plan/subscription-plan.schema';
 import { createApiResponse, ApiResponse } from '../../common/interfaces/api-response.interface';
 import { AppException } from '../../common/exceptions/app.exception';
 import { ErrorCodes } from '../../common/exceptions/error-codes';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(StudentSubscription.name) private subModel: Model<StudentSubscriptionDocument>,
+    @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
+    @InjectModel(SubscriptionPlan.name) private planModel: Model<SubscriptionPlanDocument>,
+  ) {}
 
   private toViewModel(user: UserDocument) {
     const id = parseInt((user._id as any).toString().slice(-8), 16) % 100000;
@@ -158,6 +166,98 @@ export class UsersService {
       throw new NotFoundException('Student not found');
     }
     return createApiResponse(this.toViewModel(user));
+  }
+
+  /**
+   * Admin overview: one row per student, joined with their current subscription
+   * and most relevant payment. Does exactly 3 extra parallel queries (subs,
+   * payments, plans) regardless of student count -- same fixed-query-count
+   * pattern as PaymentService.getSubscriptionReport().
+   *
+   * Subscription selection: prefer the student's Active subscription; if none,
+   * fall back to their most recently created subscription (any status).
+   * Payment selection: prefer the student's most recent Accepted payment; if
+   * none, fall back to their most recently created payment (any status).
+   * Students with neither still get a row -- all subscription/payment fields null.
+   */
+  async getStudentsOverview(): Promise<ApiResponse<any[]>> {
+    const [students, subs, payments, plans] = await Promise.all([
+      this.userModel.find({ role: 'Student' }).select('-password').exec(),
+      this.subModel.find().sort({ createdAt: -1 }).exec(),
+      this.paymentModel.find().sort({ createdAt: -1 }).exec(),
+      this.planModel.find().exec(),
+    ]);
+
+    const planMap = new Map<number, any>(plans.map((p) => [p.numericId, p]));
+
+    const subsByStudent = new Map<number, typeof subs>();
+    for (const s of subs) {
+      const list = subsByStudent.get(s.studentId) ?? [];
+      list.push(s);
+      subsByStudent.set(s.studentId, list);
+    }
+    const paymentsByStudent = new Map<number, typeof payments>();
+    for (const p of payments) {
+      const list = paymentsByStudent.get(p.studentId) ?? [];
+      list.push(p);
+      paymentsByStudent.set(p.studentId, list);
+    }
+
+    const data = students.map((student) => {
+      const id = student.numericId;
+      const studentSubs = subsByStudent.get(id) ?? []; // already createdAt-desc from the sorted query
+      const currentSub = studentSubs.find((s) => s.status === 'Active') ?? studentSubs[0] ?? null;
+      const currentPlan = currentSub ? planMap.get(currentSub.subscriptionPlanId) : null;
+
+      const studentPayments = paymentsByStudent.get(id) ?? []; // already createdAt-desc
+      const currentPayment = studentPayments.find((p) => p.status === 'Accepted') ?? studentPayments[0] ?? null;
+
+      return {
+        // --- Registration / identity ---
+        id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        fullName: `${student.firstName} ${student.lastName}`.trim(),
+        email: student.email,
+        phoneNumber: student.phoneNumber || null,
+        nationalId: student.nationalId || null,
+        status: student.status,
+        studentAcademicNumber: student.studentAcademicNumber || null,
+        department: student.department || null,
+        preferredArea: student.preferredArea || null,
+        yearOfStudy: student.yearOfStudy || null,
+        emergencyContact: student.emergencyContact || null,
+        emergencyPhone: student.emergencyPhone || null,
+        profilePictureUrl: student.profilePictureUrl || null,
+        registeredAt: (student as any).createdAt || null,
+
+        // --- Current subscription ---
+        subscriptionId: currentSub?.numericId ?? null,
+        subscriptionPlanId: currentSub?.subscriptionPlanId ?? null,
+        subscriptionPlanName: currentPlan?.name ?? null,
+        subscriptionPlanPrice: currentPlan?.price ?? null,
+        subscriptionStatus: currentSub?.status ?? null,
+        subscriptionStartDate: currentSub?.startDate ?? null,
+        subscriptionEndDate: currentSub?.endDate ?? null,
+        subscriptionIsActive: currentSub?.isActive ?? null,
+        cancellationStatus: currentSub?.cancellationStatus ?? null,
+
+        // --- Most relevant payment ---
+        paymentId: currentPayment?.numericId ?? null,
+        paymentAmount: currentPayment?.amount ?? null,
+        paymentMethod: currentPayment?.paymentMethod ?? null,
+        paymentChannel: currentPayment?.paymentChannel ?? null,
+        paymentStatus: currentPayment?.status ?? null,
+        paymentReferenceCode: currentPayment?.paymentReferenceCode ?? null,
+        paymentDate: (currentPayment as any)?.createdAt ?? null,
+
+        // --- History counts (cheap extras from data already in memory) ---
+        totalSubscriptionsCount: studentSubs.length,
+        totalPaymentsCount: studentPayments.length,
+      };
+    });
+
+    return createApiResponse(data, null, true, data.length);
   }
 
   private async findUserByNumericId(numericId: string): Promise<UserDocument | null> {

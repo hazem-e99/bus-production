@@ -41,6 +41,8 @@ import {
   CancellationRequestViewModel,
   SubscriptionReportViewModel,
   SubscriptionReportApiResponse,
+  StudentOverviewRow,
+  StudentOverviewApiResponse,
 } from "@/types/subscription";
 import {
   PreferredAreaViewModel,
@@ -49,6 +51,20 @@ import {
   CreatePreferredAreaDTO,
   UpdatePreferredAreaDTO,
 } from "@/types/preferredArea";
+import {
+  DepartmentViewModel,
+  DepartmentViewModelApiResponse,
+  DepartmentViewModelIEnumerableApiResponse,
+  CreateDepartmentDTO,
+  UpdateDepartmentDTO,
+} from "@/types/department";
+import {
+  YearOfStudyViewModel,
+  YearOfStudyViewModelApiResponse,
+  YearOfStudyViewModelIEnumerableApiResponse,
+  CreateYearOfStudyDTO,
+  UpdateYearOfStudyDTO,
+} from "@/types/yearOfStudy";
 import {
   TripBookingViewModel,
   CreateTripBookingDTO,
@@ -1194,6 +1210,108 @@ export const preferredAreasAPI = {
     }),
 };
 
+// Department API — admin-managed list shown on the registration, student
+// profile, and admin student-edit dropdowns. GET /active is @Public() on the
+// backend (registration happens pre-login); every other route requires Admin.
+export const departmentsAPI = {
+  // GET /api/Department (Admin-only)
+  getAll: async (): Promise<DepartmentViewModel[]> => {
+    const resp = await apiRequest<DepartmentViewModelIEnumerableApiResponse>("/Department");
+    return resp?.data ?? [];
+  },
+  // GET /api/Department/active (public)
+  getActive: async (): Promise<DepartmentViewModel[]> => {
+    const resp = await apiRequest<DepartmentViewModelIEnumerableApiResponse>("/Department/active");
+    return resp?.data ?? [];
+  },
+  // GET /api/Department/{id} (Admin-only)
+  getById: async (id: number | string): Promise<DepartmentViewModel | null> => {
+    const resp = await apiRequest<DepartmentViewModelApiResponse>(`/Department/${id}`);
+    return resp?.data ?? null;
+  },
+  // POST /api/Department with CreateDepartmentDTO (Admin-only)
+  create: (data: CreateDepartmentDTO): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>("/Department", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  // PUT /api/Department/{id} with UpdateDepartmentDTO (Admin-only)
+  update: (
+    id: number | string,
+    data: UpdateDepartmentDTO
+  ): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/Department/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  // DELETE /api/Department/{id} (Admin-only)
+  delete: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/Department/${id}`, {
+      method: "DELETE",
+    }),
+  // PUT /api/Department/{id}/activate (Admin-only)
+  activate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/Department/${id}/activate`, {
+      method: "PUT",
+    }),
+  // PUT /api/Department/{id}/deactivate (Admin-only)
+  deactivate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/Department/${id}/deactivate`, {
+      method: "PUT",
+    }),
+};
+
+// Year of Study API — admin-managed list shown on the registration, student
+// profile, and admin student-edit dropdowns. GET /active is @Public() on the
+// backend (registration happens pre-login); every other route requires Admin.
+export const yearsOfStudyAPI = {
+  // GET /api/YearOfStudy (Admin-only)
+  getAll: async (): Promise<YearOfStudyViewModel[]> => {
+    const resp = await apiRequest<YearOfStudyViewModelIEnumerableApiResponse>("/YearOfStudy");
+    return resp?.data ?? [];
+  },
+  // GET /api/YearOfStudy/active (public)
+  getActive: async (): Promise<YearOfStudyViewModel[]> => {
+    const resp = await apiRequest<YearOfStudyViewModelIEnumerableApiResponse>("/YearOfStudy/active");
+    return resp?.data ?? [];
+  },
+  // GET /api/YearOfStudy/{id} (Admin-only)
+  getById: async (id: number | string): Promise<YearOfStudyViewModel | null> => {
+    const resp = await apiRequest<YearOfStudyViewModelApiResponse>(`/YearOfStudy/${id}`);
+    return resp?.data ?? null;
+  },
+  // POST /api/YearOfStudy with CreateYearOfStudyDTO (Admin-only)
+  create: (data: CreateYearOfStudyDTO): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>("/YearOfStudy", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  // PUT /api/YearOfStudy/{id} with UpdateYearOfStudyDTO (Admin-only)
+  update: (
+    id: number | string,
+    data: UpdateYearOfStudyDTO
+  ): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/YearOfStudy/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  // DELETE /api/YearOfStudy/{id} (Admin-only)
+  delete: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/YearOfStudy/${id}`, {
+      method: "DELETE",
+    }),
+  // PUT /api/YearOfStudy/{id}/activate (Admin-only)
+  activate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/YearOfStudy/${id}/activate`, {
+      method: "PUT",
+    }),
+  // PUT /api/YearOfStudy/{id}/deactivate (Admin-only)
+  deactivate: (id: number | string): Promise<BooleanApiResponse> =>
+    apiRequest<BooleanApiResponse>(`/YearOfStudy/${id}/deactivate`, {
+      method: "PUT",
+    }),
+};
+
 // TripBooking API - use global endpoints
 export const tripBookingAPI = {
   // POST /api/TripBooking (create new booking)
@@ -1387,6 +1505,12 @@ export const studentAPI = {
     const resp = await apiRequest<any>("/Users/by-role/Student");
     const list = resp?.data ?? resp ?? [];
     return Array.isArray(list) ? list : [];
+  },
+
+  // GET /api/Users/students-overview - Admin-only joined registration+subscription+payment view
+  getOverview: async (): Promise<StudentOverviewRow[]> => {
+    const resp = await apiRequest<StudentOverviewApiResponse>("/Users/students-overview");
+    return resp?.data ?? [];
   },
 };
 

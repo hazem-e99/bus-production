@@ -907,7 +907,7 @@ export default function StudentSubscriptionPage() {
                     </div>
                   )}
                 </div>
-                <div className="text-right">
+                <div className={lang === 'ar' ? 'text-left' : 'text-right'}>
           <div className="text-2xl font-bold text-primary">{formatCurrency(lang, selectedPlan.price)}</div>
                   {activeSubscription && selectedPlan.id !== activeSubscription.subscriptionPlanId && (
                     <div className="text-xs text-gray-500 mt-1">

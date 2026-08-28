@@ -13,7 +13,6 @@ import {
   Calendar,
   Bell,
   User,
-  LayoutDashboard,
   ChevronRight,
   Sparkles,
   Crown,
@@ -26,7 +25,7 @@ import {
   ClipboardCheck,
   Settings,
   BarChart3,
-  MapPin,
+  LayoutDashboard,
 } from 'lucide-react';
 import { UserRole } from '@/types/user';
 import { notificationAPI } from '@/lib/api';
@@ -47,11 +46,11 @@ interface NavigationItem {
 const navigationItems = {
   admin: [
     { name: 'Users', href: '/dashboard/admin/users', icon: Users, badge: 'Manage' },
+    { name: 'Students Overview', href: '/dashboard/admin/students-overview', icon: GraduationCap, badge: 'All' },
     { name: 'Buses', href: '/dashboard/admin/buses', icon: Bus, badge: 'Fleet' },
     { name: 'Live Tracking', href: '/dashboard/admin/tracking', icon: Radio, badge: 'Live' },
     { name: 'Trips', href: '/trips', icon: Calendar, badge: 'Schedule' },
     { name: 'Plans', href: '/dashboard/admin/plans', icon: CreditCard, badge: 'Pricing' },
-    { name: 'Preferred Areas', href: '/dashboard/admin/preferred-areas', icon: MapPin, badge: 'Locations' },
     { name: 'Student Subscriptions', href: '/dashboard/admin/student-subscriptions', icon: LayoutDashboard, badge: 'Subs' },
     { name: 'Reports', href: '/dashboard/admin/reports', icon: BarChart3, badge: 'Data' },
     { name: 'Voting', href: '/dashboard/admin/voting', icon: ClipboardCheck, badge: 'Surveys' },

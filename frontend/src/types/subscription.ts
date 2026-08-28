@@ -344,3 +344,56 @@ export interface SubscriptionReportApiResponse {
   errorCode?: any;
   requestId?: string | null;
 }
+
+/**
+ * Admin "Students Overview" — one row per student, joined with their current
+ * subscription and most relevant payment. See UsersService.getStudentsOverview().
+ */
+export interface StudentOverviewRow {
+  id: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  fullName: string;
+  email?: string | null;
+  phoneNumber?: string | null;
+  nationalId?: string | null;
+  status: 'Active' | 'Inactive' | 'Suspended';
+  studentAcademicNumber?: string | null;
+  department?: string | null;
+  preferredArea?: string | null;
+  yearOfStudy?: string | null;
+  emergencyContact?: string | null;
+  emergencyPhone?: string | null;
+  profilePictureUrl?: string | null;
+  registeredAt?: string | null;
+
+  subscriptionId?: number | null;
+  subscriptionPlanId?: number | null;
+  subscriptionPlanName?: string | null;
+  subscriptionPlanPrice?: number | null;
+  subscriptionStatus?: string | null;
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  subscriptionIsActive?: boolean | null;
+  cancellationStatus?: string | null;
+
+  paymentId?: number | null;
+  paymentAmount?: number | null;
+  paymentMethod?: string | null;
+  paymentChannel?: string | null;
+  paymentStatus?: string | null;
+  paymentReferenceCode?: string | null;
+  paymentDate?: string | null;
+
+  totalSubscriptionsCount: number;
+  totalPaymentsCount: number;
+}
+
+export interface StudentOverviewApiResponse {
+  data: StudentOverviewRow[] | null;
+  count?: number | null;
+  message?: string | null;
+  success: boolean;
+  timestamp: string;
+  errorCode?: any;
+}

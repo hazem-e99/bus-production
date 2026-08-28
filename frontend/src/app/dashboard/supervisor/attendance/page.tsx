@@ -25,6 +25,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { userAPI, bookingAPI, tripAPI, paymentAPI } from '@/lib/api';
+import { useI18n } from '@/contexts/LanguageContext';
 
 interface Student {
   id: string;
@@ -83,6 +84,7 @@ interface AttendanceRecord {
 }
 
 export default function SupervisorAttendancePage() {
+  const { t, isRTL } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('today');
@@ -485,11 +487,20 @@ export default function SupervisorAttendancePage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Student</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Details</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Payment</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Attendance</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                  {[
+                    t('pages.supervisor.attendance.table.student', 'Student'),
+                    t('pages.supervisor.attendance.table.details', 'Details'),
+                    t('pages.supervisor.attendance.table.payment', 'Payment'),
+                    t('pages.supervisor.attendance.table.attendance', 'Attendance'),
+                    t('pages.supervisor.attendance.table.actions', 'Actions'),
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className={`${isRTL ? 'text-right' : 'text-left'} py-3 px-4 font-medium text-gray-700`}
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>

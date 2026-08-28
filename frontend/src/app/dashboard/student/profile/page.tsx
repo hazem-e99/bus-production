@@ -27,10 +27,10 @@ import {
   BookOpen,
   Calendar
 } from 'lucide-react';
-import { userAPI, preferredAreasAPI } from '@/lib/api';
+import { userAPI, preferredAreasAPI, departmentsAPI, yearsOfStudyAPI } from '@/lib/api';
 import { useI18n } from '@/contexts/LanguageContext';
 import { toBackendAssetUrl } from '@/lib/backend-url';
-import { getDepartmentOptions, getYearOfStudyOptions, mergeWithCurrentValue } from '@/lib/constants';
+import { mergeWithCurrentValue } from '@/lib/constants';
 
 interface StudentProfile {
   id: number;
@@ -63,6 +63,8 @@ export default function StudentProfilePage() {
   const [imageError, setImageError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [areaNames, setAreaNames] = useState<string[]>([]);
+  const [departmentNames, setDepartmentNames] = useState<string[]>([]);
+  const [yearNames, setYearNames] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -77,10 +79,23 @@ export default function StudentProfilePage() {
     emergencyPhone: ''
   });
 
-  // Preferred Area is admin-managed — fetch the live list once on mount.
+  // Preferred Area, Department, and Year of Study are all admin-managed —
+  // fetch each live list once on mount.
   useEffect(() => {
     preferredAreasAPI.getActive()
       .then(list => setAreaNames(list.map(a => a.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    departmentsAPI.getActive()
+      .then(list => setDepartmentNames(list.map(d => d.name ?? '').filter(Boolean)))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    yearsOfStudyAPI.getActive()
+      .then(list => setYearNames(list.map(y => y.name ?? '').filter(Boolean)))
       .catch(() => {});
   }, []);
 
@@ -212,15 +227,15 @@ export default function StudentProfilePage() {
       }
 
       // Validate year of study (allow the student's pre-existing value too, in
-      // case it predates the current year-of-study list)
-      if (formData.yearOfStudy && !getYearOfStudyOptions(profile?.yearOfStudy).includes(formData.yearOfStudy)) {
+      // case an admin has since renamed/removed it from the active list)
+      if (formData.yearOfStudy && !mergeWithCurrentValue(yearNames, profile?.yearOfStudy).includes(formData.yearOfStudy)) {
         alert(t('pages.student.profile.alerts.yearRange', 'Please select a valid academic year.'));
         return;
       }
 
-      // Validate department (allow the student's pre-existing value too, in case
-      // it predates the current department list and hasn't been changed here)
-      if (apiData.department && !getDepartmentOptions(profile?.department).includes(apiData.department)) {
+      // Validate department (allow the student's pre-existing value too, in
+      // case an admin has since renamed/removed it from the active list)
+      if (apiData.department && !mergeWithCurrentValue(departmentNames, profile?.department).includes(apiData.department)) {
         alert(t('pages.student.profile.alerts.invalidDepartment', 'Please select a valid department.'));
         return;
       }
@@ -770,7 +785,7 @@ export default function StudentProfilePage() {
                         }`}
                       >
                         <option value="">{t('pages.student.profile.selectDepartment', 'Select Department')}</option>
-                        {getDepartmentOptions(profile?.department).map(dept => (
+                        {mergeWithCurrentValue(departmentNames, profile?.department).map(dept => (
                           <option key={dept} value={dept}>{dept}</option>
                         ))}
                       </Select>
@@ -830,7 +845,7 @@ export default function StudentProfilePage() {
                         }`}
                       >
                         <option value="">{t('pages.student.profile.yearPlaceholder', 'Select academic year')}</option>
-                        {getYearOfStudyOptions(profile?.yearOfStudy).map(y => (
+                        {mergeWithCurrentValue(yearNames, profile?.yearOfStudy).map(y => (
                           <option key={y} value={y}>{y}</option>
                         ))}
                       </Select>
