@@ -47,6 +47,20 @@ ensure_app_user_and_dirs() {
   # warn with the exact fix instead of silently changing it.
   chmod o+x "$PROJECT_DIR" 2>/dev/null || true
 
+  # backend/ and frontend/ stay OWNED by whoever owns the git working tree
+  # (elrenad-ci, for git pull/checkout) but become GROUP-writable by
+  # $APP_GROUP with the setgid bit, so build.sh can run npm ci/build as the
+  # unprivileged $APP_USER (never root — see deploy/lib/build.sh) and still
+  # create node_modules/dist/.next inside them. New entries created under a
+  # setgid directory inherit its group automatically, so this doesn't widen
+  # write access to anything beyond these two directories. Idempotent; runs
+  # on every deploy so it self-heals if setup-ci-deploy-user.sh's recursive
+  # chown ever resets it.
+  if [ -d "$BACKEND_DIR" ] && [ -d "$FRONTEND_DIR" ]; then
+    chgrp "$APP_GROUP" "$BACKEND_DIR" "$FRONTEND_DIR"
+    chmod 2775 "$BACKEND_DIR" "$FRONTEND_DIR"
+  fi
+
   local blocked=()
   local dir="$PROJECT_DIR"
   while [ "$dir" != "/" ]; do

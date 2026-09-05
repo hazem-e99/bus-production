@@ -4,6 +4,11 @@
 # blocks + redirect — so once a certificate exists we stop regenerating the
 # file from the plain-HTTP template and only validate/reload it, to avoid
 # wiping out certbot's edits on every future deploy.
+#
+# SECURITY: the .template is read from $SCRIPT_DIR (see the same note in
+# lib/services.sh) — the root-owned frozen copy when run via the CI sudo
+# entrypoint, not the elrenad-ci-writable repo — so CI cannot inject
+# arbitrary Nginx directives that get installed and reloaded as root.
 
 configure_nginx() {
   local site_file="/etc/nginx/sites-available/${APP_NAME}"
@@ -18,7 +23,7 @@ configure_nginx() {
       -e "s#@@DOMAIN_WWW@@#${DOMAIN_WWW}#g" \
       -e "s#@@BACKEND_PORT@@#${BACKEND_PORT}#g" \
       -e "s#@@FRONTEND_PORT@@#${FRONTEND_PORT}#g" \
-      "$PROJECT_DIR/deploy/nginx/el-renad.conf.template" > "$site_file"
+      "$SCRIPT_DIR/nginx/el-renad.conf.template" > "$site_file"
   fi
 
   ln -sf "$site_file" "/etc/nginx/sites-enabled/${APP_NAME}"

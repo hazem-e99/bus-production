@@ -1,0 +1,122 @@
+name: Deploy el-renad.com to production
+
+# Push to main -> validate (install/lint/build for both apps) -> SSH to the
+# VPS as the restricted "elrenad-ci" user (see deploy/setup-ci-deploy-user.sh)
+# -> git pull to the pushed commit -> sudo a root-owned entrypoint (build +
+# restart + health check, scoped only to el-renad.com) -> verify the public
+# site.
+#
+# This never touches elrenad.tech: the CI deploy user's sudo rule allows
+# exactly one command, /usr/local/sbin/deploy-elrenad — a root-owned
+# entrypoint living OUTSIDE this repo (see deploy/setup-ci-deploy-user.sh).
+# elrenad-ci owns this repo's working tree (needed for git pull) but has no
+# write access to that entrypoint or the frozen deploy logic it runs, so it
+# cannot rewrite what sudo executes as root. This is a completely
+# independent CI identity from elrenad.tech's own "elrenad-tech-ci" /
+# deploy-elrenadtech setup — different user, different SSH key, different
+# frozen copy, different sudoers rule.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions),
+# ideally under a "production" Environment:
+#   VPS_HOST      e.g. 203.0.113.10 (no protocol, no trailing slash)
+#   VPS_SSH_KEY   private key matching the public key registered for the
+#                 "elrenad-ci" user via deploy/setup-ci-deploy-user.sh
+#   VPS_USER      elrenad-ci
+#
+# No test script exists in backend/package.json or frontend/package.json
+# (Jest is a backend devDependency but not wired to an npm script) — this
+# workflow does not invent one; it validates via lint + build only, per the
+# scripts that actually exist. `nest build`/`next build` both run the
+# TypeScript compiler, so build validation already exercises typechecking.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Backend - npm ci
+        working-directory: backend
+        run: npm ci
+
+      - name: Backend - lint
+        working-directory: backend
+        run: npm run lint
+
+      - name: Backend - build
+        working-directory: backend
+        run: npm run build
+
+      - name: Frontend - npm ci
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend - lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Frontend - build
+        working-directory: frontend
+        env:
+          # Placeholder build-time values only — the VPS build (deploy.sh)
+          # uses the server's real frontend/.env, this is just so `next
+          # build` has something syntactically valid to inline in CI.
+          NEXT_PUBLIC_APP_URL: https://el-renad.com
+          NEXT_PUBLIC_API_BASE_URL: https://el-renad.com/api
+          NEXT_PUBLIC_BACKEND_ORIGIN: https://el-renad.com
+        run: npm run build
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          # deploy.sh runs full npm ci + npm run build for both apps on the
+          # VPS itself (not a fast CI runner) — the frontend's `next build`
+          # alone can take well over 10 minutes there, so the ssh-action's
+          # default 10m command_timeout is too tight and kills a healthy,
+          # still-running deploy.
+          command_timeout: 25m
+          script: |
+            set -e
+            cd /opt/bus-production
+            git fetch origin main
+            git checkout main
+            git reset --hard "${{ github.sha }}"
+            sudo /usr/local/sbin/deploy-elrenad
+
+      - name: Verify public site
+        run: |
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://el-renad.com/api/Settings/maintenance-mode || echo 000)
+            echo "attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "el-renad.com is up"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "el-renad.com did not return 200 after deploy — check deploy/logs.sh on the server"
+          exit 1

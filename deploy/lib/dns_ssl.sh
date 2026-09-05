@@ -62,6 +62,7 @@ configure_ssl() {
   fi
 
   local cert_file="/etc/letsencrypt/live/${DOMAIN_PRIMARY}/fullchain.pem"
+  local just_issued=0
   if [ -f "$cert_file" ]; then
     log_ok "Certificate already installed for ${DOMAIN_PRIMARY} — verifying renewal is wired up."
   else
@@ -71,20 +72,29 @@ configure_ssl() {
       --redirect --non-interactive --agree-tos \
       -m "admin@${DOMAIN_PRIMARY}" --no-eff-email
     log_ok "Certificate issued and HTTPS redirect configured."
+    just_issued=1
   fi
 
   if systemctl list-unit-files 2>/dev/null | grep -q '^certbot.timer'; then
     systemctl enable --now certbot.timer >/dev/null 2>&1 || true
     systemctl is-enabled --quiet certbot.timer \
-      && log_ok "certbot.timer enabled (automatic renewal)." \
+      && log_ok "certbot.timer enabled (automatic renewal, shared with elrenad.tech's certificate)." \
       || log_warn "Could not confirm certbot.timer is enabled — check manually with 'systemctl status certbot.timer'."
   fi
 
-  log_info "Testing renewal (dry run, does not change the live certificate)..."
-  if certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
-    log_ok "Certbot renewal dry run succeeded."
-  else
-    log_warn "Certbot renewal dry run failed — see /tmp/certbot-dry-run.log"
+  # Only exercise the renewal dry run once, right after first issuance — it's
+  # a real network round-trip against Let's Encrypt for EVERY cert on the
+  # box (certbot renew processes all of them, including elrenad.tech's), and
+  # running it on every routine CI-triggered deploy risks pushing the SSH
+  # step past its command timeout for no real safety benefit. certbot.timer
+  # (enabled above) already re-verifies renewal on its own periodic runs.
+  if [ "$just_issued" = "1" ]; then
+    log_info "Testing renewal (dry run, does not change any live certificate)..."
+    if certbot renew --dry-run >/tmp/certbot-dry-run.log 2>&1; then
+      log_ok "Certbot renewal dry run succeeded."
+    else
+      log_warn "Certbot renewal dry run failed — see /tmp/certbot-dry-run.log"
+    fi
   fi
 }
 

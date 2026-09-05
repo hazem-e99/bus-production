@@ -3,7 +3,11 @@
 # side effects — safe to pull into deploy.sh, status.sh, logs.sh, restart.sh
 # and backup.sh alike.
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Overridable so a root-owned copy of this script tree, run from outside
+# this git working tree (see setup-ci-deploy-user.sh / the CI sudo
+# entrypoint), still resolves paths against the real app checkout instead
+# of its own on-disk location.
+PROJECT_DIR="${ELRENAD_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 

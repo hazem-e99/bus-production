@@ -3,16 +3,25 @@
 # restarts both. Regenerating the unit file every run is cheap and keeps it
 # in sync if paths/ports ever change; the actual app data (Mongo, uploads,
 # secrets) is never touched by this step.
+#
+# SECURITY: the .template files are read from $SCRIPT_DIR (the directory
+# this running copy of deploy.sh itself lives in), NOT from $PROJECT_DIR.
+# When invoked via the CI sudo entrypoint, $SCRIPT_DIR is the root-owned
+# frozen copy (/usr/local/lib/elrenad-deploy) — elrenad-ci cannot edit these
+# templates to inject e.g. a different ExecStart/User= and have it
+# installed + started as root. A manual `sudo ./deploy/deploy.sh` run from
+# the repo itself still works identically ($SCRIPT_DIR is then the repo's
+# own deploy/ dir, where these templates also live).
 
 configure_services() {
   local node_bin
   node_bin="$(command -v node)"
 
-  _render_unit "$PROJECT_DIR/deploy/systemd/elrenad-backend.service.template" \
+  _render_unit "$SCRIPT_DIR/systemd/elrenad-backend.service.template" \
     "/etc/systemd/system/${BACKEND_SERVICE}.service" \
     "$node_bin" "$BACKEND_DIR" "$BACKEND_DIR/dist/main.js"
 
-  _render_unit "$PROJECT_DIR/deploy/systemd/elrenad-frontend.service.template" \
+  _render_unit "$SCRIPT_DIR/systemd/elrenad-frontend.service.template" \
     "/etc/systemd/system/${FRONTEND_SERVICE}.service" \
     "$node_bin" "$FRONTEND_DIR" "$FRONTEND_DIR/node_modules/next/dist/bin/next"
 
