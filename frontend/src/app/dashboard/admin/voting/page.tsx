@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { useI18n } from '@/contexts/LanguageContext';
-import { votingAPI } from '@/lib/api';
-import { Plus, Trash2, Eye, Power, PowerOff, BarChart3, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { votingAPI, subscriptionPlansAPI } from '@/lib/api';
+import { SubscriptionPlanViewModel } from '@/types/subscription';
+import { Plus, Trash2, Eye, Power, PowerOff, BarChart3, ChevronDown, ChevronUp, X, Lock, AlertTriangle } from 'lucide-react';
 
 interface SurveyQuestion {
   questionText: string;
@@ -26,11 +27,17 @@ interface Survey {
   createdByName?: string;
   questions: Array<SurveyQuestion & { index: number }>;
   isRecurringDaily: boolean;
+  /** Daily OPEN window start (HH:mm). Later than dailyCloseTime = overnight window. */
   dailyOpenTime?: string;
+  /** Daily OPEN window end (HH:mm, exclusive). */
   dailyCloseTime?: string;
   isActive: boolean;
   startDate?: string;
   endDate?: string;
+  eligiblePlanIds?: number[];
+  /** 'open' for OPEN-window times; null on unconverted legacy surveys, whose times are a CLOSED window. */
+  windowSemantics?: string | null;
+  responseCount?: number;
   createdAt?: string;
 }
 
@@ -51,6 +58,15 @@ export default function AdminVotingPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [questions, setQuestions] = useState<SurveyQuestion[]>([]);
+  const [eligiblePlanIds, setEligiblePlanIds] = useState<number[]>([]);
+  const [plans, setPlans] = useState<SubscriptionPlanViewModel[]>([]);
+
+  // Once a survey has responses the backend rejects structural question changes and toggling
+  // "Repeat Daily" (answers are stored by question index), so the form locks those controls too.
+  const structureLocked = !!editingSurvey && (editingSurvey.responseCount ?? 0) > 0;
+  const isOvernight = isRecurring && !!openTime && !!closeTime && closeTime < openTime;
+  // Unconverted legacy surveys store a CLOSED window; saving re-interprets the times as an OPEN window.
+  const isLegacyWindow = !!editingSurvey?.isRecurringDaily && editingSurvey.windowSemantics !== 'open';
 
   const [resultsVisible, setResultsVisible] = useState(false);
   const [resultsData, setResultsData] = useState<any>(null);
@@ -69,8 +85,12 @@ export default function AdminVotingPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const resp = await votingAPI.getAll();
+      const [resp, planList] = await Promise.all([
+        votingAPI.getAll(),
+        subscriptionPlansAPI.getAll().catch(() => [] as SubscriptionPlanViewModel[]),
+      ]);
       setSurveys(resp?.data || []);
+      setPlans(planList);
     } catch (err: any) {
       showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: err.message || t(`${P}.toasts.loadFailed`, 'Failed to load surveys') });
     } finally {
@@ -85,6 +105,7 @@ export default function AdminVotingPage() {
     setTitle(''); setDescription(''); setIsRecurring(false);
     setOpenTime('09:00'); setCloseTime('17:00'); setStartDate(''); setEndDate('');
     setQuestions([{ questionText: '', questionType: 'multiple-choice', options: ['', ''], isRequired: true }]);
+    setEligiblePlanIds([]);
     setFormVisible(true);
   };
 
@@ -103,7 +124,12 @@ export default function AdminVotingPage() {
       options: q.options?.length ? [...q.options] : ['', ''],
       isRequired: q.isRequired,
     })));
+    setEligiblePlanIds(survey.eligiblePlanIds || []);
     setFormVisible(true);
+  };
+
+  const togglePlan = (planId: number) => {
+    setEligiblePlanIds(prev => prev.includes(planId) ? prev.filter(id => id !== planId) : [...prev, planId]);
   };
 
   const addQuestion = () => {
@@ -157,11 +183,12 @@ export default function AdminVotingPage() {
         return;
       }
 
-      if (closeTime <= openTime) {
+      // Close earlier than open is a valid overnight window; only identical times are ambiguous.
+      if (closeTime === openTime) {
         showToast({
           type: 'error',
           title: t(`${P}.toasts.error`, 'Error'),
-          message: t(`${P}.form.closeMustBeAfterOpen`, 'Close time must be after open time in the same day'),
+          message: t(`${P}.form.sameOpenClose`, 'Open and close time cannot be the same'),
         });
         return;
       }
@@ -190,6 +217,7 @@ export default function AdminVotingPage() {
       dailyCloseTime: closeTime || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      eligiblePlanIds,
     };
 
     try {
@@ -288,8 +316,10 @@ export default function AdminVotingPage() {
                     <TableCell>{survey.questions?.length || 0}</TableCell>
                     <TableCell>{survey.isRecurringDaily ? t(`${P}.recurring.daily`, 'Daily') : t(`${P}.recurring.once`, 'Once')}</TableCell>
                     <TableCell className="text-sm text-gray-500">
-                      {survey.dailyOpenTime && survey.dailyCloseTime
-                        ? `${survey.dailyOpenTime} - ${survey.dailyCloseTime}`
+                      {survey.isRecurringDaily && survey.dailyOpenTime && survey.dailyCloseTime
+                        ? survey.windowSemantics !== 'open'
+                          ? `${t(`${P}.legacyClosedWindow`, 'Closed (old format)')} ${survey.dailyOpenTime} - ${survey.dailyCloseTime}`
+                          : `${survey.dailyOpenTime} → ${survey.dailyCloseTime}${survey.dailyCloseTime < survey.dailyOpenTime ? ` (${t(`${P}.nextDay`, '+1 day')})` : ''}`
                         : survey.startDate ? `${survey.startDate}${survey.endDate ? ' → ' + survey.endDate : ''}` : '-'}
                     </TableCell>
                     <TableCell>
@@ -343,22 +373,36 @@ export default function AdminVotingPage() {
           <div className="rounded-xl border bg-emerald-50/60 p-4 space-y-4">
             <h4 className="text-sm font-semibold text-gray-700">{t(`${P}.form.schedule`, 'Schedule')}</h4>
             <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className={`flex items-center gap-2 ${structureLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
                 <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)}
+                  disabled={structureLocked}
                   className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
                 <span className="text-sm font-medium">{t(`${P}.form.repeatDaily`, 'Repeat Daily')}</span>
               </label>
             </div>
             {isRecurring && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t(`${P}.form.openTime`, 'Open Time')}</label>
-                  <Input type="time" value={openTime} onChange={e => setOpenTime(e.target.value)} />
+              <div className="space-y-2">
+                {isLegacyWindow && (
+                  <p className="flex items-start gap-2 text-xs text-amber-800 bg-amber-100 rounded-lg p-3">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    {`${t(`${P}.form.legacyWindowNotice`, 'This survey still uses the old format: its stored times are a CLOSED window (voting is currently blocked from')} ${editingSurvey?.dailyOpenTime} - ${editingSurvey?.dailyCloseTime}). ${t(`${P}.form.legacyWindowNoticeSave`, 'Saving will treat the times below as the OPEN window. Review them before saving.')}`}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t(`${P}.form.openTime`, 'Voting opens at')}</label>
+                    <Input type="time" value={openTime} onChange={e => setOpenTime(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t(`${P}.form.closeTime`, 'Voting closes at')}</label>
+                    <Input type="time" value={closeTime} onChange={e => setCloseTime(e.target.value)} />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t(`${P}.form.closeTime`, 'Close Time')}</label>
-                  <Input type="time" value={closeTime} onChange={e => setCloseTime(e.target.value)} />
-                </div>
+                {isOvernight && (
+                  <p className="text-xs text-emerald-700">
+                    {t(`${P}.form.overnightHint`, 'Overnight window: voting opens in the evening and closes the next morning.')}
+                  </p>
+                )}
               </div>
             )}
             <div className="grid grid-cols-2 gap-4">
@@ -373,13 +417,42 @@ export default function AdminVotingPage() {
             </div>
           </div>
 
+          <div className="rounded-xl border bg-amber-50/60 p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-gray-700">{t(`${P}.form.eligiblePlans`, 'Eligible Packages')}</h4>
+            <p className="text-xs text-gray-500">
+              {t(`${P}.form.eligiblePlansHint`, 'Only students with an active subscription can vote. Leave all unchecked to allow every active subscriber.')}
+            </p>
+            {plans.length === 0 ? (
+              <p className="text-sm text-gray-400">{t(`${P}.form.noPlans`, 'No subscription packages found.')}</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {plans.map(plan => (
+                  <label key={plan.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" checked={eligiblePlanIds.includes(plan.id)} onChange={() => togglePlan(plan.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+                    <span>{plan.name || `#${plan.id}`}</span>
+                    {!plan.isActive && <span className="text-xs text-gray-400">({t(`${P}.status.inactive`, 'Inactive')})</span>}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="rounded-xl border bg-purple-50/60 p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-gray-700">{t(`${P}.form.questions`, 'Questions')} ({questions.length})</h4>
-              <Button type="button" variant="secondary" onClick={addQuestion} className="text-sm">
-                <Plus className="w-4 h-4 mr-1" />{t(`${P}.form.addQuestion`, 'Add Question')}
-              </Button>
+              {!structureLocked && (
+                <Button type="button" variant="secondary" onClick={addQuestion} className="text-sm">
+                  <Plus className="w-4 h-4 mr-1" />{t(`${P}.form.addQuestion`, 'Add Question')}
+                </Button>
+              )}
             </div>
+            {structureLocked && (
+              <p className="flex items-start gap-2 text-xs text-amber-800 bg-amber-100 rounded-lg p-3">
+                <Lock className="w-4 h-4 flex-shrink-0" />
+                {t(`${P}.form.lockedAfterResponses`, 'This survey already has responses. You can still edit question wording and the required flag, but not add, remove or reorder questions, change their type or options, or change "Repeat Daily".')}
+              </p>
+            )}
             {questions.map((q, qIdx) => (
               <div key={qIdx} className="rounded-lg border bg-white p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
@@ -389,7 +462,8 @@ export default function AdminVotingPage() {
                       placeholder={t(`${P}.form.questionText`, 'Question text')} />
                     <div className="grid grid-cols-2 gap-2">
                       <select value={q.questionType} onChange={e => updateQuestion(qIdx, 'questionType', e.target.value)}
-                        className="border rounded px-3 py-2 text-sm bg-white">
+                        disabled={structureLocked}
+                        className="border rounded px-3 py-2 text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
                         {QUESTION_TYPES.map(qt => <option key={qt.value} value={qt.value}>{qt.label}</option>)}
                       </select>
                       <label className="flex items-center gap-2 text-sm">
@@ -399,7 +473,9 @@ export default function AdminVotingPage() {
                       </label>
                     </div>
                   </div>
-                  <button onClick={() => removeQuestion(qIdx)} className="text-red-500 hover:text-red-700 mt-1"><X className="w-5 h-5" /></button>
+                  {!structureLocked && (
+                    <button onClick={() => removeQuestion(qIdx)} className="text-red-500 hover:text-red-700 mt-1"><X className="w-5 h-5" /></button>
+                  )}
                 </div>
 
                 {q.questionType === 'multiple-choice' && (
@@ -409,17 +485,20 @@ export default function AdminVotingPage() {
                       <div key={oIdx} className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
                         <Input value={opt} onChange={e => updateOption(qIdx, oIdx, e.target.value)}
+                          disabled={structureLocked}
                           placeholder={`${t(`${P}.form.options`, 'Option')} ${oIdx + 1}`} className="flex-1" />
-                        {q.options.length > 2 && (
+                        {q.options.length > 2 && !structureLocked && (
                           <button onClick={() => removeOption(qIdx, oIdx)} className="text-red-400 hover:text-red-600">
                             <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
                     ))}
-                    <Button type="button" variant="outline" onClick={() => addOption(qIdx)} className="text-xs">
-                      {t(`${P}.form.addOption`, '+ Add Option')}
-                    </Button>
+                    {!structureLocked && (
+                      <Button type="button" variant="outline" onClick={() => addOption(qIdx)} className="text-xs">
+                        {t(`${P}.form.addOption`, '+ Add Option')}
+                      </Button>
+                    )}
                   </div>
                 )}
 

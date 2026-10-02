@@ -311,6 +311,103 @@ describe('Bus System API - E2E Test Suite', () => {
     });
   });
 
+  describe('Voting', () => {
+    const created: string[] = [];
+    const baseSurvey = {
+      title: 'E2E voting survey',
+      questions: [
+        { questionText: 'Pick one', questionType: 'multiple-choice', options: ['A', 'B'], isRequired: true },
+        { questionText: 'Comments', questionType: 'text', options: [], isRequired: false },
+      ],
+    };
+    const createSurvey = async (extra: Record<string, unknown> = {}) => {
+      const r = await req('POST', '/api/Voting', { ...baseSurvey, ...extra }, ADMIN_TOKEN);
+      if (r.body?.data?.id) created.push(r.body.data.id);
+      return r;
+    };
+
+    afterAll(async () => {
+      for (const id of created) await req('DELETE', `/api/Voting/${id}`, null, ADMIN_TOKEN);
+    });
+
+    it('admin can create an overnight daily survey', async () => {
+      const r = await createSurvey({ isRecurringDaily: true, dailyOpenTime: '18:30', dailyCloseTime: '09:30' });
+      expect(r.status).toBe(201);
+      expect(r.body.data.dailyOpenTime).toBe('18:30');
+      expect(r.body.data.dailyCloseTime).toBe('09:30');
+    });
+
+    it('rejects a daily survey whose open and close times are equal', async () => {
+      const r = await createSurvey({ isRecurringDaily: true, dailyOpenTime: '09:00', dailyCloseTime: '09:00' });
+      expect(r.status).toBe(400);
+    });
+
+    it('rejects protected fields on update', async () => {
+      const c = await createSurvey();
+      const r = await req('PUT', `/api/Voting/${c.body.data.id}`, { createdByUserId: 1 }, ADMIN_TOKEN);
+      expect(r.status).toBe(422);
+    });
+
+    it('admin can list surveys and read results', async () => {
+      const c = await createSurvey();
+      const id = c.body.data.id;
+      expect((await req('GET', '/api/Voting', null, ADMIN_TOKEN)).status).toBe(200);
+      expect((await req('GET', `/api/Voting/${id}/results`, null, ADMIN_TOKEN)).status).toBe(200);
+      expect((await req('GET', `/api/Voting/${id}/results/once`, null, ADMIN_TOKEN)).status).toBe(200);
+    });
+
+    it('students and drivers cannot read results or the admin survey list', async () => {
+      const c = await createSurvey();
+      const id = c.body.data.id;
+      for (const token of [STUDENT_TOKEN, DRIVER_TOKEN]) {
+        expect((await req('GET', `/api/Voting/${id}/results`, null, token)).status).toBe(403);
+        expect((await req('GET', `/api/Voting/${id}/results/once`, null, token)).status).toBe(403);
+        expect((await req('GET', '/api/Voting', null, token)).status).toBe(403);
+      }
+    });
+
+    it('only students can submit votes', async () => {
+      const c = await createSurvey();
+      const body = { surveyId: c.body.data.id, answers: [{ questionIndex: 0, answer: 'A' }] };
+      expect((await req('POST', '/api/Voting/submit', body, ADMIN_TOKEN)).status).toBe(403);
+      expect((await req('POST', '/api/Voting/submit', body, DRIVER_TOKEN)).status).toBe(403);
+    });
+
+    it('rejects a student whose package is not eligible', async () => {
+      // No plan has id -1, so the student is ineligible whether or not they have a subscription.
+      const c = await createSurvey({ eligiblePlanIds: [-1] });
+      const r = await req('POST', '/api/Voting/submit', { surveyId: c.body.data.id, answers: [{ questionIndex: 0, answer: 'A' }] }, STUDENT_TOKEN);
+      expect(r.status).toBe(403);
+      expect(['SUBSCRIPTION_REQUIRED', 'PLAN_NOT_ELIGIBLE']).toContain(r.body.errorCode);
+    });
+
+    it('student overview reports eligibility; eligible students get answer validation and duplicate protection', async () => {
+      const c = await createSurvey();
+      const id = c.body.data.id;
+
+      expect((await req('GET', '/api/Voting/student/overview', null, ADMIN_TOKEN)).status).toBe(403);
+      const overview = await req('GET', '/api/Voting/student/overview', null, STUDENT_TOKEN);
+      expect(overview.status).toBe(200);
+      const item = overview.body.data.find((s: any) => s.id === id);
+      expect(item).toMatchObject({ isOpenNow: true, hasVoted: false });
+
+      const submit = (answers: any[]) => req('POST', '/api/Voting/submit', { surveyId: id, answers }, STUDENT_TOKEN);
+
+      if (!item.isEligible) {
+        const r = await submit([{ questionIndex: 0, answer: 'A' }]);
+        expect(r.status).toBe(403);
+        expect(r.body.errorCode).toBe('SUBSCRIPTION_REQUIRED');
+        console.warn('Voting e2e: seeded student has no active subscription; answer-validation and duplicate checks need an eligible student and were not exercised.');
+        return;
+      }
+
+      expect((await submit([{ questionIndex: 0, answer: 'Z' }])).status).toBe(400);
+      expect((await submit([{ questionIndex: 1, answer: 'only optional' }])).status).toBe(400);
+      expect((await submit([{ questionIndex: 0, answer: 'A' }])).status).toBe(201);
+      expect((await submit([{ questionIndex: 0, answer: 'B' }])).status).toBe(409);
+    });
+  });
+
   describe('Bookings (Legacy)', () => {
     it('should get all bookings', async () => {
       const r = await req('GET', '/api/Bookings', null, ADMIN_TOKEN);

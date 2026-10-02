@@ -235,21 +235,28 @@ Plus the Socket.IO `/tracking` namespace (`bus-location-update`,
 `bus-tracking-stopped` events) consumed by `useBusTrackingSocket`
 (`hooks/useBusTracking.ts:21-69`) and `frontend/src/components/maps/*`.
 
-## Voting (`api/Voting`) — writes `@Roles('Admin')`, reads open
+## Voting (`api/Voting`) — management and results `@Roles('Admin')`, voting `@Roles('Student')`
+
+Results endpoints return voters' names, emails and answers, so they are Admin-only.
+`POST /Voting/submit` additionally requires an eligible active subscription
+(`isActive`, `status: 'Active'`, `startDate <= now <= endDate`, and the plan in the
+survey's `eligiblePlanIds` when that list is non-empty); otherwise 403 with
+`errorCode` `SUBSCRIPTION_REQUIRED` or `PLAN_NOT_ELIGIBLE`.
 
 | Method | Endpoint | Auth | Frontend caller | Handler | Service | Status |
 |---|---|---|---|---|---|---|
-| GET | /Voting | Authenticated | `votingAPI` (`lib/api.ts:1433`) | `getAll` | `getAll` | Used |
-| GET | /Voting/active | Authenticated | (`lib/api.ts:1437`) | `getActive` | `getActive` | Used |
-| GET | /Voting/:id | Authenticated | (`lib/api.ts:1441`) | `getById` | `getById` | Used |
-| GET | /Voting/:id/results | Authenticated | (`lib/api.ts:1445`) | `getResults` | `getSurveyResults` | Used |
-| GET | /Voting/:id/results/:dateKey | Authenticated | (`lib/api.ts:1449`) | `getResultsByDate` | `getSurveyResults` | Used |
-| GET | /Voting/:id/has-voted | Authenticated | (`lib/api.ts:1453`) | `hasVoted` | `hasVoted` | Used |
-| POST | /Voting | `@Roles('Admin')` | (`lib/api.ts:1457`) | `create` | `create` | Used |
-| PUT | /Voting/:id | `@Roles('Admin')` | (`lib/api.ts:1460`) | `update` | `update` | Used |
-| PUT | /Voting/:id/toggle-active | `@Roles('Admin')` | (`lib/api.ts:1463`) | `toggleActive` | `toggleActive` | Used |
-| DELETE | /Voting/:id | `@Roles('Admin')` | (`lib/api.ts:1466`) | `delete` | `delete` | Used |
-| POST | /Voting/submit | Authenticated | (`lib/api.ts:1469`) | `submitVote` | `submitVote` | Used |
+| GET | /Voting | `@Roles('Admin')` | `votingAPI.getAll` (`lib/api.ts:1663`) | `getAllSurveys` | `getAllSurveys` (includes `responseCount`) | Used |
+| GET | /Voting/active | Authenticated | `votingAPI.getActive` (`lib/api.ts:1667`) | `getActiveSurveys` | `getActiveSurveys` | Backend-only |
+| GET | /Voting/student/overview | `@Roles('Student')` | `votingAPI.getStudentOverview` (`lib/api.ts:1672`) | `getStudentOverview` | `getStudentOverview` (open state, voted state, eligibility per survey) | Used |
+| GET | /Voting/:id | Authenticated | `votingAPI.getById` (`lib/api.ts:1676`) | `getSurveyById` | `getSurveyById` | Backend-only |
+| GET | /Voting/:id/results | `@Roles('Admin')` | `votingAPI.getResults` (`lib/api.ts:1680`) | `getSurveyResults` | `getSurveyResults` | Used |
+| GET | /Voting/:id/results/:dateKey | `@Roles('Admin')` | `votingAPI.getResultsByDate` (`lib/api.ts:1684`) | `getSurveyResponsesByDate` | `getSurveyResponsesByDate` | Backend-only |
+| GET | /Voting/:id/has-voted | `@Roles('Student')` | `votingAPI.hasVoted` (`lib/api.ts:1688`) | `hasVotedToday` | `hasVotedToday` | Backend-only |
+| POST | /Voting | `@Roles('Admin')` | `votingAPI.create` (`lib/api.ts:1692`) | `createSurvey` | `createSurvey` | Used |
+| PUT | /Voting/:id | `@Roles('Admin')` | `votingAPI.update` (`lib/api.ts:1695`) | `updateSurvey` | `updateSurvey` (409 on structural changes once responses exist) | Used |
+| PUT | /Voting/:id/toggle-active | `@Roles('Admin')` | `votingAPI.toggleActive` (`lib/api.ts:1698`) | `toggleActive` | `toggleActive` | Used |
+| DELETE | /Voting/:id | `@Roles('Admin')` | `votingAPI.delete` (`lib/api.ts:1701`) | `deleteSurvey` | `deleteSurvey` | Used |
+| POST | /Voting/submit | `@Roles('Student')` + eligible subscription | `votingAPI.submitVote` (`lib/api.ts:1704`) | `submitVote` | `submitVote` | Used |
 
 ## Admin/System (`api/Admin/System`) — `@Roles('Admin')` class-level
 

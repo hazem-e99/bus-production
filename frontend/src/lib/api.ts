@@ -1668,6 +1668,11 @@ export const votingAPI = {
     const resp = await apiRequest<any>("/Voting/active");
     return resp;
   },
+  // GET /api/Voting/student/overview → active surveys with isOpenNow, hasVoted and eligibility (Student only)
+  getStudentOverview: async (): Promise<any> => {
+    const resp = await apiRequest<any>("/Voting/student/overview");
+    return resp;
+  },
   getById: async (id: string): Promise<any> => {
     const resp = await apiRequest<any>(`/Voting/${id}`);
     return resp;

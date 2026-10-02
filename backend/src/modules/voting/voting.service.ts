@@ -3,7 +3,25 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { VotingSurvey, VotingSurveyDocument, VoteResponse, VoteResponseDocument } from './voting.schema';
 import { User, UserDocument } from '../users/user.schema';
+import { StudentSubscription, StudentSubscriptionDocument } from '../student-subscription/student-subscription.schema';
 import { createApiResponse } from '../../common/interfaces/api-response.interface';
+import { AppException } from '../../common/exceptions/app.exception';
+import { ErrorCodes } from '../../common/exceptions/error-codes';
+import { getSurveyAvailability, normalizeDateOnly, OPEN_WINDOW_SEMANTICS, parseHHmm, SurveyAvailability } from './voting-time.util';
+
+export const MAX_TEXT_ANSWER_LENGTH = 2000;
+
+const YES_NO_OPTIONS = ['Yes', 'No'];
+const RATING_OPTIONS = ['1', '2', '3', '4', '5'];
+
+type IneligibleReason = typeof ErrorCodes.SUBSCRIPTION_REQUIRED | typeof ErrorCodes.PLAN_NOT_ELIGIBLE;
+
+interface NormalizedQuestion {
+  questionText: string;
+  questionType: string;
+  options: string[];
+  isRequired: boolean;
+}
 
 @Injectable()
 export class VotingService {
@@ -11,6 +29,7 @@ export class VotingService {
     @InjectModel(VotingSurvey.name) private surveyModel: Model<VotingSurveyDocument>,
     @InjectModel(VoteResponse.name) private voteModel: Model<VoteResponseDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(StudentSubscription.name) private subscriptionModel: Model<StudentSubscriptionDocument>,
   ) {}
 
   private getNumericId(doc: any): number {
@@ -38,80 +57,178 @@ export class VotingService {
       isActive: survey.isActive,
       startDate: survey.startDate,
       endDate: survey.endDate,
+      eligiblePlanIds: survey.eligiblePlanIds ?? [],
+      /** 'open' for OPEN-window times; null for unconverted legacy surveys (times are a CLOSED window). */
+      windowSemantics: survey.windowSemantics ?? null,
       createdAt: (survey as any).createdAt,
       updatedAt: (survey as any).updatedAt,
     };
   }
 
-  private getLocalDateKey(date = new Date()): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
-  private normalizeDateOnly(value?: string): string | null {
-    if (!value) return null;
-    const trimmed = String(value).trim();
-    if (!trimmed) return null;
-    // Accept YYYY-MM-DD or ISO-like values and compare by date only.
-    return trimmed.length >= 10 ? trimmed.slice(0, 10) : trimmed;
-  }
-
-  private timeToMinutes(value?: string): number | null {
-    if (!value) return null;
-    const trimmed = String(value).trim();
-    const match = /^(\d{1,2}):(\d{2})$/.exec(trimmed);
-    if (!match) return null;
-
-    const h = Number(match[1]);
-    const m = Number(match[2]);
-    if (!Number.isInteger(h) || !Number.isInteger(m) || h < 0 || h > 23 || m < 0 || m > 59) {
-      return null;
-    }
-
-    return (h * 60) + m;
-  }
+  // ==================== Validation helpers ====================
 
   private validateDateRange(startDate?: string, endDate?: string): void {
-    const start = this.normalizeDateOnly(startDate);
-    const end = this.normalizeDateOnly(endDate);
+    const start = normalizeDateOnly(startDate);
+    const end = normalizeDateOnly(endDate);
     if (start && end && end < start) {
       throw new BadRequestException('End date must be on or after start date');
     }
   }
 
+  /**
+   * Daily times define the OPEN window [open, close). Close earlier than open is a valid
+   * overnight window (e.g. 18:30 -> 09:30); equal times are ambiguous and rejected.
+   */
   private validateRecurringWindow(isRecurringDaily?: boolean, dailyOpenTime?: string, dailyCloseTime?: string): void {
     if (!isRecurringDaily) return;
 
-    const openMins = this.timeToMinutes(dailyOpenTime);
-    const closeMins = this.timeToMinutes(dailyCloseTime);
+    const openMins = parseHHmm(dailyOpenTime);
+    const closeMins = parseHHmm(dailyCloseTime);
 
     if (openMins === null || closeMins === null) {
       throw new BadRequestException('Open and close time are required for recurring surveys');
     }
 
-    if (closeMins <= openMins) {
-      throw new BadRequestException('Close time must be later than open time on the same day');
+    if (openMins === closeMins) {
+      throw new BadRequestException('Open and close time cannot be the same');
     }
   }
 
-  private isWithinDailyClosedWindow(currentTime: string, closedFrom?: string, closedTo?: string): boolean {
-    const from = this.timeToMinutes(closedFrom);
-    const to = this.timeToMinutes(closedTo);
-    const now = this.timeToMinutes(currentTime);
-
-    if (from === null || to === null || now === null) return false;
-    return now >= from && now <= to;
+  /** Options a choice question accepts. Legacy surveys may have stored no options for yes-no/rating. */
+  private optionsFor(q: { questionType: string; options?: string[] }): string[] {
+    if (q.options?.length) return q.options;
+    if (q.questionType === 'yes-no') return YES_NO_OPTIONS;
+    if (q.questionType === 'rating') return RATING_OPTIONS;
+    return [];
   }
+
+  private normalizeQuestions(questions: Array<{ questionText: string; questionType: string; options?: string[]; isRequired?: boolean }>): NormalizedQuestion[] {
+    return questions.map((q) => {
+      const questionText = String(q.questionText ?? '').trim();
+      if (!questionText) throw new BadRequestException('All questions must have text');
+
+      let options: string[] = [];
+      if (q.questionType === 'multiple-choice') {
+        options = [...new Set((q.options ?? []).map((o) => String(o).trim()).filter(Boolean))];
+        if (options.length < 2) {
+          throw new BadRequestException(`Question "${questionText}" needs at least 2 different options`);
+        }
+      } else if (q.questionType === 'yes-no') {
+        options = [...YES_NO_OPTIONS];
+      } else if (q.questionType === 'rating') {
+        options = [...RATING_OPTIONS];
+      }
+
+      return { questionText, questionType: q.questionType, options, isRequired: !!q.isRequired };
+    });
+  }
+
+  private sameStructure(existing: Array<{ questionType: string; options?: string[] }>, incoming: NormalizedQuestion[]): boolean {
+    if (existing.length !== incoming.length) return false;
+    return existing.every((q, i) => {
+      const next = incoming[i];
+      if (q.questionType !== next.questionType) return false;
+      const a = this.optionsFor(q).map((o) => String(o).trim());
+      const b = this.optionsFor(next);
+      return a.length === b.length && a.every((o, j) => o === b[j]);
+    });
+  }
+
+  /**
+   * Validates submitted answers against the survey's questions and returns the trimmed answers
+   * to store. Empty answers to optional questions are dropped.
+   */
+  private normalizeAnswers(
+    survey: VotingSurveyDocument,
+    answers: Array<{ questionIndex: number; answer: string }>,
+  ): Array<{ questionIndex: number; answer: string }> {
+    const seen = new Set<number>();
+    const result: Array<{ questionIndex: number; answer: string }> = [];
+
+    for (const a of answers ?? []) {
+      const index = a?.questionIndex;
+      if (!Number.isInteger(index) || index < 0 || index >= survey.questions.length) {
+        throw new BadRequestException('Answer refers to a question that does not exist');
+      }
+      if (seen.has(index)) {
+        throw new BadRequestException('Each question can only be answered once');
+      }
+      seen.add(index);
+
+      const q = survey.questions[index];
+      const value = String(a.answer ?? '').trim();
+      if (!value) continue;
+
+      if (q.questionType === 'text') {
+        if (value.length > MAX_TEXT_ANSWER_LENGTH) {
+          throw new BadRequestException(`Answer to "${q.questionText}" must be at most ${MAX_TEXT_ANSWER_LENGTH} characters`);
+        }
+      } else {
+        const allowed = this.optionsFor(q).map((o) => String(o).trim());
+        if (!allowed.includes(value)) {
+          throw new BadRequestException(`Invalid answer for question "${q.questionText}"`);
+        }
+      }
+
+      result.push({ questionIndex: index, answer: value });
+    }
+
+    survey.questions.forEach((q, index) => {
+      if (q.isRequired && !result.some((a) => a.questionIndex === index)) {
+        throw new BadRequestException(`Question "${q.questionText}" is required`);
+      }
+    });
+
+    return result;
+  }
+
+  // ==================== Eligibility ====================
+
+  /**
+   * Subscriptions that currently allow voting: active flag + 'Active' status + inside their date
+   * range. endDate is checked here because nothing marks subscriptions 'Expired' automatically.
+   */
+  private async findEligibleSubscriptions(studentId: number, now = new Date()): Promise<StudentSubscriptionDocument[]> {
+    return this.subscriptionModel
+      .find({
+        studentId,
+        isActive: true,
+        status: 'Active',
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+      })
+      .exec();
+  }
+
+  private ineligibleReason(survey: VotingSurveyDocument, subscriptions: StudentSubscriptionDocument[]): IneligibleReason | null {
+    if (subscriptions.length === 0) return ErrorCodes.SUBSCRIPTION_REQUIRED;
+    const planIds = survey.eligiblePlanIds ?? [];
+    if (planIds.length > 0 && !subscriptions.some((s) => planIds.includes(s.subscriptionPlanId))) {
+      return ErrorCodes.PLAN_NOT_ELIGIBLE;
+    }
+    return null;
+  }
+
+  private throwIneligible(reason: IneligibleReason): never {
+    if (reason === ErrorCodes.SUBSCRIPTION_REQUIRED) {
+      throw new AppException(403, ErrorCodes.SUBSCRIPTION_REQUIRED, 'An active subscription is required to vote.');
+    }
+    throw new AppException(403, ErrorCodes.PLAN_NOT_ELIGIBLE, 'Your subscription package is not eligible for this survey.');
+  }
+
+  // ==================== Admin: survey management ====================
 
   async createSurvey(data: any, userId: number): Promise<any> {
     this.validateDateRange(data.startDate, data.endDate);
     this.validateRecurringWindow(data.isRecurringDaily, data.dailyOpenTime, data.dailyCloseTime);
+    const questions = this.normalizeQuestions(data.questions);
 
     const user = await this.findUserByNumericId(userId);
     const survey = await this.surveyModel.create({
       ...data,
+      questions,
+      eligiblePlanIds: [...new Set<number>(data.eligiblePlanIds ?? [])],
+      windowSemantics: OPEN_WINDOW_SEMANTICS,
       createdByUserId: userId,
       createdByName: user ? `${user.firstName} ${user.lastName}` : `User #${userId}`,
     });
@@ -133,7 +250,39 @@ export class VotingService {
     this.validateDateRange(merged.startDate, merged.endDate);
     this.validateRecurringWindow(merged.isRecurringDaily, merged.dailyOpenTime, merged.dailyCloseTime);
 
-    const survey = await this.surveyModel.findByIdAndUpdate(surveyId, { $set: data }, { new: true }).exec();
+    const update: Record<string, any> = { ...data, windowSemantics: OPEN_WINDOW_SEMANTICS };
+    if (data.eligiblePlanIds !== undefined) {
+      update.eligiblePlanIds = [...new Set<number>(data.eligiblePlanIds)];
+    }
+
+    const hasResponses = (await this.voteModel.countDocuments({ surveyId }).exec()) > 0;
+
+    if (hasResponses && data.isRecurringDaily !== undefined && data.isRecurringDaily !== existingSurvey.isRecurringDaily) {
+      throw new ConflictException('This survey already has responses, so "Repeat Daily" can no longer be changed');
+    }
+
+    if (data.questions !== undefined) {
+      const questions = this.normalizeQuestions(data.questions);
+      if (hasResponses) {
+        if (!this.sameStructure(existingSurvey.questions, questions)) {
+          throw new ConflictException(
+            'This survey already has responses, so questions cannot be added, removed, reordered, or have their type or options changed',
+          );
+        }
+        // Keep the stored structure (answers are matched by question index and option value);
+        // only the wording and the required flag may change.
+        update.questions = existingSurvey.questions.map((q, i) => ({
+          questionText: questions[i].questionText,
+          questionType: q.questionType,
+          options: q.options,
+          isRequired: questions[i].isRequired,
+        }));
+      } else {
+        update.questions = questions;
+      }
+    }
+
+    const survey = await this.surveyModel.findByIdAndUpdate(surveyId, { $set: update }, { new: true }).exec();
     if (!survey) throw new NotFoundException('Survey not found');
     return createApiResponse(this.toSurveyView(survey), 'Survey updated successfully');
   }
@@ -155,7 +304,10 @@ export class VotingService {
 
   async getAllSurveys(): Promise<any> {
     const surveys = await this.surveyModel.find().sort({ createdAt: -1 }).exec();
-    const views = surveys.map(s => this.toSurveyView(s));
+    const views = await Promise.all(surveys.map(async (s) => ({
+      ...this.toSurveyView(s),
+      responseCount: await this.voteModel.countDocuments({ surveyId: s._id.toString() }).exec(),
+    })));
     return createApiResponse(views, null, true, views.length);
   }
 
@@ -165,74 +317,98 @@ export class VotingService {
     return createApiResponse(this.toSurveyView(survey));
   }
 
+  // ==================== Availability ====================
+
+  private availabilityOf(survey: VotingSurveyDocument, now = new Date()): SurveyAvailability {
+    return getSurveyAvailability(survey, now);
+  }
+
   async getActiveSurveys(): Promise<any> {
     const now = new Date();
-    const todayStr = this.getLocalDateKey(now);
-    const currentTime = now.toTimeString().slice(0, 5);
-
     const surveys = await this.surveyModel.find({ isActive: true }).sort({ createdAt: -1 }).exec();
-
-    const available = surveys.filter(s => {
-      const startDate = this.normalizeDateOnly(s.startDate);
-      const endDate = this.normalizeDateOnly(s.endDate);
-
-      if (startDate && todayStr < startDate) return false;
-      if (endDate && todayStr > endDate) return false;
-      if (s.isRecurringDaily && this.isWithinDailyClosedWindow(currentTime, s.dailyOpenTime, s.dailyCloseTime)) return false;
-      return true;
-    });
-
-    const views = available.map(s => this.toSurveyView(s));
+    const views = surveys.filter((s) => this.availabilityOf(s, now).isOpen).map((s) => this.toSurveyView(s));
     return createApiResponse(views, null, true, views.length);
   }
+
+  /**
+   * Everything the student voting page needs in one call: every active survey with whether it is
+   * open right now, whether this student already voted in the current session, and whether the
+   * student's subscription allows voting on it.
+   */
+  async getStudentOverview(studentId: number): Promise<any> {
+    const now = new Date();
+    const surveys = await this.surveyModel.find({ isActive: true }).sort({ createdAt: -1 }).exec();
+    const subscriptions = await this.findEligibleSubscriptions(studentId, now);
+    const votes = await this.voteModel
+      .find({ studentId, surveyId: { $in: surveys.map((s) => s._id.toString()) } })
+      .select({ surveyId: 1, voteDateKey: 1 })
+      .exec();
+
+    const views = surveys.map((s) => {
+      const availability = this.availabilityOf(s, now);
+      const id = s._id.toString();
+      const reason = this.ineligibleReason(s, subscriptions);
+      return {
+        ...this.toSurveyView(s),
+        isOpenNow: availability.isOpen,
+        closedReason: availability.closedReason,
+        hasVoted: votes.some((v) => v.surveyId === id && v.voteDateKey === availability.voteDateKey),
+        isEligible: reason === null,
+        ineligibleReason: reason,
+      };
+    });
+
+    return createApiResponse(views, null, true, views.length);
+  }
+
+  // ==================== Student: voting ====================
 
   async submitVote(data: any, studentId: number): Promise<any> {
     const survey = await this.surveyModel.findById(data.surveyId).exec();
     if (!survey) throw new NotFoundException('Survey not found');
-    if (!survey.isActive) throw new BadRequestException('Survey is not active');
 
     const now = new Date();
-    const todayStr = this.getLocalDateKey(now);
-    const currentTime = now.toTimeString().slice(0, 5);
-
-    const startDate = this.normalizeDateOnly(survey.startDate);
-    const endDate = this.normalizeDateOnly(survey.endDate);
-
-    if (startDate && todayStr < startDate) throw new BadRequestException('Survey has not started yet');
-    if (endDate && todayStr > endDate) throw new BadRequestException('Survey has ended');
-    if (survey.isRecurringDaily && this.isWithinDailyClosedWindow(currentTime, survey.dailyOpenTime, survey.dailyCloseTime)) {
-      throw new BadRequestException('Voting is closed for today');
+    const availability = this.availabilityOf(survey, now);
+    switch (availability.closedReason) {
+      case 'inactive':
+        throw new BadRequestException('Survey is not active');
+      case 'notStarted':
+        throw new BadRequestException('Survey has not started yet');
+      case 'ended':
+        throw new BadRequestException('Survey has ended');
+      case 'outsideWindow':
+        throw new BadRequestException('Voting is closed right now');
     }
 
-    const voteDateKey = survey.isRecurringDaily ? todayStr : 'once';
+    const reason = this.ineligibleReason(survey, await this.findEligibleSubscriptions(studentId, now));
+    if (reason) this.throwIneligible(reason);
 
-    const existing = await this.voteModel.findOne({
-      surveyId: data.surveyId,
-      studentId,
-      voteDateKey,
-    }).exec();
+    const { voteDateKey } = availability;
+    const alreadyVotedMessage = survey.isRecurringDaily
+      ? 'You have already voted in this voting period'
+      : 'You have already voted in this survey';
 
-    if (existing) throw new ConflictException('You have already voted today');
+    const existing = await this.voteModel.findOne({ surveyId: data.surveyId, studentId, voteDateKey }).exec();
+    if (existing) throw new ConflictException(alreadyVotedMessage);
 
-    for (const q of survey.questions) {
-      if (q.isRequired) {
-        const answer = data.answers.find((a: any) => a.questionIndex === survey.questions.indexOf(q));
-        if (!answer || !answer.answer?.trim()) {
-          throw new BadRequestException(`Question "${q.questionText}" is required`);
-        }
-      }
-    }
-
+    const answers = this.normalizeAnswers(survey, data.answers);
     const student = await this.findUserByNumericId(studentId);
 
-    const vote = await this.voteModel.create({
-      surveyId: data.surveyId,
-      studentId,
-      studentName: student ? `${student.firstName} ${student.lastName}` : `Student #${studentId}`,
-      studentEmail: student?.email || '',
-      voteDateKey,
-      answers: data.answers,
-    });
+    let vote: VoteResponseDocument;
+    try {
+      vote = await this.voteModel.create({
+        surveyId: data.surveyId,
+        studentId,
+        studentName: student ? `${student.firstName} ${student.lastName}` : `Student #${studentId}`,
+        studentEmail: student?.email || '',
+        voteDateKey,
+        answers,
+      });
+    } catch (error: any) {
+      // Two concurrent submissions: the unique {surveyId, studentId, voteDateKey} index rejects the second.
+      if (error?.code === 11000) throw new ConflictException(alreadyVotedMessage);
+      throw error;
+    }
 
     return createApiResponse({
       id: vote._id.toString(),
@@ -245,13 +421,12 @@ export class VotingService {
     const survey = await this.surveyModel.findById(surveyId).exec();
     if (!survey) throw new NotFoundException('Survey not found');
 
-    const voteDateKey = survey.isRecurringDaily
-      ? this.getLocalDateKey()
-      : 'once';
-
+    const { voteDateKey } = this.availabilityOf(survey);
     const existing = await this.voteModel.findOne({ surveyId, studentId, voteDateKey }).exec();
     return createApiResponse(!!existing);
   }
+
+  // ==================== Admin: results ====================
 
   async getSurveyResults(surveyId: string): Promise<any> {
     const survey = await this.surveyModel.findById(surveyId).exec();

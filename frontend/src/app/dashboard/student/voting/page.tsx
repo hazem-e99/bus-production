@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -8,8 +9,8 @@ import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { useI18n } from '@/contexts/LanguageContext';
 import { votingAPI } from '@/lib/api';
-import { getApiErrorMessage } from '@/lib/apiError';
-import { ClipboardCheck, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { ApiError, getApiErrorMessage } from '@/lib/apiError';
+import { ClipboardCheck, Clock, CheckCircle, AlertCircle, Lock } from 'lucide-react';
 
 interface SurveyQuestion {
   index: number;
@@ -19,6 +20,10 @@ interface SurveyQuestion {
   isRequired: boolean;
 }
 
+type ClosedReason = 'inactive' | 'notStarted' | 'ended' | 'outsideWindow';
+type IneligibleReason = 'SUBSCRIPTION_REQUIRED' | 'PLAN_NOT_ELIGIBLE';
+
+/** One item of GET /Voting/student/overview: the survey plus server-computed state for this student. */
 interface Survey {
   id: string;
   title: string;
@@ -26,19 +31,30 @@ interface Survey {
   questions: SurveyQuestion[];
   isActive?: boolean;
   isRecurringDaily: boolean;
+  /** Daily OPEN window start (HH:mm). Later than dailyCloseTime = overnight window. */
   dailyOpenTime?: string;
+  /** Daily OPEN window end (HH:mm, exclusive). */
   dailyCloseTime?: string;
+  /** 'open' for OPEN-window times; null on unconverted legacy surveys, whose times are a CLOSED window. */
+  windowSemantics?: string | null;
   startDate?: string;
   endDate?: string;
+  isOpenNow: boolean;
+  closedReason: ClosedReason | null;
+  hasVoted: boolean;
+  isEligible: boolean;
+  ineligibleReason: IneligibleReason | null;
 }
+
+const MAX_TEXT_ANSWER_LENGTH = 2000;
+const DEFAULT_YES_NO = ['Yes', 'No'];
+const DEFAULT_RATING = ['1', '2', '3', '4', '5'];
 
 export default function StudentVotingPage() {
   const { showToast } = useToast();
   const { t } = useI18n();
   const P = 'pages.student.voting';
   const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [openSurveyIds, setOpenSurveyIds] = useState<Set<string>>(new Set());
-  const [votedSurveyIds, setVotedSurveyIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const [voteVisible, setVoteVisible] = useState(false);
@@ -46,45 +62,39 @@ export default function StudentVotingPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (showSpinner = true) => {
     try {
-      setLoading(true);
-      const [allResp, activeResp] = await Promise.all([
-        votingAPI.getAll(),
-        votingAPI.getActive(),
-      ]);
-
-      const surveyList = (allResp?.data || []).filter((s: Survey) => s?.isActive !== false);
-      const activeList = (activeResp?.data || []) as Survey[];
-      const activeSet = new Set<string>(activeList.map((s) => s.id));
-
-      setSurveys(surveyList);
-      setOpenSurveyIds(activeSet);
-
-      const votedSet = new Set<string>();
-      await Promise.all(surveyList.map(async (s: Survey) => {
-        try {
-          const hasVoted = await votingAPI.hasVoted(s.id);
-          if (hasVoted?.data) votedSet.add(s.id);
-        } catch (error: unknown) {
-          console.error(`Failed to check vote status for survey ${s.id}:`, error);
-        }
-      }));
-      setVotedSurveyIds(votedSet);
+      if (showSpinner) setLoading(true);
+      const resp = await votingAPI.getStudentOverview();
+      setSurveys((resp?.data || []) as Survey[]);
     } catch (err: unknown) {
       showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: getApiErrorMessage(err) });
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   }, [showToast, t]);
 
   useEffect(() => { load(); }, [load]);
 
+  // Open/closed and "already voted" depend on the clock; refresh quietly when the student comes back to the tab.
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') load(false); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [load]);
+
+  const canVote = (survey: Survey) => survey.isOpenNow && survey.isEligible && !survey.hasVoted;
+
   const openVote = (survey: Survey) => {
-    if (votedSurveyIds.has(survey.id) || !openSurveyIds.has(survey.id)) return;
+    if (!canVote(survey)) return;
     setSelectedSurvey(survey);
     setAnswers({});
     setVoteVisible(true);
+  };
+
+  const choicesFor = (q: SurveyQuestion) => {
+    if (q.options?.length) return q.options;
+    return q.questionType === 'yes-no' ? DEFAULT_YES_NO : q.questionType === 'rating' ? DEFAULT_RATING : [];
   };
 
   const handleSubmit = async () => {
@@ -103,17 +113,55 @@ export default function StudentVotingPage() {
         surveyId: selectedSurvey.id,
         answers: Object.entries(answers)
           .filter(([, v]) => v.trim())
-          .map(([k, v]) => ({ questionIndex: parseInt(k), answer: v })),
+          .map(([k, v]) => ({ questionIndex: parseInt(k), answer: v.trim() })),
       });
       showToast({ type: 'success', title: t(`${P}.toasts.submittedTitle`, 'Submitted!'), message: t(`${P}.toasts.submitted`, 'Your vote has been recorded') });
       setVoteVisible(false);
-      setVotedSurveyIds(prev => new Set(prev).add(selectedSurvey.id));
-    } catch (err: any) {
-      showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: err.message || t(`${P}.toasts.submitFailed`, 'Failed to submit vote') });
+      setSurveys(prev => prev.map(s => s.id === selectedSurvey.id ? { ...s, hasVoted: true } : s));
+    } catch (err: unknown) {
+      showToast({ type: 'error', title: t(`${P}.toasts.error`, 'Error'), message: getApiErrorMessage(err) || t(`${P}.toasts.submitFailed`, 'Failed to submit vote') });
+      // 403 (not eligible) / 409 (already voted) mean the cached card state is stale: close and refresh.
+      // 400 may be a fixable answer error, so keep the form open but still refresh (the window may have closed).
+      if (err instanceof ApiError && (err.status === 403 || err.status === 409)) {
+        setVoteVisible(false);
+        load(false);
+      } else if (err instanceof ApiError && err.status === 400) {
+        load(false);
+      }
     } finally {
       setSubmitting(false);
     }
   };
+
+  const windowLabel = (survey: Survey) => {
+    if (!survey.isRecurringDaily || !survey.dailyOpenTime || !survey.dailyCloseTime) return null;
+    // Unconverted legacy surveys store a CLOSED window (the server still evaluates them that way).
+    if (survey.windowSemantics !== 'open') {
+      return `${t(`${P}.closedWindow`, 'Closed from')} ${survey.dailyOpenTime} - ${survey.dailyCloseTime}`;
+    }
+    const overnight = survey.dailyCloseTime < survey.dailyOpenTime;
+    return `${t(`${P}.openWindow`, 'Open')} ${survey.dailyOpenTime} → ${survey.dailyCloseTime}${overnight ? ` (${t(`${P}.nextDay`, 'next day')})` : ''}`;
+  };
+
+  const closedText = (survey: Survey) => {
+    switch (survey.closedReason) {
+      case 'notStarted':
+        return t(`${P}.notStarted`, 'Not started yet');
+      case 'ended':
+        return t(`${P}.ended`, 'Ended');
+      case 'outsideWindow':
+        return survey.dailyOpenTime && survey.windowSemantics === 'open'
+          ? `${t(`${P}.opensAt`, 'Opens at')} ${survey.dailyOpenTime}`
+          : t(`${P}.closedNow`, 'Closed Now');
+      default:
+        return t(`${P}.closedNow`, 'Closed Now');
+    }
+  };
+
+  const ineligibleText = (survey: Survey) =>
+    survey.ineligibleReason === 'PLAN_NOT_ELIGIBLE'
+      ? t(`${P}.notEligiblePlan`, 'Not available for your package')
+      : t(`${P}.notEligibleNoSubscription`, 'Requires an active subscription');
 
   if (loading) return <div className="p-6">{t('common.loading', 'Loading...')}</div>;
 
@@ -138,8 +186,11 @@ export default function StudentVotingPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {surveys.map(survey => {
-            const hasVoted = votedSurveyIds.has(survey.id);
-            const isOpenNow = openSurveyIds.has(survey.id);
+            const hasVoted = survey.hasVoted;
+            const notEligible = !hasVoted && !survey.isEligible;
+            const isClosed = !hasVoted && !notEligible && !survey.isOpenNow;
+            const enabled = canVote(survey);
+            const windowText = windowLabel(survey);
             return (
               <Card key={survey.id} className={`transition-all hover:shadow-lg ${hasVoted ? 'border-green-200 bg-green-50/30' : 'border-orange-200 hover:border-orange-400'}`}>
                 <CardHeader>
@@ -152,7 +203,11 @@ export default function StudentVotingPage() {
                       <span className="flex items-center gap-1 text-green-600 text-sm font-medium bg-green-100 px-3 py-1 rounded-full">
                         <CheckCircle className="w-4 h-4" />{t(`${P}.voted`, 'Voted')}
                       </span>
-                    ) : !isOpenNow ? (
+                    ) : notEligible ? (
+                      <span className="flex items-center gap-1 text-gray-600 text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">
+                        <Lock className="w-4 h-4" />{t(`${P}.notEligible`, 'Not eligible')}
+                      </span>
+                    ) : isClosed ? (
                       <span className="flex items-center gap-1 text-gray-600 text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">
                         <Clock className="w-4 h-4" />{t(`${P}.closedNow`, 'Closed Now')}
                       </span>
@@ -164,26 +219,34 @@ export default function StudentVotingPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
                     <span>{survey.questions.length} {survey.questions.length !== 1 ? t(`${P}.questions`, 'questions') : t(`${P}.question`, 'question')}</span>
                     {survey.isRecurringDaily && (
                       <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{t(`${P}.daily`, 'Daily')}</span>
                     )}
-                    {survey.dailyOpenTime && survey.dailyCloseTime && (
-                      <span>{t(`${P}.closedWindow`, 'Closed from')} {survey.dailyOpenTime} - {survey.dailyCloseTime}</span>
-                    )}
+                    {windowText && <span>{windowText}</span>}
                   </div>
+                  {notEligible && (
+                    <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 mb-3">
+                      {ineligibleText(survey)}.{' '}
+                      <Link href="/dashboard/student/subscription" className="text-orange-600 font-medium hover:underline">
+                        {t(`${P}.viewSubscription`, 'View subscription')}
+                      </Link>
+                    </p>
+                  )}
                   <Button
                     onClick={() => openVote(survey)}
-                    disabled={hasVoted || !isOpenNow}
+                    disabled={!enabled}
                     className="w-full"
-                    variant={hasVoted || !isOpenNow ? 'outline' : 'default'}
+                    variant={enabled ? 'default' : 'outline'}
                   >
                     {hasVoted
-                      ? `✓ ${t(`${P}.alreadyVoted`, 'Already Voted Today')}`
-                      : !isOpenNow
-                        ? t(`${P}.closedNowButton`, 'Voting Closed Now')
-                        : t(`${P}.startVoting`, 'Start Voting')}
+                      ? `✓ ${survey.isRecurringDaily ? t(`${P}.alreadyVoted`, 'Already voted in this period') : t(`${P}.alreadyVotedOnce`, 'Already voted')}`
+                      : notEligible
+                        ? t(`${P}.notEligible`, 'Not eligible')
+                        : isClosed
+                          ? closedText(survey)
+                          : t(`${P}.startVoting`, 'Start Voting')}
                   </Button>
                 </CardContent>
               </Card>
@@ -230,9 +293,9 @@ export default function StudentVotingPage() {
 
                 {q.questionType === 'yes-no' && (
                   <div className="ml-9 flex gap-3">
-                    {['Yes', 'No'].map(opt => (
+                    {choicesFor(q).map((opt, oIdx) => (
                       <button key={opt}
-                        className={`flex-1 py-3 rounded-lg border text-sm font-medium transition-all ${answers[q.index] === opt ? (opt === 'Yes' ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700') : 'hover:bg-gray-50'}`}
+                        className={`flex-1 py-3 rounded-lg border text-sm font-medium transition-all ${answers[q.index] === opt ? (oIdx === 0 ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700') : 'hover:bg-gray-50'}`}
                         onClick={() => setAnswers(prev => ({ ...prev, [q.index]: opt }))}>
                         {opt}
                       </button>
@@ -242,10 +305,10 @@ export default function StudentVotingPage() {
 
                 {q.questionType === 'rating' && (
                   <div className="ml-9 flex gap-2">
-                    {[1, 2, 3, 4, 5].map(n => (
+                    {choicesFor(q).map(n => (
                       <button key={n}
-                        className={`w-12 h-12 rounded-xl border text-lg font-bold transition-all ${answers[q.index] === String(n) ? 'border-orange-500 bg-orange-500 text-white' : 'hover:bg-orange-50'}`}
-                        onClick={() => setAnswers(prev => ({ ...prev, [q.index]: String(n) }))}>
+                        className={`w-12 h-12 rounded-xl border text-lg font-bold transition-all ${answers[q.index] === n ? 'border-orange-500 bg-orange-500 text-white' : 'hover:bg-orange-50'}`}
+                        onClick={() => setAnswers(prev => ({ ...prev, [q.index]: n }))}>
                         {n}
                       </button>
                     ))}
@@ -256,6 +319,7 @@ export default function StudentVotingPage() {
                   <div className="ml-9">
                     <Input
                       value={answers[q.index] || ''}
+                      maxLength={MAX_TEXT_ANSWER_LENGTH}
                       onChange={e => setAnswers(prev => ({ ...prev, [q.index]: e.target.value }))}
                       placeholder={t(`${P}.typeAnswer`, 'Type your answer...')}
                     />

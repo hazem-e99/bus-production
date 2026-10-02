@@ -11,6 +11,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest --testPathIgnorePatterns=e2e-spec",
+    "test:e2e": "jest --testPathPatterns=e2e-spec",
     "seed": "node seed.js",
     "db:init": "node seed.js"
   },

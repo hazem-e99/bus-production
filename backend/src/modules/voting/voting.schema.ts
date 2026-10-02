@@ -41,11 +41,25 @@ export class VotingSurvey {
   @Prop({ default: false })
   isRecurringDaily: boolean;
 
+  /** Start of the daily OPEN window ("HH:mm"). Later than dailyCloseTime = overnight window. */
   @Prop()
   dailyOpenTime: string;
 
+  /** End of the daily OPEN window ("HH:mm", exclusive). */
   @Prop()
   dailyCloseTime: string;
+
+  /**
+   * 'open' once the daily times are stored with OPEN-window meaning. Legacy documents stored a
+   * CLOSED window and have no value; VotingWindowMigrationService converts them at startup.
+   * Intentionally no default, so legacy documents stay detectable.
+   */
+  @Prop()
+  windowSemantics: string;
+
+  /** numericIds of subscription plans whose subscribers may vote. Empty = any active subscriber. */
+  @Prop({ type: [Number], default: [] })
+  eligiblePlanIds: number[];
 
   @Prop({ default: true })
   isActive: boolean;
